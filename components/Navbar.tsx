@@ -26,6 +26,7 @@ export default function Navbar() {
     { name: "Quiénes Somos", path: "/#quienes-somos" },
     { name: "Catálogo", path: "/catalogo" },
     { name: "Servicios", path: "/servicios" },
+    { name: "Blog", path: "/blog" },
     { name: "Contacto", path: "/contacto" },
   ];
 
