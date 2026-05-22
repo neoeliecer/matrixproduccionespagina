@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+:root {
+  --font-heading: var(--font-outfit), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+  --background: #030303;
+  --foreground: #ffffff;
+  --accent: #00ff88;
+  --accent-glow: rgba(0, 255, 136, 0.3);
+  --accent-dark: #00cc6a;
+  --glass-bg: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.05);
+}
+
+@theme {
+  --color-accent: var(--accent);
+  --color-accent-glow: var(--accent-glow);
+  --color-accent-dark: var(--accent-dark);
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+}
+
+/* Force dark background immediately */
+html, body {
+  background-color: var(--background) !important;
+  color: var(--foreground);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: var(--font-body);
+}
+
+/* Hide default cursor on desktop for cinematic custom cursor */
+@media (min-width: 1025px) {
+  * {
+    cursor: none !important;
+  }
+}
+
+/* 🎞 Cinematic Overlays */
+.film-grain {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: url('https://grainy-gradients.vercel.app/noise.svg');
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: overlay;
+}
+
+.vignette {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 100%);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* Custom glowing cursor */
+.custom-cursor {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transition: transform 0.15s ease-out, background 0.3s ease;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.custom-cursor.hover {
+  transform: translate(-50%, -50%) scale(4);
+  background: rgba(0, 255, 136, 0.2);
+  border: 1px solid var(--accent);
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-10px) scale(1.02); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.1); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
