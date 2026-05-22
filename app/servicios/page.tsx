@@ -30,6 +30,18 @@ export default function Servicios() {
       desc: "Especialidad en consultoría y realización de campañas visuales para fundaciones, ONGs y marcas con propósito ecológico o social.",
       features: ["Narrativas de cambio", "Estrategia de distribución", "Documentales medioambientales"],
     },
+    {
+      title: "Creación de Páginas Web",
+      icon: "🌐",
+      desc: "Diseñamos y desarrollamos sitios web corporativos, portafolios interactivos y plataformas a medida con diseños prémium de última generación y animaciones fluidas.",
+      features: ["Desarrollo Next.js & React moderno", "Optimización SEO y rendimiento veloz", "Interfaces interactivas y adaptables (UI/UX)"],
+    },
+    {
+      title: "Desarrollo de Aplicaciones Android",
+      icon: "📱",
+      desc: "Creamos aplicaciones móviles a la medida para Android, combinando potencia técnica con interfaces intuitivas y de alto impacto visual.",
+      features: ["Diseño de interfaz móvil prémium", "Rendimiento fluido y optimizado", "Integración completa de APIs y bases de datos"],
+    },
   ];
 
   return (
@@ -55,7 +67,7 @@ export default function Servicios() {
           </div>
 
           {/* Services Cards */}
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {services.map((service, index) => (
               <div
                 key={index}
