@@ -10,14 +10,24 @@ export default function Blog() {
   const [searchTerm, setSearchTerm] = useState("");
   const [posts, setPosts] = useState(postsData);
   const [selectedPost, setSelectedPost] = useState<typeof postsData[0] | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState("Todos");
 
-  // Filter posts based on search term
-  const filteredPosts = posts.filter(
-    (post) =>
+  // Get unique categories dynamically from loaded posts
+  const categories = ["Todos", ...Array.from(new Set(posts.map((post) => post.category)))];
+
+  // Filter posts based on search term & selected category
+  const filteredPosts = posts.filter((post) => {
+    const matchesSearch =
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      post.category.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "Todos" ||
+      post.category.toLowerCase() === selectedCategory.toLowerCase();
+
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <>
@@ -45,7 +55,7 @@ export default function Blog() {
               </div>
 
               {/* Search bar */}
-              <div className="max-w-md mx-auto mb-16 relative">
+              <div className="max-w-md mx-auto mb-8 relative">
                 <input
                   type="text"
                   placeholder="Buscar artículos..."
@@ -54,6 +64,23 @@ export default function Blog() {
                   className="w-full bg-white/[0.02] border border-white/10 px-6 py-4 rounded-full text-white text-sm focus:outline-none focus:border-accent transition-colors backdrop-blur-md"
                 />
                 <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/30 text-xs">🔍</span>
+              </div>
+
+              {/* Category Filter Chips */}
+              <div className="flex flex-wrap justify-center gap-3 mb-16 max-w-4xl mx-auto px-4">
+                {categories.map((category, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-6 py-2.5 rounded-full text-[10px] font-extrabold uppercase tracking-[2px] transition-all duration-300 border ${
+                      selectedCategory.toLowerCase() === category.toLowerCase()
+                        ? "bg-accent border-accent text-black shadow-[0_0_20px_var(--accent-glow)]"
+                        : "bg-white/[0.02] border-white/5 text-white/40 hover:text-white hover:bg-white/[0.05] hover:border-white/20"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
               </div>
 
               {/* Blog Grid */}
