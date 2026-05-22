@@ -1,0 +1,418 @@
+/*
+Theme Name: Matrix Premium
+Theme URI: https://matrixproducciones.com
+Author: Antigravity
+Description: Un tema premium, oscuro y cinematográfico para Matrix Producciones con animaciones suaves y glassmorphism.
+Version: 1.0
+Text Domain: matrixpremium
+*/
+
+/* 🎨 CSS Variables & Base Styles */
+:root {
+  --bg-color: #0a0a0a;
+  --bg-alt: #121212;
+  --text-main: #f5f5f5;
+  --text-muted: #a0a0a0;
+  --accent: #00ff88;
+  --accent-glow: rgba(0, 255, 136, 0.4);
+  --accent-dark: #00cc6a;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+/* 🔝 Header & Nav */
+header {
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 15px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.logo-container img {
+  height: 40px;
+  object-fit: contain;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.nav-links li a {
+  color: var(--text-main);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-links li a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.nav-links li a:hover::after {
+  width: 100%;
+}
+
+.nav-links li a:hover {
+  color: var(--accent);
+}
+
+.btn-propuesta {
+  background: var(--glass-bg);
+  border: 1px solid var(--accent);
+  padding: 8px 20px;
+  border-radius: 20px;
+  color: var(--accent) !important;
+}
+.btn-propuesta:hover {
+  background: var(--accent) !important;
+  color: var(--bg-color) !important;
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+.btn-propuesta::after { display: none; }
+
+/* 📱 Responsive Menu */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.menu-toggle .bar {
+  width: 25px;
+  height: 3px;
+  background-color: var(--text-main);
+  transition: 0.3s;
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    position: absolute;
+    top: 71px;
+    right: -100%;
+    flex-direction: column;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(10px);
+    width: 250px;
+    height: 100vh;
+    padding-top: 40px;
+    transition: 0.4s ease-in-out;
+    border-left: 1px solid var(--glass-border);
+  }
+  .nav-links.show {
+    right: 0;
+  }
+  .menu-toggle {
+    display: flex;
+  }
+}
+
+/* 📍 Secciones */
+section {
+  padding: 100px 5%;
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.bg-alt {
+  background-color: var(--bg-alt);
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.section-header h2 {
+  font-size: 2.5rem;
+  color: var(--text-main);
+  margin-bottom: 10px;
+}
+.section-header p {
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+/* Hero Section */
+.hero {
+  height: 100vh;
+  position: relative;
+  text-align: center;
+  align-items: center;
+  background: radial-gradient(circle at center, rgba(0,255,136,0.08) 0%, var(--bg-color) 70%);
+}
+
+.hero-content {
+  max-width: 800px;
+  z-index: 2;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: 4rem;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+.highlight {
+  color: var(--accent);
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
+
+.cta-btn {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--bg-color);
+  padding: 15px 30px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+.cta-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 255, 136, 0.6);
+  background: var(--text-main);
+}
+
+/* 🎞 Portafolio */
+.portafolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.portafolio-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 30px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.portafolio-card:hover {
+  transform: translateY(-10px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--accent-glow);
+}
+
+.card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.portafolio-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: var(--text-main);
+}
+
+.portafolio-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* Blog Preview */
+.blog-preview {
+  display: flex;
+  justify-content: center;
+}
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 40px;
+  border-radius: 16px;
+  text-align: center;
+  max-width: 600px;
+}
+.glass-card h3 {
+  color: var(--accent);
+  margin-bottom: 15px;
+  font-size: 1.8rem;
+}
+
+/* ✉️ Formularios */
+.contact-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.glass-form {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 40px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  backdrop-filter: blur(10px);
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.glass-form input, 
+.glass-form textarea {
+  width: 100%;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.glass-form input:focus, 
+.glass-form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.submit-btn {
+  width: 100%;
+  background: var(--text-main);
+  color: var(--bg-color);
+  border: none;
+  padding: 15px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.submit-btn:hover {
+  background: var(--accent);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.highlight-btn {
+  background: var(--accent);
+}
+.highlight-btn:hover {
+  background: var(--text-main);
+}
+
+/* 👣 Footer */
+footer {
+  background: #050505;
+  padding: 40px 5%;
+  border-top: 1px solid var(--glass-border);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-content p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.social-links {
+  display: flex;
+  gap: 15px;
+}
+
+.social-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.social-links a:hover {
+  color: var(--accent);
+}
+
+/* 🎬 Animaciones */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.8rem;
+  }
+  .section-header h2 {
+    font-size: 2rem;
+  }
+}

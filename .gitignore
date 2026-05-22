@@ -1,0 +1,13 @@
+# OS files
+Thumbs.db
+db.properties
+Desktop.ini
+.DS_Store
+
+# Temporary files
+*.tmp
+*.log
+
+# Large media files (optional, but good practice if they are huge)
+# *.mp4
+# *.mov
