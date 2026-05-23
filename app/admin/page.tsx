@@ -8,18 +8,30 @@ import Link from "next/link";
 import postsData from "@/data/posts.json";
 import convocatoriasData from "@/data/convocatorias.json";
 import recommendationsData from "@/data/recommendations.json";
+import eventsData from "@/data/events.json";
 
 export default function Admin() {
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isGeneratingPost, setIsGeneratingPost] = useState(false);
   const [isGeneratingConvocatoria, setIsGeneratingConvocatoria] = useState(false);
-  const [activeTab, setActiveTab] = useState<"blog" | "convocatorias" | "recomendadas">("blog");
+  const [activeTab, setActiveTab] = useState<"blog" | "convocatorias" | "recomendadas" | "eventos">("blog");
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   
   const [posts, setPosts] = useState(postsData);
   const [convocatorias, setConvocatorias] = useState(convocatoriasData);
   const [recommendations, setRecommendations] = useState(recommendationsData);
+  const [events, setEvents] = useState(eventsData);
+
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventLocation, setEventLocation] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTag, setEventTag] = useState("");
+  const [eventImage, setEventImage] = useState("");
+  const [eventGallery, setEventGallery] = useState("");
+  const [eventExcerpt, setEventExcerpt] = useState("");
+  const [eventDescription, setEventDescription] = useState("");
+  const [isAddingEvent, setIsAddingEvent] = useState(false);
 
   const [movieTitle, setMovieTitle] = useState("");
   const [movieDirector, setMovieDirector] = useState("");
@@ -322,6 +334,71 @@ export default function Admin() {
     }
   };
 
+  const handleCreateEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!eventTitle || !eventDescription) {
+      setMessage({ type: "error", text: "Por favor, introduce el título y la descripción del evento." });
+      return;
+    }
+
+    setIsAddingEvent(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch("/api/eventos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password,
+          event: {
+            title: eventTitle,
+            location: eventLocation,
+            date: eventDate,
+            tag: eventTag || "Cultura",
+            image: eventImage,
+            gallery: eventGallery,
+            excerpt: eventExcerpt,
+            description: eventDescription,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setMessage({
+          type: "success",
+          text: `¡Éxito! Evento cultural agregado: "${data.event.title}" y guardado en GitHub. La web se actualizará en breve.`,
+        });
+        setEvents([data.event, ...events]);
+        
+        // Reset form
+        setEventTitle("");
+        setEventLocation("");
+        setEventDate("");
+        setEventTag("");
+        setEventImage("");
+        setEventGallery("");
+        setEventExcerpt("");
+        setEventDescription("");
+        
+        setActiveTab("eventos");
+      } else {
+        setMessage({
+          type: "error",
+          text: data.error || "Ocurrió un error al agregar el evento cultural.",
+        });
+      }
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: "Error de red al conectar con el servidor.",
+      });
+    } finally {
+      setIsAddingEvent(false);
+    }
+  };
+
   return (
     <>
       <CinematicOverlay />
@@ -550,6 +627,10 @@ export default function Admin() {
                         <span className="text-[10px] uppercase tracking-[1px] text-white/40 font-bold">Películas Recomendadas</span>
                         <span className="text-2xl font-black text-white">{recommendations.length}</span>
                       </div>
+                      <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span className="text-[10px] uppercase tracking-[1px] text-white/40 font-bold">Eventos Culturales</span>
+                        <span className="text-2xl font-black text-white">{events.length}</span>
+                      </div>
                       <div>
                         <span className="text-xs uppercase tracking-[2px] text-accent font-bold inline-flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
@@ -596,6 +677,16 @@ export default function Admin() {
                     }`}
                   >
                     Recomendaciones ({recommendations.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("eventos")}
+                    className={`pb-3 text-xs uppercase tracking-[2px] font-extrabold transition-all cursor-pointer ${
+                      activeTab === "eventos"
+                        ? "text-accent border-b-2 border-accent"
+                        : "text-white/40 hover:text-white"
+                    }`}
+                  >
+                    Eventos ({events.length})
                   </button>
                 </div>
 
@@ -777,6 +868,151 @@ export default function Admin() {
                             </div>
                             <a
                               href="/recomendadas"
+                              target="_blank"
+                              className="text-white/40 hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
+                            >
+                              Ver
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : activeTab === "eventos" ? (
+                    <div className="grid md:grid-cols-2 gap-8 p-8 animate-fade-in">
+                      {/* Left: Form to Add Event */}
+                      <form onSubmit={handleCreateEvent} className="space-y-6 md:border-r md:border-white/5 md:pr-8">
+                        <h3 className="text-lg font-extrabold uppercase text-white tracking-wider mb-4">
+                          Publicar Nuevo Evento Cultural
+                        </h3>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Título del Evento *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Ej. Festival de Cine de Cali 2026"
+                            value={eventTitle}
+                            onChange={(e) => setEventTitle(e.target.value)}
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent w-full"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Fecha *</label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="Ej. 12 de Octubre, 2026"
+                              value={eventDate}
+                              onChange={(e) => setEventDate(e.target.value)}
+                              className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Ubicación / Lugar *</label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="Ej. Bulevar del Río, Cali"
+                              value={eventLocation}
+                              onChange={(e) => setEventLocation(e.target.value)}
+                              className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Categoría / Etiqueta *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Ej. Cine, Teatro, Música, Arte"
+                            value={eventTag}
+                            onChange={(e) => setEventTag(e.target.value)}
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Resumen Corto *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Breve resumen para el catálogo..."
+                            value={eventExcerpt}
+                            onChange={(e) => setEventExcerpt(e.target.value)}
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Descripción Detallada * (Soporta salto de línea y Markdown básico)</label>
+                          <textarea
+                            required
+                            rows={5}
+                            placeholder="Escribe la crónica completa, actividades destacadas, horarios, etc..."
+                            value={eventDescription}
+                            onChange={(e) => setEventDescription(e.target.value)}
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-none"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Imagen de Portada (URL Unsplash o similar)</label>
+                          <input
+                            type="text"
+                            placeholder="https://images.unsplash.com/photo-..."
+                            value={eventImage}
+                            onChange={(e) => setEventImage(e.target.value)}
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Galería de Fotos Adicionales (URLs separadas por comas)</label>
+                          <textarea
+                            rows={3}
+                            placeholder="https://image1.jpg, https://image2.jpg, ..."
+                            value={eventGallery}
+                            onChange={(e) => setEventGallery(e.target.value)}
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-none"
+                          />
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={isAddingEvent}
+                          className={`w-full text-black font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded transition-all duration-300 cursor-pointer ${
+                            isAddingEvent
+                              ? "bg-white/20 text-white/50 cursor-not-allowed border border-white/10"
+                              : "bg-accent hover:bg-[#00cc6a] shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] hover:-translate-y-0.5 active:translate-y-0"
+                          }`}
+                        >
+                          {isAddingEvent ? "Publicando..." : "Publicar Evento Cultural"}
+                        </button>
+                      </form>
+
+                      {/* Right: List of Cultural Events */}
+                      <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2">
+                        <h3 className="text-lg font-extrabold uppercase text-white tracking-wider mb-4">
+                          Eventos Registrados ({events.length})
+                        </h3>
+                        {events.map((item, idx) => (
+                          <div key={idx} className="border border-white/5 p-4 rounded-xl bg-white/[0.01] hover:bg-white/[0.02] transition-colors flex justify-between items-center gap-4">
+                            <div>
+                              <span className="text-[8px] bg-accent/10 border border-accent/20 px-2 py-0.5 rounded text-accent uppercase font-bold tracking-widest">
+                                {item.tag}
+                              </span>
+                              <h4 className="text-sm font-extrabold uppercase text-white tracking-wide mt-2">
+                                {item.title}
+                              </h4>
+                              <p className="text-[10px] text-white/40 mt-1 uppercase font-bold">
+                                📍 {item.location} | 🗓️ {item.date}
+                              </p>
+                            </div>
+                            <a
+                              href="/eventos"
                               target="_blank"
                               className="text-white/40 hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
                             >
