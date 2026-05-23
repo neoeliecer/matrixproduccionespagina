@@ -1,0 +1,22 @@
+[
+  {
+    "title": "En Busca de la Felicidad",
+    "director": "Gabriele Muccino",
+    "year": "2006",
+    "value": "Resiliencia & Paternidad",
+    "image": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800",
+    "excerpt": "Una extraordinaria lección sobre la perseverancia y el amor incondicional de un padre frente a la adversidad extrema.",
+    "desc": "Esta película narra la lucha real de Chris Gardner por salir adelante junto a su pequeño hijo. Destaca de forma impecable el valor de la resiliencia, la fuerza de voluntad ante situaciones extremas de exclusión y la importancia de proteger los sueños propios y de quienes amamos. Una obra de gran impacto inspirador.",
+    "trailerUrl": "https://www.youtube.com/watch?v=DMMOLaZ5kio"
+  },
+  {
+    "title": "Cadena de Favores",
+    "director": "Mimi Leder",
+    "year": "2000",
+    "value": "Solidaridad & Empatía",
+    "image": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=800",
+    "excerpt": "Una inspiradora propuesta que demuestra cómo una pequeña acción de bondad desinteresada puede transformar el mundo entero.",
+    "desc": "A través de la idea de un niño de 'devolver favores' a tres personas en lugar de pagar el favor recibido, la película nos invita a reflexionar sobre la empatía y nuestra capacidad de influir positivamente en nuestro entorno social. Es una oda a la solidaridad comunitaria.",
+    "trailerUrl": "https://www.youtube.com/watch?v=845vjYQ52V8"
+  }
+]
