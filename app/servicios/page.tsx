@@ -42,6 +42,18 @@ export default function Servicios() {
       desc: "Creamos aplicaciones móviles a la medida para Android, combinando potencia técnica con interfaces intuitivas y de alto impacto visual.",
       features: ["Diseño de interfaz móvil prémium", "Rendimiento fluido y optimizado", "Integración completa de APIs y bases de datos"],
     },
+    {
+      title: "Registro Fotográfico de Eventos",
+      icon: "📸",
+      desc: "Capturamos los momentos más memorables, la atmósfera y la emoción de tus eventos corporativos, culturales y artísticos con calidad fotográfica profesional y retoque de alta gama.",
+      features: ["Fotografía profesional de alta resolución", "Retoque digital y colorización artística", "Entrega rápida en galería digital protegida"],
+    },
+    {
+      title: "Entrevistas para Redes",
+      icon: "🎤",
+      desc: "Diseñamos y grabamos cápsulas de video dinámicas y entrevistas de formato corto (Reels, TikTok, Shorts), optimizadas para generar alto engagement en tus canales digitales.",
+      features: ["Formatos dinámicos adaptados para móvil", "Edición ágil y subtitulado moderno integrado", "Dirección y guionaje de preguntas de impacto"],
+    },
   ];
 
   return (
