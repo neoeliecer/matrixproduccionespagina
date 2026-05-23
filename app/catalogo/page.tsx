@@ -13,6 +13,7 @@ export default function Catalogo() {
       duration: "45 min",
       year: "2025",
       image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800",
+      videoUrl: "#",
     },
     {
       title: "Mandalas",
@@ -21,6 +22,7 @@ export default function Catalogo() {
       duration: "30 min",
       year: "2024",
       image: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&q=80&w=800",
+      videoUrl: "https://www.facebook.com/reel/2918112118361200",
     },
   ];
 
@@ -79,9 +81,14 @@ export default function Catalogo() {
                     </p>
                   </div>
 
-                  <button className="border border-white/10 hover:border-accent bg-white/5 hover:bg-accent hover:text-black font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded-[2px] w-full transition-all duration-300">
+                  <a
+                    href={film.videoUrl}
+                    target={film.videoUrl !== "#" ? "_blank" : undefined}
+                    rel={film.videoUrl !== "#" ? "noopener noreferrer" : undefined}
+                    className="border border-white/10 hover:border-accent bg-white/5 hover:bg-accent hover:text-black font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded-[2px] w-full transition-all duration-300 text-center block"
+                  >
                     Ver Trailer
-                  </button>
+                  </a>
                 </div>
               </article>
             ))}
