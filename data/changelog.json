@@ -1,0 +1,38 @@
+[
+  {
+    "date": "23 de Mayo, 2026",
+    "time": "07:06 AM",
+    "title": "Generador Cine con Propósito en Menú de Acciones Rápidas",
+    "description": "Se reestructuró el Dashboard del panel de administración a 4 columnas y se implementó un generador automático de películas que permite ingresar el título y una opinión o enfoque específico. La IA redacta la reseña e incorpora el punto de vista del director, guardándola y publicándola directamente al instante en la sección visible de Cine con Propósito."
+  },
+  {
+    "date": "23 de Mayo, 2026",
+    "time": "00:42 AM",
+    "title": "Sistema de Compartición de Historias con Enlaces Dinámicos",
+    "description": "Se integró un widget de compartición premium en la lectura de posts de blog con botones personalizados para WhatsApp, Facebook, Twitter y copiado al portapapeles. Adicionalmente, se configuró un sistema de parámetros en la URL (?post=) que permite que cualquier enlace compartido redirija y abra de forma automática el artículo exacto en la pantalla del lector."
+  },
+  {
+    "date": "23 de Mayo, 2026",
+    "time": "00:22 AM",
+    "title": "Lanzamiento de Cartelera de Convocatorias & Fomento",
+    "description": "Se desarrolló la sección completa de Convocatorias para fomento audiovisual, castings y becas en Colombia y el mundo. Incluye un crawler automatizado alimentado por feeds RSS sectoriales y curado con Groq AI que filtra duplicados de forma inteligente. En el front-end se implementó un buscador integrado y filtros de categoría."
+  },
+  {
+    "date": "23 de Mayo, 2026",
+    "time": "00:15 AM",
+    "title": "Lanzamiento de Sección Cine con Propósito",
+    "description": "Se diseñó e implementó la sección /recomendadas para destacar películas que promueven valores positivos (resiliencia, empatía, solidaridad). Cuenta con un diseño ultra-premium de tarjetas con efecto cristal, iluminación neón y botones para visualizar trailers oficiales en YouTube."
+  },
+  {
+    "date": "22 de Mayo, 2026",
+    "time": "23:56 PM",
+    "title": "Sistema de Newsletter Automático con Brevo",
+    "description": "Se implementó el sistema de suscripciones cinematográficas en el blog con base de datos gratuita en GitHub y un endpoint de envío automático que despacha un correo electrónico HTML de diseño oscuro premium a todos los suscriptores activos de forma segura y privada (BCC) cada vez que el administrador publica una nueva entrada."
+  },
+  {
+    "date": "22 de Mayo, 2026",
+    "time": "23:24 PM",
+    "title": "Refinamiento Estético de Marca y Fondo Hero",
+    "description": "Se actualizó la imagen de fondo del Hero del sitio con la imagen personalizada del árbol tecnológico de neón (petición de Eliecer) y se adaptaron las métricas de trayectoria de Matrix Producciones a los valores reales: 3 años de trayectoria y 2 historias filmadas."
+  }
+]

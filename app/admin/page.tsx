@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CinematicOverlay from "@/components/CinematicOverlay";
 import { useState } from "react";
+import Link from "next/link";
 import postsData from "@/data/posts.json";
 import convocatoriasData from "@/data/convocatorias.json";
 import recommendationsData from "@/data/recommendations.json";
@@ -388,12 +389,20 @@ export default function Admin() {
                   </h1>
                 </div>
 
-                <button
-                  onClick={() => setIsLoggedIn(false)}
-                  className="text-white/40 hover:text-white text-xs uppercase tracking-[2px] font-bold border border-white/10 hover:border-white/30 px-4 py-2 rounded transition-colors cursor-pointer"
-                >
-                  Salir del Panel
-                </button>
+                <div className="flex gap-4">
+                  <Link
+                    href="/diario"
+                    className="text-accent hover:text-white text-xs uppercase tracking-[2px] font-bold border border-accent/20 hover:border-accent/40 bg-accent/5 px-4 py-2 rounded transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-[0_0_15px_rgba(0,255,136,0.1)]"
+                  >
+                    📘 Diario de Cambios
+                  </Link>
+                  <button
+                    onClick={() => setIsLoggedIn(false)}
+                    className="text-white/40 hover:text-white text-xs uppercase tracking-[2px] font-bold border border-white/10 hover:border-white/30 px-4 py-2 rounded transition-colors cursor-pointer"
+                  >
+                    Salir del Panel
+                  </button>
+                </div>
               </div>
 
               {message && (
