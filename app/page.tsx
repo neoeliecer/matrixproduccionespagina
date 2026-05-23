@@ -23,8 +23,8 @@ export default function Home() {
   }, []);
 
   const stats = [
-    { number: "10+", label: "Años De Trayectoria" },
-    { number: "50+", label: "Historias Filmadas" },
+    { number: "3", label: "Años De Trayectoria" },
+    { number: "2", label: "Historias Filmadas" },
     { number: "100%", label: "Impacto Positivo" },
   ];
 
