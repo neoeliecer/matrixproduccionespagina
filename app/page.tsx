@@ -30,16 +30,16 @@ export default function Home() {
 
   const team = [
     {
-      name: "Eliecer",
+      name: "Eliecer Rojas",
       role: "Productor & Creativo Audiovisual",
       image: "/img/equipo/eliecer.jpg",
       bio: "Apasionado por el cine y la narrativa audiovisual de transformación social y ambiental.",
     },
     {
-      name: "Mamá",
-      role: "Asesora General & Co-fundadora",
+      name: "Mileidy Ruiz",
+      role: "Directora de Arte",
       image: "/img/equipo/mama.jpg",
-      bio: "Aportando la sabiduría, amor y guía en cada propuesta y paso de nuestra productora.",
+      bio: "Directora de arte, egresada de la Escuela de Arte Arturo Michelena en Valencia, Venezuela. Aporta una visión conceptual y estética única en cada producción.",
     },
   ];
 
