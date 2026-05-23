@@ -21,7 +21,7 @@ export default function Catalogo() {
       desc: "Una mirada profunda al arte de los mandalas en Cali como herramienta de sanación espiritual, paz interior y transformación personal.",
       duration: "30 min",
       year: "2024",
-      image: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&q=80&w=800",
+      image: "/img/mandalas-cover.jpg",
       videoUrl: "https://www.facebook.com/reel/2918112118361200",
     },
   ];
