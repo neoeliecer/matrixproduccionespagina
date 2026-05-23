@@ -45,6 +45,22 @@ export default function Blog() {
     }
   };
 
+  // Load post from query parameter on load
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const postTitle = params.get("post");
+      if (postTitle) {
+        const foundPost = postsData.find(
+          (p) => p.title.toLowerCase().trim() === postTitle.toLowerCase().trim()
+        );
+        if (foundPost) {
+          setSelectedPost(foundPost);
+        }
+      }
+    }
+  }, []);
+
   // Get unique categories dynamically from loaded posts
   const categories = ["Todos", ...Array.from(new Set(posts.map((post) => post.category)))];
 
@@ -152,8 +168,13 @@ export default function Blog() {
                         <div className="pt-4 border-t border-white/5 flex justify-between items-center text-[10px] uppercase font-extrabold tracking-[2px]">
                           <span className="text-white/40">Por: {post.author || "Eliecer"}</span>
                           <button
-                            onClick={() => setSelectedPost(post)}
-                            className="text-accent group-hover:text-white transition-colors"
+                            onClick={() => {
+                              setSelectedPost(post);
+                              if (typeof window !== "undefined") {
+                                window.history.pushState({}, "", `/blog?post=${encodeURIComponent(post.title)}`);
+                              }
+                            }}
+                            className="text-accent group-hover:text-white transition-colors cursor-pointer"
                           >
                             Leer Más →
                           </button>
@@ -172,8 +193,13 @@ export default function Blog() {
             /* Single Post Detail Mode */
             <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
               <button
-                onClick={() => setSelectedPost(null)}
-                className="text-accent hover:text-white text-xs uppercase tracking-[3px] font-bold flex items-center gap-2 mb-6"
+                onClick={() => {
+                  setSelectedPost(null);
+                  if (typeof window !== "undefined") {
+                    window.history.pushState({}, "", "/blog");
+                  }
+                }}
+                className="text-accent hover:text-white text-xs uppercase tracking-[3px] font-bold flex items-center gap-2 mb-6 cursor-pointer"
               >
                 ← Volver al blog
               </button>
@@ -213,6 +239,74 @@ export default function Blog() {
                   }
                   return <p key={pIdx}>{para}</p>;
                 })}
+              </div>
+
+              {/* Share widget */}
+              <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                <span className="text-[10px] uppercase tracking-[3px] font-bold text-white/40">
+                  Compartir esta historia:
+                </span>
+                <div className="flex flex-wrap gap-3">
+                  {/* WhatsApp */}
+                  <a
+                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                      `Mira este artículo de Matrix Producciones: "${selectedPost.title}" en ${
+                        typeof window !== "undefined"
+                          ? window.location.origin + "/blog?post=" + encodeURIComponent(selectedPost.title)
+                          : ""
+                      }`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 bg-[#25D366]/10 hover:bg-[#25D366] text-[#25D366] hover:text-black border border-[#25D366]/30 hover:border-[#25D366] px-4 py-2.5 rounded text-[10px] uppercase font-extrabold tracking-[2px] transition-all duration-300 shadow-[0_0_15px_rgba(37,211,102,0.05)] hover:shadow-[0_0_15px_rgba(37,211,102,0.2)] cursor-pointer"
+                  >
+                    💬 WhatsApp
+                  </a>
+
+                  {/* Facebook */}
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                      typeof window !== "undefined"
+                        ? window.location.origin + "/blog?post=" + encodeURIComponent(selectedPost.title)
+                        : ""
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 bg-[#1877F2]/10 hover:bg-[#1877F2] text-[#1877F2] hover:text-white border border-[#1877F2]/30 hover:border-[#1877F2] px-4 py-2.5 rounded text-[10px] uppercase font-extrabold tracking-[2px] transition-all duration-300 shadow-[0_0_15px_rgba(24,119,242,0.05)] hover:shadow-[0_0_15px_rgba(24,119,242,0.2)] cursor-pointer"
+                  >
+                    🔵 Facebook
+                  </a>
+
+                  {/* Twitter / X */}
+                  <a
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                      `Mira este artículo de Matrix Producciones: "${selectedPost.title}"`
+                    )}&url=${encodeURIComponent(
+                      typeof window !== "undefined"
+                        ? window.location.origin + "/blog?post=" + encodeURIComponent(selectedPost.title)
+                        : ""
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 bg-white/5 hover:bg-white text-white hover:text-black border border-white/10 hover:border-white px-4 py-2.5 rounded text-[10px] uppercase font-extrabold tracking-[2px] transition-all duration-300 cursor-pointer"
+                  >
+                    🐦 Twitter / X
+                  </a>
+
+                  {/* Copy Link button */}
+                  <button
+                    onClick={() => {
+                      if (typeof navigator !== "undefined" && typeof window !== "undefined") {
+                        const copyUrl = window.location.origin + "/blog?post=" + encodeURIComponent(selectedPost.title);
+                        navigator.clipboard.writeText(copyUrl);
+                        alert("¡Enlace copiado al portapapeles con éxito!");
+                      }
+                    }}
+                    className="flex items-center gap-2 bg-accent/10 hover:bg-accent text-accent hover:text-black border border-accent/20 hover:border-accent px-4 py-2.5 rounded text-[10px] uppercase font-extrabold tracking-[2px] transition-all duration-300 shadow-[0_0_15px_rgba(0,255,136,0.05)] hover:shadow-[0_0_15px_var(--accent-glow)] cursor-pointer"
+                  >
+                    🔗 Copiar Enlace
+                  </button>
+                </div>
               </div>
             </div>
           )}
