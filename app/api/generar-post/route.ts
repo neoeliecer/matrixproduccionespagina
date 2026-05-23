@@ -309,6 +309,79 @@ Debes responder ÚNICAMENTE con un objeto JSON válido con los siguientes campos
       );
     }
 
+    // 5. Envío de Boletín Automático a Suscriptores mediante Brevo REST API
+    if (groqApiKey && githubToken) {
+      const brevoApiKey = process.env.BREVO_API_KEY;
+      if (brevoApiKey) {
+        try {
+          const subscribersUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/data/subscribers.json`;
+          const getSubsResponse = await fetch(subscribersUrl, {
+            headers: {
+              Authorization: `token ${githubToken}`,
+              Accept: "application/vnd.github.v3+json",
+              "User-Agent": "NextJS-Blog-CMS",
+            },
+            cache: "no-store",
+          });
+
+          if (getSubsResponse.ok) {
+            const subsData = await getSubsResponse.json();
+            const decodedSubs = Buffer.from(subsData.content, "base64").toString("utf-8");
+            const subscribers: string[] = JSON.parse(decodedSubs);
+
+            if (subscribers.length > 0) {
+              // Enviar correos en copia oculta (BCC) para proteger la privacidad de todos
+              const sendEmailResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
+                method: "POST",
+                headers: {
+                  "api-key": brevoApiKey,
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                },
+                body: JSON.stringify({
+                  sender: { name: "Matrix Producciones", email: "info@matrixproducciones.com" },
+                  to: [{ email: "info@matrixproducciones.com", name: "Boletín Matrix" }],
+                  bcc: subscribers.map((email) => ({ email })),
+                  subject: `🎬 Nuevo artículo publicado: ${generatedPost.title}`,
+                  htmlContent: `
+                    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #030303; border: 1px solid #1a1a1a; border-radius: 16px; overflow: hidden; color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                      <div style="background-color: #080808; padding: 28px; text-align: center; border-bottom: 1px solid #111111;">
+                        <h1 style="color: #00ff88; font-size: 18px; text-transform: uppercase; letter-spacing: 5px; margin: 0; font-weight: bold;">Matrix Producciones</h1>
+                        <span style="color: #666666; font-size: 9px; text-transform: uppercase; letter-spacing: 3px; display: block; margin-top: 5px;">Boletín Cinematográfico</span>
+                      </div>
+                      <div style="padding: 32px 24px;">
+                        <span style="background-color: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.2); padding: 4px 12px; border-radius: 4px; font-size: 9px; font-weight: bold; text-transform: uppercase; color: #00ff88; letter-spacing: 2px; display: inline-block; margin-bottom: 16px;">${generatedPost.category || "Novedades"}</span>
+                        <h1 style="font-size: 22px; line-height: 1.3; font-weight: 800; margin: 0 0 16px 0; color: #ffffff; text-transform: uppercase; letter-spacing: 1px;">${generatedPost.title}</h1>
+                        <p style="font-size: 14px; color: #888888; line-height: 1.6; font-weight: 300; margin-bottom: 24px;">${generatedPost.excerpt}</p>
+                        ${generatedPost.image ? `<img src="${generatedPost.image}" alt="${generatedPost.title}" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 24px; border: 1px solid #1a1a1a;" />` : ""}
+                        <div style="text-align: center; margin-top: 32px; margin-bottom: 16px;">
+                          <a href="https://matrixproducciones.com/blog" style="background-color: #00ff88; color: #000000; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 3px; padding: 16px 32px; border-radius: 2px; text-decoration: none; display: inline-block;">Leer Artículo Completo →</a>
+                        </div>
+                      </div>
+                      <div style="background-color: #080808; padding: 20px; text-align: center; font-size: 10px; color: #444444; border-top: 1px solid #111111; line-height: 1.6;">
+                        &copy; ${new Date().getFullYear()} Matrix Producciones. Todos los derechos reservados.<br />
+                        Cine Documental de Impacto Positivo y Medioambiental.<br />
+                        Estás recibiendo este correo porque te suscribiste a nuestro boletín en matrixproducciones.com.
+                      </div>
+                    </div>
+                  `
+                })
+              });
+
+              if (sendEmailResponse.ok) {
+                console.log(`Boletín enviado con éxito a ${subscribers.length} suscriptores.`);
+              } else {
+                const mailErr = await sendEmailResponse.text();
+                console.error("Error enviando boletín a través de Brevo:", mailErr);
+              }
+            }
+          }
+        } catch (mailError) {
+          console.error("Excepción en el proceso de envío de boletín:", mailError);
+        }
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: "Artículo generado e indexado en GitHub con éxito.",

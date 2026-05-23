@@ -12,6 +12,39 @@ export default function Blog() {
   const [selectedPost, setSelectedPost] = useState<typeof postsData[0] | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
 
+  const [emailInput, setEmailInput] = useState("");
+  const [subStatus, setSubStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [subMessage, setSubMessage] = useState("");
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailInput || !emailInput.includes("@")) {
+      setSubStatus("error");
+      setSubMessage("Por favor, ingresa un correo electrónico válido.");
+      return;
+    }
+    setSubStatus("loading");
+    try {
+      const res = await fetch("/api/suscribir", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailInput }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSubStatus("success");
+        setSubMessage(data.message || "¡Gracias por suscribirte al boletín!");
+        setEmailInput("");
+      } else {
+        setSubStatus("error");
+        setSubMessage(data.error || "Ocurrió un error. Inténtalo de nuevo.");
+      }
+    } catch (err) {
+      setSubStatus("error");
+      setSubMessage("Error de conexión con el servidor.");
+    }
+  };
+
   // Get unique categories dynamically from loaded posts
   const categories = ["Todos", ...Array.from(new Set(posts.map((post) => post.category)))];
 
@@ -183,6 +216,59 @@ export default function Blog() {
               </div>
             </div>
           )}
+
+          {/* ================= NEWSLETTER SUBSCRIPTION SECTION ================= */}
+          <div className="mt-32 max-w-4xl mx-auto border-t border-white/5 pt-20">
+            <div className="bg-white/[0.01] border border-white/5 rounded-3xl p-8 md:p-16 backdrop-blur-xl relative overflow-hidden shadow-2xl group hover:border-accent/20 transition-all duration-500">
+              {/* Decorative internal radial glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-accent/5 rounded-full blur-[80px] pointer-events-none" />
+
+              <div className="relative z-10 text-center space-y-6 max-w-xl mx-auto">
+                <span className="text-accent text-[10px] uppercase tracking-[4px] font-extrabold block">
+                  Boletín Cinematográfico
+                </span>
+                <h3 className="text-2xl md:text-4xl font-extrabold uppercase tracking-wide text-white leading-tight">
+                  Suscríbete Al Lente de Matrix
+                </h3>
+                <p className="text-white/40 text-xs md:text-sm font-light leading-relaxed">
+                  Recibe en tu correo electrónico análisis profundos, historias exclusivas detrás de cámaras y actualizaciones automáticas cada vez que la IA publique un nuevo artículo.
+                </p>
+
+                <form onSubmit={handleSubscribe} className="pt-6 flex flex-col sm:flex-row gap-4">
+                  <input
+                    type="email"
+                    required
+                    placeholder="Tu correo electrónico..."
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    disabled={subStatus === "loading"}
+                    className="flex-1 bg-white/[0.02] border border-white/10 px-6 py-4 rounded-full text-white text-sm focus:outline-none focus:border-accent disabled:opacity-50 transition-colors backdrop-blur-md"
+                  />
+                  <button
+                    type="submit"
+                    disabled={subStatus === "loading"}
+                    className="bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-[10px] uppercase tracking-[3px] px-8 py-4 sm:py-0 rounded-full transition-all duration-300 shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] disabled:opacity-50 disabled:shadow-none shrink-0"
+                  >
+                    {subStatus === "loading" ? "Procesando..." : "Suscribirse"}
+                  </button>
+                </form>
+
+                {subStatus !== "idle" && (
+                  <p
+                    className={`text-xs font-bold uppercase tracking-widest pt-4 animate-fade-in ${
+                      subStatus === "success"
+                        ? "text-accent drop-shadow-[0_0_10px_var(--accent-glow)]"
+                        : subStatus === "error"
+                        ? "text-red-500"
+                        : "text-white/40"
+                    }`}
+                  >
+                    {subMessage}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
