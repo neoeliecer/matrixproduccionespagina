@@ -29,6 +29,7 @@ export default function Admin() {
   const [movieImage, setMovieImage] = useState("");
   const [movieTrailer, setMovieTrailer] = useState("");
   const [isAddingMovie, setIsAddingMovie] = useState(false);
+  const [isAutocompleting, setIsAutocompleting] = useState(false);
 
   const handleCreateRecommendation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +93,58 @@ export default function Admin() {
       });
     } finally {
       setIsAddingMovie(false);
+    }
+  };
+
+  const handleAutocompleteMovie = async () => {
+    if (!movieTitle.trim()) {
+      setMessage({ type: "error", text: "Por favor, escribe el título de la película primero para poder autocompletar." });
+      return;
+    }
+
+    setIsAutocompleting(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch("/api/recomendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password,
+          action: "autocompletar",
+          title: movieTitle,
+        }),
+      });
+
+      const resData = await response.json();
+
+      if (response.ok && resData.success && resData.data) {
+        const { director, year, value, excerpt, desc, image, trailerUrl } = resData.data;
+        if (director) setMovieDirector(director);
+        if (year) setMovieYear(year);
+        if (value) setMovieValue(value);
+        if (excerpt) setMovieExcerpt(excerpt);
+        if (desc) setMovieDesc(desc);
+        if (image) setMovieImage(image);
+        if (trailerUrl) setMovieTrailer(trailerUrl);
+
+        setMessage({
+          type: "success",
+          text: `¡Éxito! Datos autocompletados para "${movieTitle}". Puedes revisarlos y editarlos antes de publicar.`,
+        });
+      } else {
+        setMessage({
+          type: "error",
+          text: resData.error || "Ocurrió un error al autocompletar con IA.",
+        });
+      }
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: "Error de red al conectar con el servicio de autocompletado.",
+      });
+    } finally {
+      setIsAutocompleting(false);
     }
   };
 
@@ -404,14 +457,28 @@ export default function Admin() {
 
                         <div className="flex flex-col gap-2">
                           <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Título de la Película *</label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="Ej. La sociedad de la nieve"
-                            value={movieTitle}
-                            onChange={(e) => setMovieTitle(e.target.value)}
-                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
-                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              required
+                              placeholder="Ej. La sociedad de la nieve"
+                              value={movieTitle}
+                              onChange={(e) => setMovieTitle(e.target.value)}
+                              className="flex-1 bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleAutocompleteMovie}
+                              disabled={isAutocompleting || !movieTitle.trim()}
+                              className={`px-4 py-3 rounded text-[10px] uppercase font-extrabold tracking-widest text-black transition-all ${
+                                isAutocompleting || !movieTitle.trim()
+                                  ? "bg-white/10 text-white/40 cursor-not-allowed border border-white/5"
+                                  : "bg-accent hover:bg-[#00cc6a] hover:shadow-[0_0_15px_var(--accent-glow)] cursor-pointer"
+                              }`}
+                            >
+                              {isAutocompleting ? "Cargando IA..." : "✨ Autocompletar con IA"}
+                            </button>
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
