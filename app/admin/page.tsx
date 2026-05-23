@@ -32,6 +32,7 @@ export default function Admin() {
   const [isAddingMovie, setIsAddingMovie] = useState(false);
   const [isAutocompleting, setIsAutocompleting] = useState(false);
   const [movieUserOpinion, setMovieUserOpinion] = useState("");
+  const [movieCategory, setMovieCategory] = useState("Autoayuda");
   const [dashMovieTitle, setDashMovieTitle] = useState("");
   const [dashMovieOpinion, setDashMovieOpinion] = useState("");
   const [isDashGeneratingMovie, setIsDashGeneratingMovie] = useState(false);
@@ -57,6 +58,7 @@ export default function Admin() {
             director: movieDirector,
             year: movieYear,
             value: movieValue || "Valores Positivos",
+            category: movieCategory,
             excerpt: movieExcerpt,
             desc: movieDesc,
             image: movieImage,
@@ -84,6 +86,7 @@ export default function Admin() {
         setMovieImage("");
         setMovieTrailer("");
         setMovieUserOpinion("");
+        setMovieCategory("Autoayuda");
         
         setActiveTab("recomendadas");
       } else {
@@ -126,9 +129,11 @@ export default function Admin() {
       const resData = await response.json();
 
       if (response.ok && resData.success && resData.data) {
-        const { director, year, value, excerpt, desc, image, trailerUrl } = resData.data;
+        const { director, year, value, category, excerpt, desc, image, trailerUrl } = resData.data;
         if (director) setMovieDirector(director);
         if (year) setMovieYear(year);
+        if (value) setMovieValue(value);
+        if (category) setMovieCategory(category);
         if (value) setMovieValue(value);
         if (excerpt) setMovieExcerpt(excerpt);
         if (desc) setMovieDesc(desc);
@@ -202,6 +207,7 @@ export default function Admin() {
             director: generatedMovie.director,
             year: generatedMovie.year,
             value: generatedMovie.value || "Valores Positivos",
+            category: generatedMovie.category || "Autoayuda",
             excerpt: generatedMovie.excerpt,
             desc: generatedMovie.desc,
             image: generatedMovie.image,
@@ -673,6 +679,22 @@ export default function Admin() {
                             onChange={(e) => setMovieValue(e.target.value)}
                             className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
                           />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Categoría / Género *</label>
+                          <select
+                            value={movieCategory}
+                            onChange={(e) => setMovieCategory(e.target.value)}
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent w-full h-[46px]"
+                          >
+                            <option value="Documentales" className="bg-[#030303] text-white">Documentales</option>
+                            <option value="Espirituales" className="bg-[#030303] text-white">Espirituales</option>
+                            <option value="Ambientales" className="bg-[#030303] text-white">Ambientales</option>
+                            <option value="Biográficas" className="bg-[#030303] text-white">Biográficas</option>
+                            <option value="Historia" className="bg-[#030303] text-white">Historia</option>
+                            <option value="Autoayuda" className="bg-[#030303] text-white">Autoayuda</option>
+                          </select>
                         </div>
 
                         <div className="flex flex-col gap-2">
