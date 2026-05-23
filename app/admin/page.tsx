@@ -30,6 +30,7 @@ export default function Admin() {
   const [movieTrailer, setMovieTrailer] = useState("");
   const [isAddingMovie, setIsAddingMovie] = useState(false);
   const [isAutocompleting, setIsAutocompleting] = useState(false);
+  const [movieUserOpinion, setMovieUserOpinion] = useState("");
 
   const handleCreateRecommendation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,6 +79,7 @@ export default function Admin() {
         setMovieDesc("");
         setMovieImage("");
         setMovieTrailer("");
+        setMovieUserOpinion("");
         
         setActiveTab("recomendadas");
       } else {
@@ -113,6 +115,7 @@ export default function Admin() {
           password,
           action: "autocompletar",
           title: movieTitle,
+          userOpinion: movieUserOpinion,
         }),
       });
 
@@ -479,6 +482,17 @@ export default function Admin() {
                               {isAutocompleting ? "Cargando IA..." : "✨ Autocompletar con IA"}
                             </button>
                           </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Tu Enfoque / Opinión Personal (Opcional - Para guiar a la IA)</label>
+                          <input
+                            type="text"
+                            placeholder="Ej. Enfocar en la solidaridad grupal y cómo el amor familiar les dio fuerzas"
+                            value={movieUserOpinion}
+                            onChange={(e) => setMovieUserOpinion(e.target.value)}
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
+                          />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">

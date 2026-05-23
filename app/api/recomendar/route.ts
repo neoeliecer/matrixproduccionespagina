@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { password, action, title, recommendation } = body;
+    const { password, action, title, userOpinion, recommendation } = body;
 
     const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
     const githubToken = process.env.GITHUB_TOKEN;
@@ -27,6 +27,8 @@ export async function POST(request: Request) {
       const systemPrompt = `Eres un asistente experto en cine y valores humanos para "Matrix Producciones". 
 Tu objetivo es analizar la película titulada "${title}" y generar un análisis de recomendación completo y profesional en español.
 La película debe enfocarse en resaltar valores humanos positivos como la empatía, resiliencia, solidaridad, superación, fe, amor, etc.
+
+${userOpinion && userOpinion.trim() !== "" ? `IMPORTANTE - Enfoque del director Eliecer: Él te ha dado esta opinión u orientación específica sobre la película para que la incorpores directamente en tu análisis y crítica: "${userOpinion}". Asegúrate de plasmar fielmente su punto de vista y estilo en tu redacción.` : ""}
 
 Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descritos a continuación (no añadas explicaciones fuera del JSON):
 {
