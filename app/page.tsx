@@ -60,9 +60,9 @@ export default function Home() {
           <div className="absolute inset-0 z-0">
             <img
               ref={heroBgRef}
-              src="/img/hero-cinematic.png"
+              src="/img/hero-matrix-tree.jpg"
               alt="Matrix Producciones Hero"
-              className="w-full h-full object-cover brightness-[0.25] contrast-[1.1] transition-transform duration-100 ease-out"
+              className="w-full h-full object-cover brightness-[0.35] contrast-[1.15] transition-transform duration-100 ease-out"
               onError={(e) => {
                 e.currentTarget.src = "/img/hero-bg.jpg";
               }}
