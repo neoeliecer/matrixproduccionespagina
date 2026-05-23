@@ -31,6 +31,9 @@ export default function Admin() {
   const [isAddingMovie, setIsAddingMovie] = useState(false);
   const [isAutocompleting, setIsAutocompleting] = useState(false);
   const [movieUserOpinion, setMovieUserOpinion] = useState("");
+  const [dashMovieTitle, setDashMovieTitle] = useState("");
+  const [dashMovieOpinion, setDashMovieOpinion] = useState("");
+  const [isDashGeneratingMovie, setIsDashGeneratingMovie] = useState(false);
 
   const handleCreateRecommendation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +151,87 @@ export default function Admin() {
       });
     } finally {
       setIsAutocompleting(false);
+    }
+  };
+
+  const handleDashGenerateMovie = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dashMovieTitle.trim()) {
+      setMessage({ type: "error", text: "Por favor, ingresa el título de la película en el generador." });
+      return;
+    }
+
+    setIsDashGeneratingMovie(true);
+    setMessage(null);
+
+    try {
+      // Paso 1: Autocompletar y redactar con IA
+      const autocompleteResponse = await fetch("/api/recomendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password,
+          action: "autocompletar",
+          title: dashMovieTitle,
+          userOpinion: dashMovieOpinion,
+        }),
+      });
+
+      const autocompleteData = await autocompleteResponse.json();
+
+      if (!autocompleteResponse.ok || !autocompleteData.success || !autocompleteData.data) {
+        setMessage({
+          type: "error",
+          text: autocompleteData.error || "Ocurrió un error al redactar la película con la IA.",
+        });
+        setIsDashGeneratingMovie(false);
+        return;
+      }
+
+      const generatedMovie = autocompleteData.data;
+
+      // Paso 2: Guardar y publicar la película generada de forma automática
+      const saveResponse = await fetch("/api/recomendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password,
+          recommendation: {
+            title: dashMovieTitle.trim(),
+            director: generatedMovie.director,
+            year: generatedMovie.year,
+            value: generatedMovie.value || "Valores Positivos",
+            excerpt: generatedMovie.excerpt,
+            desc: generatedMovie.desc,
+            image: generatedMovie.image,
+            trailerUrl: generatedMovie.trailerUrl,
+          },
+        }),
+      });
+
+      const saveData = await saveResponse.json();
+
+      if (saveResponse.ok && saveData.success) {
+        setMessage({
+          type: "success",
+          text: `¡Éxito! Película generada por IA y publicada al instante: "${saveData.recommendation.title}" (Enfoque: "${dashMovieOpinion || 'General'}").`,
+        });
+        setRecommendations([saveData.recommendation, ...recommendations]);
+        setDashMovieTitle("");
+        setDashMovieOpinion("");
+      } else {
+        setMessage({
+          type: "error",
+          text: saveData.error || "Ocurrió un error al guardar la película redactada.",
+        });
+      }
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: "Error de red al conectar con el generador de películas.",
+      });
+    } finally {
+      setIsDashGeneratingMovie(false);
     }
   };
 
@@ -327,8 +411,8 @@ export default function Admin() {
                 </div>
               )}
 
-              {/* Quick actions box (3 Columns) */}
-              <div className="grid md:grid-cols-3 gap-6">
+              {/* Quick actions box (4 Columns) */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 
                 {/* AI blog generation card */}
                 <div className="border border-white/5 p-8 rounded-2xl bg-white/[0.01] backdrop-blur-md flex flex-col justify-between space-y-6">
@@ -378,6 +462,58 @@ export default function Admin() {
                   >
                     {isGeneratingConvocatoria ? "Rastreando Oportunidades..." : "Generar Convocatoria"}
                   </button>
+                </div>
+
+                {/* AI movie recommendation generation card */}
+                <div className="border border-white/5 p-8 rounded-2xl bg-white/[0.01] backdrop-blur-md flex flex-col justify-between space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <span className="text-accent text-[9px] uppercase font-black tracking-widest block mb-2">Módulo Cine</span>
+                      <h3 className="text-lg font-extrabold uppercase text-white tracking-wider mb-2">
+                        Generador Cine con Propósito
+                      </h3>
+                      <p className="text-white/50 text-[11px] leading-relaxed font-light">
+                        Indica la película y tu opinión. La IA redactará una crítica de valores y la publicará al instante.
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleDashGenerateMovie} className="space-y-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[8px] uppercase tracking-[1px] font-bold text-white/40">Título de la Película *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ej. La vida es bella"
+                          value={dashMovieTitle}
+                          onChange={(e) => setDashMovieTitle(e.target.value)}
+                          className="bg-white/[0.02] border border-white/10 px-3 py-2 rounded text-white text-xs focus:outline-none focus:border-accent w-full"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[8px] uppercase tracking-[1px] font-bold text-white/40">Tu Enfoque / Opinión (Opcional)</label>
+                        <input
+                          type="text"
+                          placeholder="Ej. Resaltar amor paterno"
+                          value={dashMovieOpinion}
+                          onChange={(e) => setDashMovieOpinion(e.target.value)}
+                          className="bg-white/[0.02] border border-white/10 px-3 py-2 rounded text-white text-xs focus:outline-none focus:border-accent w-full"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isDashGeneratingMovie || isGeneratingPost || isGeneratingConvocatoria}
+                        className={`w-full text-black font-extrabold text-[10px] uppercase tracking-[3px] py-3.5 rounded transition-all duration-500 cursor-pointer mt-2 ${
+                          isDashGeneratingMovie
+                            ? "bg-white/20 text-white/50 cursor-not-allowed border border-white/10"
+                            : "bg-accent hover:bg-[#00cc6a] shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] hover:-translate-y-0.5 active:translate-y-0"
+                        }`}
+                      >
+                        {isDashGeneratingMovie ? "Generando..." : "Generar y Publicar"}
+                      </button>
+                    </form>
+                  </div>
                 </div>
 
                 {/* Stats box */}
