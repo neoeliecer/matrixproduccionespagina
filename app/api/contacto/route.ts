@@ -9,8 +9,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Datos del formulario incompletos." }, { status: 400 });
     }
 
-    // Tu clave de acceso Web3Forms verificada
-    const accessKey = "ed34dc60-82b5-459e-9cae-2d9d5be7bc40";
+    // Tu clave de acceso Web3Forms (puedes configurarla en las variables de entorno de Netlify/Vercel)
+    const accessKey = process.env.WEB3FORMS_ACCESS_KEY || "f14efd1f-dd72-4f49-a406-932a247f9cc5";
     const isProposal = type === "propuesta";
     const subject = isProposal 
       ? `💡 Nueva Propuesta de Proyecto: ${name}`
