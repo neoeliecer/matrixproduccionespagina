@@ -113,7 +113,7 @@ export default function Contacto() {
                 <div>
                   <h4 className="text-[10px] uppercase tracking-[3px] font-bold text-accent">WhatsApp</h4>
                   <a
-                    href="https://wa.me/573174734070"
+                    href="https://wa.me/573174734070?text=Hola%20Matrix%20Producciones%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-white/70 hover:text-accent text-sm mt-1 inline-block transition-colors"
@@ -125,7 +125,7 @@ export default function Contacto() {
 
               <div className="pt-6 border-t border-white/5">
                 <a
-                  href="https://wa.me/573174734070"
+                  href="https://wa.me/573174734070?text=Hola%20Matrix%20Producciones%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-black font-extrabold text-xs uppercase tracking-[3px] py-4 rounded-[2px] transition-all duration-300 flex items-center justify-center gap-3"
