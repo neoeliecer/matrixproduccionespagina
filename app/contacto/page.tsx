@@ -104,7 +104,7 @@ export default function Contacto() {
               <div className="space-y-6">
                 <div>
                   <h4 className="text-[10px] uppercase tracking-[3px] font-bold text-accent">Correo Electrónico</h4>
-                  <p className="text-white/70 text-sm mt-1">eliecer.asesor@gmail.com</p>
+                  <p className="text-white/70 text-sm mt-1">info@matrixproducciones.com</p>
                 </div>
                 <div>
                   <h4 className="text-[10px] uppercase tracking-[3px] font-bold text-accent">Ubicación</h4>
