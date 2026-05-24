@@ -6,13 +6,54 @@ import CinematicOverlay from "@/components/CinematicOverlay";
 import { useState } from "react";
 
 export default function Propuesta() {
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [projectType, setProjectType] = useState("documental");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormSubmitted(true);
-    setTimeout(() => setFormSubmitted(false), 5000);
+    if (!name || !email || !message) {
+      setErrorMessage("Por favor, rellena todos los campos.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const response = await fetch("/api/contacto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "propuesta",
+          name,
+          email,
+          message,
+          projectType: projectType === "documental" ? "Cine Documental" :
+                       projectType === "campana" ? "Campaña Social" :
+                       projectType === "corto" ? "Cortometraje" : "Otro Formato",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setFormSubmitted(true);
+        setName("");
+        setEmail("");
+        setMessage("");
+      } else {
+        setErrorMessage(data.error || "Ocurrió un error al enviar tu propuesta.");
+      }
+    } catch (err) {
+      setErrorMessage("Error de red. Por favor, inténtalo de nuevo.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -52,6 +93,12 @@ export default function Propuesta() {
               onSubmit={handleSubmit}
               className="border border-white/5 p-8 md:p-16 rounded-2xl bg-white/[0.01] backdrop-blur-xl space-y-8 shadow-2xl"
             >
+              {errorMessage && (
+                <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-400 text-xs uppercase tracking-wider text-center font-bold">
+                  {errorMessage}
+                </div>
+              )}
+
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] uppercase tracking-[3px] font-bold text-white/50">
@@ -61,6 +108,8 @@ export default function Propuesta() {
                     type="text"
                     required
                     placeholder="Ej. Fundación Planeta Verde"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     className="bg-transparent border-b border-white/10 py-4 text-white text-base focus:outline-none focus:border-accent transition-colors"
                   />
                 </div>
@@ -72,6 +121,8 @@ export default function Propuesta() {
                     type="email"
                     required
                     placeholder="Ej. contacto@organizacion.org"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="bg-transparent border-b border-white/10 py-4 text-white text-base focus:outline-none focus:border-accent transition-colors"
                   />
                 </div>
@@ -112,15 +163,22 @@ export default function Propuesta() {
                   required
                   rows={6}
                   placeholder="Compártenos de qué trata la historia, los personajes o el mensaje principal..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                   className="bg-transparent border-b border-white/10 py-4 text-white text-base focus:outline-none focus:border-accent transition-colors resize-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-xs uppercase tracking-[4px] py-5 transition-all duration-300 shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] hover:-translate-y-0.5 active:translate-y-0"
+                disabled={isSubmitting}
+                className={`w-full text-black font-extrabold text-xs uppercase tracking-[4px] py-5 transition-all duration-300 shadow-[0_0_20px_var(--accent-glow)] ${
+                  isSubmitting
+                    ? "bg-white/10 text-white/40 cursor-not-allowed border border-white/5"
+                    : "bg-accent hover:bg-[#00cc6a] hover:shadow-[0_0_30px_var(--accent)] hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                }`}
               >
-                Enviar Propuesta
+                {isSubmitting ? "Enviando..." : "Enviar Propuesta"}
               </button>
             </form>
           )}
