@@ -32,6 +32,7 @@ export default function Admin() {
   const [eventExcerpt, setEventExcerpt] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [eventCategoryLocation, setEventCategoryLocation] = useState("Cali"); // Nueva categoría geográfica
+  const [eventLink, setEventLink] = useState(""); // Enlace opcional del evento
   const [isAddingEvent, setIsAddingEvent] = useState(false);
   const [isAutocompletingEvent, setIsAutocompletingEvent] = useState(false);
   const [eventUserOpinion, setEventUserOpinion] = useState("");
@@ -455,6 +456,7 @@ export default function Admin() {
             excerpt: eventExcerpt,
             description: eventDescription,
             categoryLocation: eventCategoryLocation, // Nueva categoría
+            link: eventLink, // Enlace del evento
           },
         }),
       });
@@ -477,6 +479,7 @@ export default function Admin() {
         setEventGallery("");
         setEventExcerpt("");
         setEventDescription("");
+        setEventLink(""); // Limpiar enlace del evento
         
         setActiveTab("eventos");
       } else {
@@ -1135,6 +1138,17 @@ export default function Admin() {
                             value={eventDescription}
                             onChange={(e) => setEventDescription(e.target.value)}
                             className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-none"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Enlace de Compra de Entradas / Sitio Web (URL Opcional)</label>
+                          <input
+                            type="text"
+                            placeholder="https://ejemplo.com/evento-entradas..."
+                            value={eventLink}
+                            onChange={(e) => setEventLink(e.target.value)}
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
                           />
                         </div>
 

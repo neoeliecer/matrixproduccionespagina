@@ -323,9 +323,10 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
     const groqData = await groqResponse.json();
     const generatedEvent = JSON.parse(groqData.choices[0].message.content);
 
-    // Añadir el campo categoryLocation exacto
+    // Añadir el campo categoryLocation exacto y enlaces
     generatedEvent.categoryLocation = selectedGroup.location;
     generatedEvent.gallery = [];
+    generatedEvent.link = availableItem.link || ""; // Enlace real de origen de la noticia o evento
 
     // Prepend a los eventos y guardar
     currentEvents.unshift(generatedEvent);

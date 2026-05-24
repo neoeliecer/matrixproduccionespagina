@@ -30,6 +30,7 @@ export default function Eventos() {
   const [newDescription, setNewDescription] = useState("");
   const [newImage, setNewImage] = useState("");
   const [newGallery, setNewGallery] = useState("");
+  const [newLink, setNewLink] = useState(""); // Nuevo estado para enlace de entradas
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Unsplash image presets
@@ -127,7 +128,8 @@ export default function Eventos() {
             gallery: newGallery,
             excerpt: newExcerpt || newDescription.substring(0, 100) + "...",
             description: newDescription,
-            categoryLocation: newLocationCategory
+            categoryLocation: newLocationCategory,
+            link: newLink // Enviar enlace del evento
           }
         })
       });
@@ -147,6 +149,7 @@ export default function Eventos() {
         setNewDescription("");
         setNewImage("");
         setNewGallery("");
+        setNewLink(""); // Limpiar campo de enlace
         setIsSubmitModalOpen(false);
 
         // Refresh list
@@ -507,6 +510,20 @@ export default function Eventos() {
                   return <p key={pIdx}>{para}</p>;
                 })}
               </div>
+
+              {/* Botón de Enlace al Sitio Oficial / Compra de Entradas */}
+              {selectedEvent.link && (
+                <div className="pt-8 border-t border-white/5 text-center">
+                  <a
+                    href={selectedEvent.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-xs uppercase tracking-[4px] py-4 px-8 rounded shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer"
+                  >
+                    🌐 Más Información / Comprar Entradas →
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -642,9 +659,21 @@ export default function Eventos() {
                 </div>
 
                 <div className="flex flex-col gap-2">
+                  <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/50">Enlace de Compra de Entradas / Sitio Web (URL Opcional)</label>
+                  <input
+                    type="text"
+                    placeholder="https://ejemplo.com/evento-entradas..."
+                    value={newLink}
+                    onChange={(e) => setNewLink(e.target.value)}
+                    className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent w-full"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
                   <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/50">Resumen Breve (Para el catálogo)</label>
                   <input
                     type="text"
+                    required
                     placeholder="Una frase de 2 líneas sobre la función..."
                     value={newExcerpt}
                     onChange={(e) => setNewExcerpt(e.target.value)}

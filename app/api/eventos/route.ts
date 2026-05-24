@@ -219,7 +219,8 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
       gallery: galleryArray,
       excerpt: event.excerpt?.trim() || event.description.substring(0, 120) + "...",
       description: event.description.trim(),
-      categoryLocation: event.categoryLocation?.trim() || "Cali" // Por defecto en Cali
+      categoryLocation: event.categoryLocation?.trim() || "Cali",
+      link: event.link?.trim() || "" // Enlace opcional de entradas o más información
     };
 
     currentEvents.unshift(newEvent);
