@@ -1,5 +1,110 @@
 import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
+export const dynamic = "force-dynamic";
+
+const repoOwner = "neoeliecer";
+const repoName = "matrixproduccionespagina";
+const filePath = "data/events.json";
+const githubApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+// Helper to read events (trying GitHub first, falling back to local filesystem)
+async function getEvents(githubToken?: string) {
+  let events: any[] = [];
+  let sha = "";
+
+  // 1. Try reading from GitHub if token exists
+  if (githubToken) {
+    try {
+      const response = await fetch(githubApiUrl, {
+        headers: {
+          Authorization: `token ${githubToken}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "NextJS-Events-CMS",
+        },
+        cache: "no-store",
+      });
+      if (response.ok) {
+        const fileData = await response.json();
+        sha = fileData.sha;
+        const decodedContent = Buffer.from(fileData.content, "base64").toString("utf-8");
+        events = JSON.parse(decodedContent);
+        return { events, sha };
+      }
+    } catch (e) {
+      console.error("Error reading events from GitHub:", e);
+    }
+  }
+
+  // 2. Fallback to reading from local filesystem
+  try {
+    const localPath = path.join(process.cwd(), "data", "events.json");
+    if (fs.existsSync(localPath)) {
+      const localContent = fs.readFileSync(localPath, "utf-8");
+      events = JSON.parse(localContent);
+    }
+  } catch (e) {
+    console.error("Error reading events from local filesystem:", e);
+  }
+
+  return { events, sha };
+}
+
+// Helper to write events (updating local filesystem, and updating GitHub if token exists)
+async function saveEvents(events: any[], sha?: string, githubToken?: string) {
+  // 1. Always update local file first (for instant local updates/fallback)
+  try {
+    const localPath = path.join(process.cwd(), "data", "events.json");
+    const dir = path.dirname(localPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(localPath, JSON.stringify(events, null, 2), "utf-8");
+  } catch (e) {
+    console.error("Error writing events to local filesystem:", e);
+  }
+
+  // 2. Write to GitHub if token exists
+  if (githubToken) {
+    try {
+      const updatedContentBase64 = Buffer.from(JSON.stringify(events, null, 2)).toString("base64");
+      const putFileResponse = await fetch(githubApiUrl, {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${githubToken}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "NextJS-Events-CMS",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: `🤖 AutoCMS: Cartelera de eventos actualizada`,
+          content: updatedContentBase64,
+          sha: sha || undefined,
+          branch: "main",
+        }),
+      });
+      return putFileResponse.ok;
+    } catch (e) {
+      console.error("Error writing events to GitHub:", e);
+    }
+  }
+
+  return true;
+}
+
+// GET Method: Returns the up-to-date events catalog
+export async function GET() {
+  try {
+    const githubToken = process.env.GITHUB_TOKEN;
+    const { events } = await getEvents(githubToken);
+    return NextResponse.json({ success: true, events });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Error al obtener eventos" }, { status: 500 });
+  }
+}
+
+// POST Method: Supports autocompleting and publishing
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
@@ -9,13 +114,13 @@ export async function POST(request: Request) {
     const githubToken = process.env.GITHUB_TOKEN;
     const groqApiKey = process.env.GROQ_API_KEY;
 
-    // 1. Control de seguridad
-    if (!password || password !== adminPassword) {
-      return NextResponse.json({ error: "Contraseña de administrador incorrecta." }, { status: 401 });
-    }
-
     // --- ACCIÓN: AUTOCOMPLETAR CON IA ---
+    // Requiere obligatoriamente la contraseña de administrador
     if (action === "autocompletar") {
+      if (!password || password !== adminPassword) {
+        return NextResponse.json({ error: "Contraseña de administrador incorrecta." }, { status: 401 });
+      }
+
       if (!title || title.trim() === "") {
         return NextResponse.json({ error: "Debes ingresar el título del evento para autocompletar." }, { status: 400 });
       }
@@ -34,9 +139,10 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
 {
   "location": "Lugar y ciudad del evento (ej. 'Teatro Municipal Enrique Buenaventura, Cali')",
   "date": "Fecha del evento (ej. '20 de Septiembre, 2026')",
-  "tag": "Categoría o etiqueta corta del evento (ej. 'Teatro & Comunidad', 'Música & Tradición', 'Cine', 'Arte')",
+  "tag": "Categoría o etiqueta corta del evento (ej. 'Teatro', 'Cine', 'Cultural')",
   "excerpt": "Un resumen corto y atrapante de 2 líneas sobre el evento cultural para el catálogo (ej. 'Compañías teatrales de todo el mundo se reúnen en Cali para presentar obras que invitan a la reflexión social.')",
-  "description": "Tu crónica o noticia completa e inspiradora (de 3 a 4 párrafos en español). Explica la importancia del evento, qué se vive allí, actividades destacadas o impacto social. Puedes usar formato markdown básico (como subtítulos ### o listas con asteriscos * ) para estructurar el texto bellamente."
+  "description": "Tu crónica o noticia completa e inspiradora (de 3 a 4 párrafos en español). Explica la importancia del evento, qué se vive allí, actividades destacadas o impacto social. Puedes usar formato markdown básico (como subtítulos ### o listas con asteriscos * ) para estructurar el texto bellamente.",
+  "categoryLocation": "Elige estrictamente una de estas 6 opciones según la ciudad/país del evento: 'Cali', 'Colombia', 'Estados Unidos', 'Nueva York', 'Atlanta' o 'España'"
 }`;
 
       const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -68,57 +174,26 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
       });
     }
 
-    if (!githubToken) {
-      return NextResponse.json(
-        { error: "GITHUB_TOKEN no está configurada en el servidor." },
-        { status: 500 }
-      );
-    }
-
-    const repoOwner = "neoeliecer";
-    const repoName = "matrixproduccionespagina";
-    const filePath = "data/events.json";
-    const githubApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
-
-    let currentEvents: any[] = [];
-    let fileSha = "";
-
-    // 2. Obtener los eventos actuales desde GitHub
-    try {
-      const getFileResponse = await fetch(githubApiUrl, {
-        headers: {
-          Authorization: `token ${githubToken}`,
-          Accept: "application/vnd.github.v3+json",
-          "User-Agent": "NextJS-Events-CMS",
-        },
-        cache: "no-store",
-      });
-
-      if (getFileResponse.ok) {
-        const fileData = await getFileResponse.json();
-        fileSha = fileData.sha;
-        const decodedContent = Buffer.from(fileData.content, "base64").toString("utf-8");
-        currentEvents = JSON.parse(decodedContent);
-      }
-    } catch (e) {
-      console.error("Error leyendo events.json de GitHub:", e);
-    }
-
     // --- ACCIÓN: GUARDAR NUEVO EVENTO ---
     if (!event || !event.title || !event.description) {
       return NextResponse.json({ error: "Datos del evento incompletos." }, { status: 400 });
     }
 
-    // Evitar duplicados por título
-    const isDuplicate = currentEvents.some(
-      (item) => item.title.toLowerCase().trim() === event.title.toLowerCase().trim()
-    );
+    // Cargar los eventos actuales
+    const { events: currentEvents, sha: fileSha } = await getEvents(githubToken);
+
+    // Evitar duplicados por título (comparando primeros 15 caracteres para mayor resiliencia)
+    const isDuplicate = currentEvents.some((item) => {
+      const cleanNew = event.title.toLowerCase().trim().substring(0, 15);
+      const cleanExisting = item.title.toLowerCase().trim().substring(0, 15);
+      return cleanNew === cleanExisting || cleanExisting.includes(cleanNew) || cleanNew.includes(cleanExisting);
+    });
 
     if (isDuplicate) {
       return NextResponse.json({ error: "Este evento cultural ya se encuentra registrado." }, { status: 400 });
     }
 
-    // Procesar galería de fotos (convertir string separado por comas a array)
+    // Procesar galería de fotos (convertir string separado por comas a array o usar el array existente)
     let galleryArray: string[] = [];
     if (event.gallery && typeof event.gallery === "string") {
       galleryArray = event.gallery
@@ -129,47 +204,38 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
       galleryArray = event.gallery;
     }
 
+    // Adaptar categoría/etiqueta
+    let rawTag = event.tag?.trim() || "Cultural";
+    if (rawTag.toLowerCase().includes("cine")) rawTag = "Cine";
+    else if (rawTag.toLowerCase().includes("teatro")) rawTag = "Teatro";
+    else rawTag = "Cultural";
+
     const newEvent = {
       title: event.title.trim(),
       location: event.location?.trim() || "No especificado",
       date: event.date?.trim() || "No especificado",
-      tag: event.tag?.trim() || "Cultura",
+      tag: rawTag,
       image: event.image?.trim() || "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800",
       gallery: galleryArray,
       excerpt: event.excerpt?.trim() || event.description.substring(0, 120) + "...",
-      description: event.description.trim()
+      description: event.description.trim(),
+      categoryLocation: event.categoryLocation?.trim() || "Cali" // Por defecto en Cali
     };
 
     currentEvents.unshift(newEvent);
 
     // Limitar tamaño del catálogo para optimizar pre-render
-    if (currentEvents.length > 50) {
-      currentEvents = currentEvents.slice(0, 50);
+    let updatedEvents = currentEvents;
+    if (updatedEvents.length > 50) {
+      updatedEvents = updatedEvents.slice(0, 50);
     }
 
-    // Guardar de vuelta en GitHub
-    const updatedContentBase64 = Buffer.from(JSON.stringify(currentEvents, null, 2)).toString("base64");
+    // Guardar (Local y GitHub si está disponible)
+    const saveSuccess = await saveEvents(updatedEvents, fileSha, githubToken);
 
-    const putFileResponse = await fetch(githubApiUrl, {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${githubToken}`,
-        Accept: "application/vnd.github.v3+json",
-        "User-Agent": "NextJS-Events-CMS",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: `🤖 AutoCMS: Nuevo evento cultural añadido: "${newEvent.title}"`,
-        content: updatedContentBase64,
-        sha: fileSha || undefined,
-        branch: "main",
-      }),
-    });
-
-    if (!putFileResponse.ok) {
-      const putErr = await putFileResponse.text();
+    if (!saveSuccess) {
       return NextResponse.json(
-        { error: `Error guardando evento en GitHub: ${putErr}` },
+        { error: "Error guardando el evento en el repositorio." },
         { status: 502 }
       );
     }

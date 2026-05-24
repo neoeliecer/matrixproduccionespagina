@@ -31,6 +31,7 @@ export default function Admin() {
   const [eventGallery, setEventGallery] = useState("");
   const [eventExcerpt, setEventExcerpt] = useState("");
   const [eventDescription, setEventDescription] = useState("");
+  const [eventCategoryLocation, setEventCategoryLocation] = useState("Cali"); // Nueva categoría geográfica
   const [isAddingEvent, setIsAddingEvent] = useState(false);
   const [isAutocompletingEvent, setIsAutocompletingEvent] = useState(false);
   const [eventUserOpinion, setEventUserOpinion] = useState("");
@@ -50,6 +51,8 @@ export default function Admin() {
   const [dashMovieTitle, setDashMovieTitle] = useState("");
   const [dashMovieOpinion, setDashMovieOpinion] = useState("");
   const [isDashGeneratingMovie, setIsDashGeneratingMovie] = useState(false);
+  const [dashEventLocation, setDashEventLocation] = useState("Cali");
+  const [isDashGeneratingEvent, setIsDashGeneratingEvent] = useState(false);
 
   const handleCreateRecommendation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -256,6 +259,44 @@ export default function Admin() {
     }
   };
 
+  const handleDashGenerateEvent = async () => {
+    setIsDashGeneratingEvent(true);
+    setMessage(null);
+    try {
+      const response = await fetch("/api/eventos/auto-generar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password,
+          location: dashEventLocation
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setMessage({
+          type: "success",
+          text: `¡Éxito! Evento cultural rastreado e indexado por IA: "${data.event.title}" en la categoría de ${data.event.categoryLocation}. La web se actualizará automáticamente.`,
+        });
+        setEvents([data.event, ...events]);
+        setActiveTab("eventos");
+      } else {
+        setMessage({
+          type: "error",
+          text: data.error || "Ocurrió un error al rastrear el evento con la IA.",
+        });
+      }
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: "Error de red al conectar con el rastreador de eventos.",
+      });
+    } finally {
+      setIsDashGeneratingEvent(false);
+    }
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password.trim() !== "") {
@@ -360,12 +401,13 @@ export default function Admin() {
       const resData = await response.json();
 
       if (response.ok && resData.success && resData.data) {
-        const { location, date, tag, excerpt, description } = resData.data;
+        const { location, date, tag, excerpt, description, categoryLocation } = resData.data;
         if (location) setEventLocation(location);
         if (date) setEventDate(date);
         if (tag) setEventTag(tag);
         if (excerpt) setEventExcerpt(excerpt);
         if (description) setEventDescription(description);
+        if (categoryLocation) setEventCategoryLocation(categoryLocation);
 
         setMessage({
           type: "success",
@@ -412,6 +454,7 @@ export default function Admin() {
             gallery: eventGallery,
             excerpt: eventExcerpt,
             description: eventDescription,
+            categoryLocation: eventCategoryLocation, // Nueva categoría
           },
         }),
       });
@@ -556,8 +599,8 @@ export default function Admin() {
                 </div>
               )}
 
-              {/* Quick actions box (4 Columns) */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Quick actions box (5 Columns) */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                 
                 {/* AI blog generation card */}
                 <div className="border border-white/5 p-8 rounded-2xl bg-white/[0.01] backdrop-blur-md flex flex-col justify-between space-y-6">
@@ -658,6 +701,49 @@ export default function Admin() {
                         {isDashGeneratingMovie ? "Generando..." : "Generar y Publicar"}
                       </button>
                     </form>
+                  </div>
+                </div>
+
+                {/* AI cultural events generator card */}
+                <div className="border border-white/5 p-8 rounded-2xl bg-white/[0.01] backdrop-blur-md flex flex-col justify-between space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <span className="text-accent text-[9px] uppercase font-black tracking-widest block mb-2">Módulo Eventos</span>
+                      <h3 className="text-lg font-extrabold uppercase text-white tracking-wider mb-2">
+                        Publicar por la IA
+                      </h3>
+                      <p className="text-white/50 text-[11px] leading-relaxed font-light">
+                        Ordena a la IA de Matrix buscar y redactar noticias reales de espectáculos en internet y publicarlas de forma inmediata en tu cartelera.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[8px] uppercase tracking-[1px] font-bold text-white/40">¿Dónde debe buscar la IA?</label>
+                      <select
+                        value={dashEventLocation}
+                        onChange={(e) => setDashEventLocation(e.target.value)}
+                        className="bg-[#0a0a0a] border border-white/10 px-3 py-2.5 rounded text-white text-xs focus:outline-none focus:border-accent w-full uppercase tracking-wider font-bold"
+                      >
+                        <option value="Cali">Cali</option>
+                        <option value="Colombia">Colombia</option>
+                        <option value="Estados Unidos">Estados Unidos</option>
+                        <option value="Nueva York">Nueva York</option>
+                        <option value="España">España</option>
+                        <option value="Atlanta">Atlanta</option>
+                      </select>
+                    </div>
+
+                    <button
+                      onClick={handleDashGenerateEvent}
+                      disabled={isDashGeneratingEvent || isGeneratingPost || isGeneratingConvocatoria}
+                      className={`w-full text-black font-extrabold text-[10px] uppercase tracking-[3px] py-3.5 rounded transition-all duration-500 cursor-pointer mt-2 ${
+                        isDashGeneratingEvent
+                          ? "bg-white/20 text-white/50 cursor-not-allowed border border-white/10"
+                          : "bg-accent hover:bg-[#00cc6a] shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] hover:-translate-y-0.5 active:translate-y-0"
+                      }`}
+                    >
+                      {isDashGeneratingEvent ? "Buscando y Publicando..." : "🔍 Buscar y Publicar con IA"}
+                    </button>
                   </div>
                 </div>
 
@@ -998,6 +1084,22 @@ export default function Admin() {
                               className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
                             />
                           </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Categoría Geográfica * (Filtro)</label>
+                          <select
+                            value={eventCategoryLocation}
+                            onChange={(e) => setEventCategoryLocation(e.target.value)}
+                            className="bg-[#0a0a0a] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent w-full uppercase tracking-wider font-bold"
+                          >
+                            <option value="Cali">Cali</option>
+                            <option value="Colombia">Colombia (General)</option>
+                            <option value="Estados Unidos">Estados Unidos</option>
+                            <option value="Nueva York">Nueva York</option>
+                            <option value="Atlanta">Atlanta</option>
+                            <option value="España">España</option>
+                          </select>
                         </div>
 
                         <div className="flex flex-col gap-2">

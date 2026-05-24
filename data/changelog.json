@@ -1,5 +1,11 @@
 [
   {
+    "date": "24 de Mayo, 2026",
+    "time": "03:30 PM",
+    "title": "Cartelera de Eventos Culturales Dinámica con IA y Auto-Publicación",
+    "description": "Se desarrolló la sección de Eventos Culturales de cine, teatro y cultura para Cali, Colombia, España, Estados Unidos, Nueva York y Atlanta. Incluye un robot rastreador en la nube alimentado por Google News RSS y curado por Groq AI con filtros estrictos de no-duplicación. Se habilitó una opción de publicación directa para usuarios con presets artísticos de Unsplash, un selector de ubicaciones premium estilo neón y una animación de radar cibernético interactiva para el escaneo."
+  },
+  {
     "date": "23 de Mayo, 2026",
     "time": "07:06 AM",
     "title": "Generador Cine con Propósito en Menú de Acciones Rápidas",
