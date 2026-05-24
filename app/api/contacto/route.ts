@@ -58,7 +58,7 @@ export async function POST(request: Request) {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        sender: { name: "Web Matrix", email: "info@matrixproducciones.com" },
+        sender: { name: "Web Matrix", email: "neoeliecercolombia@gmail.com" },
         to: [
           { email: "eliecer.asesor@gmail.com", name: "Eliecer Matrix" },
           { email: "info@matrixproducciones.com", name: "Copia Matrix" }
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          sender: { name: "Matrix Producciones", email: "info@matrixproducciones.com" },
+          sender: { name: "Matrix Producciones", email: "neoeliecercolombia@gmail.com" },
           to: [{ email: email, name: name }],
           subject: `🎬 Recibimos tu ${isProposal ? "propuesta" : "mensaje"} - Matrix Producciones`,
           htmlContent: clientHtmlContent,
