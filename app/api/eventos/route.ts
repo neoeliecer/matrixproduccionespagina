@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { password, action, title, event } = body;
+    const { password, action, title, userOpinion, event } = body;
 
     const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
     const githubToken = process.env.GITHUB_TOKEN;
@@ -12,6 +12,60 @@ export async function POST(request: Request) {
     // 1. Control de seguridad
     if (!password || password !== adminPassword) {
       return NextResponse.json({ error: "Contraseña de administrador incorrecta." }, { status: 401 });
+    }
+
+    // --- ACCIÓN: AUTOCOMPLETAR CON IA ---
+    if (action === "autocompletar") {
+      if (!title || title.trim() === "") {
+        return NextResponse.json({ error: "Debes ingresar el título del evento para autocompletar." }, { status: 400 });
+      }
+
+      if (!groqApiKey) {
+        return NextResponse.json({ error: "La API key de Groq no está configurada." }, { status: 500 });
+      }
+
+      const systemPrompt = `Eres un redactor y cronista cultural experto para "Matrix Producciones". 
+Tu objetivo es tomar el título del evento titulado "${title}" y redactar una reseña o crónica cultural profesional, vibrante y atractiva en español.
+El tono debe ser cinematográfico, cultural, apasionado y elegante.
+
+${userOpinion && userOpinion.trim() !== "" ? `IMPORTANTE - Borrador / Inicio de la noticia proporcionado por el director Eliecer: Él te ha dado este borrador, datos iniciales o inicio de la noticia para que lo mejores, pulas y expandas directamente en tu redacción: "${userOpinion}". Asegúrate de incorporar fielmente sus ideas y mejorar el texto haciéndolo ver sumamente profesional.` : ""}
+
+Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descritos a continuación (no añadas explicaciones fuera del JSON):
+{
+  "location": "Lugar y ciudad del evento (ej. 'Teatro Municipal Enrique Buenaventura, Cali')",
+  "date": "Fecha del evento (ej. '20 de Septiembre, 2026')",
+  "tag": "Categoría o etiqueta corta del evento (ej. 'Teatro & Comunidad', 'Música & Tradición', 'Cine', 'Arte')",
+  "excerpt": "Un resumen corto y atrapante de 2 líneas sobre el evento cultural para el catálogo (ej. 'Compañías teatrales de todo el mundo se reúnen en Cali para presentar obras que invitan a la reflexión social.')",
+  "description": "Tu crónica o noticia completa e inspiradora (de 3 a 4 párrafos en español). Explica la importancia del evento, qué se vive allí, actividades destacadas o impacto social. Puedes usar formato markdown básico (como subtítulos ### o listas con asteriscos * ) para estructurar el texto bellamente."
+}`;
+
+      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${groqApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "system", content: systemPrompt }],
+          temperature: 0.7,
+          max_tokens: 1500,
+          response_format: { type: "json_object" }
+        }),
+      });
+
+      if (!groqResponse.ok) {
+        const errText = await groqResponse.text();
+        return NextResponse.json({ error: `Error en Groq API: ${errText}` }, { status: 502 });
+      }
+
+      const groqData = await groqResponse.json();
+      const generatedData = JSON.parse(groqData.choices[0].message.content);
+
+      return NextResponse.json({
+        success: true,
+        data: generatedData
+      });
     }
 
     if (!githubToken) {

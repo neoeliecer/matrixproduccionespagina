@@ -32,6 +32,8 @@ export default function Admin() {
   const [eventExcerpt, setEventExcerpt] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [isAddingEvent, setIsAddingEvent] = useState(false);
+  const [isAutocompletingEvent, setIsAutocompletingEvent] = useState(false);
+  const [eventUserOpinion, setEventUserOpinion] = useState("");
 
   const [movieTitle, setMovieTitle] = useState("");
   const [movieDirector, setMovieDirector] = useState("");
@@ -331,6 +333,57 @@ export default function Admin() {
       });
     } finally {
       setIsGeneratingConvocatoria(false);
+    }
+  };
+
+  const handleAutocompleteEvent = async () => {
+    if (!eventTitle.trim()) {
+      setMessage({ type: "error", text: "Por favor, escribe el título del evento primero para poder autocompletar." });
+      return;
+    }
+
+    setIsAutocompletingEvent(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch("/api/eventos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password,
+          action: "autocompletar",
+          title: eventTitle,
+          userOpinion: eventUserOpinion,
+        }),
+      });
+
+      const resData = await response.json();
+
+      if (response.ok && resData.success && resData.data) {
+        const { location, date, tag, excerpt, description } = resData.data;
+        if (location) setEventLocation(location);
+        if (date) setEventDate(date);
+        if (tag) setEventTag(tag);
+        if (excerpt) setEventExcerpt(excerpt);
+        if (description) setEventDescription(description);
+
+        setMessage({
+          type: "success",
+          text: `¡Éxito! Datos de evento autocompletados e historia cultural redactada para "${eventTitle}". Puedes revisarlos, añadir fotos y publicar.`,
+        });
+      } else {
+        setMessage({
+          type: "error",
+          text: resData.error || "Ocurrió un error al redactar el evento con la IA.",
+        });
+      }
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: "Error de red al conectar con el servicio de autocompletado.",
+      });
+    } finally {
+      setIsAutocompletingEvent(false);
     }
   };
 
@@ -887,13 +940,38 @@ export default function Admin() {
 
                         <div className="flex flex-col gap-2">
                           <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Título del Evento *</label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="Ej. Festival de Cine de Cali 2026"
-                            value={eventTitle}
-                            onChange={(e) => setEventTitle(e.target.value)}
-                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent w-full"
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              required
+                              placeholder="Ej. Festival de Cine de Cali 2026"
+                              value={eventTitle}
+                              onChange={(e) => setEventTitle(e.target.value)}
+                              className="flex-1 bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleAutocompleteEvent}
+                              disabled={isAutocompletingEvent || !eventTitle.trim()}
+                              className={`px-4 py-3 rounded text-[10px] uppercase font-extrabold tracking-widest text-black transition-all ${
+                                isAutocompletingEvent || !eventTitle.trim()
+                                  ? "bg-white/10 text-white/40 cursor-not-allowed border border-white/5"
+                                  : "bg-accent hover:bg-[#00cc6a] hover:shadow-[0_0_15px_var(--accent-glow)] cursor-pointer"
+                              }`}
+                            >
+                              {isAutocompletingEvent ? "Cargando..." : "✨ Redactar con IA"}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Borrador / Inicio de la noticia (Opcional - Para expandir con IA)</label>
+                          <textarea
+                            rows={3}
+                            placeholder="Ej. Se inaugura hoy la versión número 18 del festival, con homenaje a Luis Ospina, proyecciones al aire libre en el bulevar del río..."
+                            value={eventUserOpinion}
+                            onChange={(e) => setEventUserOpinion(e.target.value)}
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-none"
                           />
                         </div>
 
