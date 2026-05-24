@@ -25,6 +25,7 @@ export default function Navbar() {
     { name: "Inicio", path: "/" },
     { name: "Quiénes Somos", path: "/#quienes-somos" },
     { name: "Catálogo", path: "/catalogo" },
+    { name: "Tienda", path: "/tienda" },
     { name: "Servicios", path: "/servicios" },
     { name: "Convocatorias", path: "/convocatorias" },
     { name: "Cine con Propósito", path: "/recomendadas" },
