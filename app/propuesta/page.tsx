@@ -25,14 +25,20 @@ export default function Propuesta() {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/contacto", {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
         body: JSON.stringify({
-          type: "propuesta",
-          name,
-          email,
-          message,
+          access_key: "f14efd1f-dd72-4f49-a406-932a247f9cc5",
+          subject: `💡 Nueva Propuesta de Proyecto: ${name}`,
+          from_name: "Web Matrix Producciones",
+          replyto: email,
+          name: name,
+          email: email,
+          message: message,
           projectType: projectType === "documental" ? "Cine Documental" :
                        projectType === "campana" ? "Campaña Social" :
                        projectType === "corto" ? "Cortometraje" : "Otro Formato",

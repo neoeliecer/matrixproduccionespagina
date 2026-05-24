@@ -24,14 +24,20 @@ export default function Contacto() {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/contacto", {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
         body: JSON.stringify({
-          type: "contacto",
-          name,
-          email,
-          message,
+          access_key: "f14efd1f-dd72-4f49-a406-932a247f9cc5",
+          subject: `✉️ Nuevo Mensaje de Contacto: ${name}`,
+          from_name: "Web Matrix Producciones",
+          replyto: email,
+          name: name,
+          email: email,
+          message: message,
         }),
       });
 
