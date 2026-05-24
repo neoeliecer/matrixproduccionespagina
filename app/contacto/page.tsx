@@ -44,6 +44,20 @@ export default function Contacto() {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        // Guardar automáticamente en Google Sheets en segundo plano (100% gratuito)
+        fetch("https://script.google.com/macros/s/AKfycbydxHe87aqsnyTqPwYMozpQlNkgYSSyPlyss9cZgwmK-LivIExFslaJXvTSinnMmM3OqQ/exec", {
+          method: "POST",
+          mode: "no-cors", // Evita problemas de CORS cruzados con Google
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            message: message,
+          }),
+        }).catch((err) => console.log("Error al guardar en Google Sheets:", err));
+
         setFormSubmitted(true);
         setName("");
         setEmail("");
