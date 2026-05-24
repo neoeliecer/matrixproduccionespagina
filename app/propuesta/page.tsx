@@ -53,7 +53,7 @@ export default function Propuesta() {
                                 projectType === "corto" ? "Cortometraje" : "Otro Formato";
 
         // Guardar automáticamente en Google Sheets en segundo plano (100% gratuito)
-        fetch("https://script.google.com/macros/s/AKfycbydxHe87aqsnyTqPwYMozpQlNkgYSSyPlyss9cZgwmK-LivIExFslaJXvTSinnMmM3OqQ/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbyq2-nMUEfBWHQY264hmrWVPxw2PqbwB4anBtkgUYmmA7eCGOr8BVnHmT0SgaKTqet6nQ/exec", {
           method: "POST",
           mode: "no-cors", // Evita problemas de CORS cruzados con Google
           headers: {
