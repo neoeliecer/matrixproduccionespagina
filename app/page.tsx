@@ -45,7 +45,7 @@ export default function Home() {
       name: "Kathleen Álvarez",
       role: "Productora Audiovisual",
       image: "/img/equipo/kathleen.jpg",
-      bio: "Productora audiovisual, estudiante de Arte de la Universidad del Valle (Univalle). Aporta sensibilidad artística, dinamismo y rigurosidad en cada etapa del desarrollo de producción.",
+      bio: "Productora audiovisual, estudiante de último semestre de la Escuela Cree. Aporta sensibilidad artística, dinamismo y rigurosidad en cada etapa del desarrollo de producción.",
     },
   ];
 
