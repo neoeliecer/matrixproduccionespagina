@@ -41,6 +41,12 @@ export default function Home() {
       image: "/img/equipo/mama.jpg",
       bio: "Directora de arte, egresada de la Escuela de Arte Arturo Michelena en Valencia, Venezuela. Aporta una visión conceptual y estética única en cada producción.",
     },
+    {
+      name: "Kathleen Álvarez",
+      role: "Productora Audiovisual",
+      image: "/img/equipo/kathleen.jpg",
+      bio: "Productora audiovisual, estudiante de Arte de la Universidad del Valle (Univalle). Aporta sensibilidad artística, dinamismo y rigurosidad en cada etapa del desarrollo de producción.",
+    },
   ];
 
   const handleContactSubmit = (e: React.FormEvent) => {
