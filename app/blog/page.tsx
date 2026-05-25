@@ -295,6 +295,37 @@ export default function Blog() {
                       </h3>
                     );
                   }
+                  if (para.startsWith("[gallery]")) {
+                    const urls = para.replace("[gallery]", "").trim().split(",").map(u => u.trim());
+                    return (
+                      <div key={pIdx} className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 my-10">
+                        {urls.map((url, uIdx) => (
+                          <div 
+                            key={uIdx} 
+                            className="relative aspect-square md:aspect-[4/3] overflow-hidden rounded-2xl border border-white/5 group hover:border-accent/30 transition-all duration-500 shadow-2xl bg-white/[0.01] cursor-pointer"
+                            onClick={() => {
+                              if (typeof window !== "undefined") {
+                                window.open(url, "_blank");
+                              }
+                            }}
+                          >
+                            <img
+                              src={url}
+                              alt={`Detrás de cámaras ${uIdx + 1}`}
+                              className="w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-105"
+                              loading="lazy"
+                            />
+                            {/* Cinematic Hover Overlay */}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
+                              <span className="text-[9px] uppercase font-black tracking-widest text-accent drop-shadow-[0_0_8px_var(--accent-glow)]">
+                                🔍 Ver Original
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  }
                   return <p key={pIdx}>{para}</p>;
                 })}
               </div>
