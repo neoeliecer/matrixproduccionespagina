@@ -44,7 +44,7 @@ export default function Home() {
     {
       name: "Kathleen Álvarez",
       role: "Productora Audiovisual",
-      image: "/img/equipo/kathleen.jpg",
+      image: "/img/equipo/kath.png",
       bio: "Productora audiovisual, estudiante de último semestre de la Escuela Cree. Aporta sensibilidad artística, dinamismo y rigurosidad en cada etapa del desarrollo de producción.",
     },
   ];

@@ -3,7 +3,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CinematicOverlay from "@/components/CinematicOverlay";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Contacto() {
   const [name, setName] = useState("");
@@ -12,6 +12,16 @@ export default function Contacto() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const msg = params.get("mensaje") || params.get("message");
+      if (msg) {
+        setMessage(decodeURIComponent(msg));
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

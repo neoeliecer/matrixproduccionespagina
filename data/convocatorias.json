@@ -17,12 +17,13 @@
     "excerpt": "Buscamos talentos emergentes para un nuevo proyecto cinematográfico. Si eres un actor apasionado y comprometido, esta es tu oportunidad de brillar en la gran pantalla.",
     "category": "Casting",
     "scope": "Colombia",
-    "deadline": "15 de Octubre, 2026",
+    "deadline": "Finalizada (Cerrada)",
     "entity": "Matrix Producciones",
     "image": "https://images.unsplash.com/photo-1554744133-6f9f8d5a7a1c",
     "requirements": "Experiencia previa en actuación, residir en Colombia y disponibilidad para audiciones",
     "content": "### Introducción\nMatrix Producciones busca nuevos talentos para un proyecto cinematográfico que busca inspirar y emocionar a la audiencia colombiana. Estamos en la búsqueda de actores con pasión, dedicación y un deseo ardiente de crecer en su carrera artística.\n### Quiénes pueden postularse\nLos actores interesados deben tener experiencia previa en actuación, ya sea en teatro, cine o televisión. Deben residir en Colombia y tener disponibilidad para asistir a audiciones en diferentes ciudades del país.\n### Beneficios y Apoyo\nLos actores seleccionados tendrán la oportunidad de trabajar con un equipo de profesionales experimentados, recibirán capacitación y mentoring para mejorar sus habilidades y tendrán la oportunidad de participar en un proyecto que puede lanzar su carrera al estrellato.",
-    "link": "https://www.matrixproducciones.com.co/oportunidades-de-casting",
+    "link": "/contacto",
+    "closed": true,
     "date": "23 de mayo de 2026"
   },
   {
@@ -43,12 +44,13 @@
     "excerpt": "Búsqueda de actores y actrices principales y de reparto para nueva producción cinematográfica a rodarse en el Pacífico Colombiano.",
     "category": "Casting",
     "scope": "Colombia",
-    "deadline": "30 de Junio, 2026",
+    "deadline": "Finalizada (Estreno Nov 2025)",
     "entity": "Matrix Producciones",
     "image": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800",
     "requirements": "Experiencia previa o formación actoral (deseable, no excluyente), disponibilidad para viajar, portafolio/videoreel.",
     "content": "Matrix Producciones abre convocatoria de casting nacional para su próximo largometraje de ficción 'Bajo la Lluvia', una historia profunda que retrata la vida y la resiliencia en el Pacífico colombiano. Buscamos perfiles diversos para roles protagónicos y secundarios.\n\n### Perfiles Buscados\n- **Mujer (20-28 años):** Expresiva, con habilidades para el drama y la improvisación física.\n- **Hombre (35-45 años):** Rostro marcado, voz grave, preferiblemente con experiencia en teatro o cine.\n- **Jóvenes y niños (8-14 años):** Carismáticos, residentes de zonas costeras.\n\n### Proceso de Audición\nLos candidatos preseleccionados serán contactados para audiciones presenciales en Cali, Buenaventura y Bogotá.",
     "link": "/contacto",
+    "closed": true,
     "date": "21 de Mayo, 2026"
   },
   {

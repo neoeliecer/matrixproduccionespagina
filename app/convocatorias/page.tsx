@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CinematicOverlay from "@/components/CinematicOverlay";
 import { useState } from "react";
+import Link from "next/link";
 import convocatoriasData from "@/data/convocatorias.json";
 
 export default function Convocatorias() {
@@ -121,6 +122,11 @@ export default function Convocatorias() {
                           className="w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-105"
                         />
                         <div className="absolute top-4 left-4 flex gap-2">
+                          {item.closed && (
+                            <span className="bg-red-600 border border-red-500/30 px-3 py-1 rounded text-[9px] uppercase font-bold tracking-widest text-white backdrop-blur-sm shadow-[0_0_10px_rgba(239,68,68,0.4)]">
+                              Finalizada
+                            </span>
+                          )}
                           <span className="bg-black/80 border border-white/10 px-3 py-1 rounded text-[9px] uppercase font-bold tracking-widest text-accent">
                             {item.category}
                           </span>
@@ -134,9 +140,15 @@ export default function Convocatorias() {
                         <div className="space-y-4">
                           <div className="flex justify-between items-center text-[10px] text-white/40 font-bold uppercase tracking-wider">
                             <span>Publicado: {item.date}</span>
-                            <span className="text-accent-dark flex items-center gap-1 font-extrabold">
-                              ⏳ Límite: {item.deadline}
-                            </span>
+                            {item.closed ? (
+                              <span className="text-red-400 flex items-center gap-1 font-extrabold">
+                                🚫 Cerrada
+                              </span>
+                            ) : (
+                              <span className="text-accent-dark flex items-center gap-1 font-extrabold">
+                                ⏳ Límite: {item.deadline}
+                              </span>
+                            )}
                           </div>
                           
                           <h2 className="text-xl font-extrabold uppercase text-white tracking-wide transition-colors group-hover:text-accent leading-tight">
@@ -227,6 +239,67 @@ export default function Convocatorias() {
               </div>
 
               {/* Renderizado de Descripción y Requisitos Detallados */}
+              {selectedConvocatoria.closed && (
+                selectedConvocatoria.title.toLowerCase().includes("lluvia") ? (
+                  <div className="bg-red-950/20 border border-red-500/20 p-6 md:p-8 rounded-xl text-center space-y-4 mb-8 backdrop-blur-md relative overflow-hidden">
+                    <div className="absolute inset-0 bg-red-500/5 animate-pulse-slow pointer-events-none" />
+                    <span className="text-red-400 font-extrabold text-[10px] uppercase tracking-[3px] block">
+                      🔴 Convocatoria Finalizada
+                    </span>
+                    <h4 className="text-white text-base md:text-lg font-extrabold uppercase tracking-widest">
+                      Largometraje Estrenado con Éxito
+                    </h4>
+                    <p className="text-white/60 text-xs md:text-sm leading-relaxed max-w-xl mx-auto">
+                      Esta convocatoria de casting ha finalizado. El largometraje de ficción <strong>'Bajo la Lluvia'</strong> fue estrenado con éxito a nivel nacional el <strong>20 de noviembre de 2025</strong> en salas de cine de todo el país y actualmente se encuentra en etapa de exhibición y promoción.
+                    </p>
+                    
+                    {/* Enlaces de prensa e industria */}
+                    <div className="pt-4 border-t border-white/5 flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[10px] font-bold uppercase tracking-[2px]">
+                      <span className="text-white/30">Fuentes Oficiales:</span>
+                      <a
+                        href="https://www.proimagenescolombia.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-accent hover:text-[#00cc6a] hover:underline transition-colors"
+                      >
+                        Proimágenes Colombia
+                      </a>
+                      <span className="text-white/10">•</span>
+                      <a
+                        href="https://www.rtvcnoticias.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-accent hover:text-[#00cc6a] hover:underline transition-colors"
+                      >
+                        RTVC Noticias
+                      </a>
+                      <span className="text-white/10">•</span>
+                      <a
+                        href="https://www.radionica.rocks"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-accent hover:text-[#00cc6a] hover:underline transition-colors"
+                      >
+                        Radiónica
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-red-950/20 border border-red-500/20 p-6 md:p-8 rounded-xl text-center space-y-3 mb-8 backdrop-blur-md relative overflow-hidden">
+                    <div className="absolute inset-0 bg-red-500/5 animate-pulse-slow pointer-events-none" />
+                    <span className="text-red-400 font-extrabold text-[10px] uppercase tracking-[3px] block">
+                      🔴 Convocatoria Finalizada
+                    </span>
+                    <h4 className="text-white text-base md:text-lg font-extrabold uppercase tracking-widest">
+                      Esta convocatoria ha concluido
+                    </h4>
+                    <p className="text-white/60 text-xs md:text-sm leading-relaxed max-w-xl mx-auto">
+                      El proceso de selección para esta convocatoria de <strong>{selectedConvocatoria.entity}</strong> ha finalizado con éxito. Agradecemos enormemente el interés y la participación de todos los postulantes. Mantente atento a nuestras redes sociales y sitio web para futuras oportunidades.
+                    </p>
+                  </div>
+                )
+              )}
+
               <div className="text-white/70 text-base md:text-lg leading-relaxed font-light pt-6 border-t border-white/5 space-y-6">
                 {selectedConvocatoria.content.split("\n\n").map((para, pIdx) => {
                   if (para.startsWith("###")) {
@@ -242,14 +315,40 @@ export default function Convocatorias() {
 
               {/* Botón de Aplicación / Enlace de la Convocatoria */}
               <div className="pt-8 border-t border-white/5 text-center">
-                <a
-                  href={selectedConvocatoria.link}
-                  target={selectedConvocatoria.link.startsWith("http") ? "_blank" : "_self"}
-                  rel="noopener noreferrer"
-                  className="inline-block bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-xs uppercase tracking-[4px] px-10 py-5 rounded transition-all duration-300 shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_35px_var(--accent)] hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  Aplicar a la Convocatoria
-                </a>
+                {selectedConvocatoria.closed ? (
+                  <div className="flex flex-col sm:flex-row justify-center gap-4">
+                    <Link
+                      href="/catalogo"
+                      className="inline-block border border-white/20 hover:border-white text-white font-extrabold text-xs uppercase tracking-[3px] px-8 py-5 rounded backdrop-blur-sm transition-all duration-300 hover:bg-white/5 hover:-translate-y-0.5 active:translate-y-0"
+                    >
+                      Ver Catálogo de Producciones
+                    </Link>
+                    <a
+                      href="https://wa.me/573174734070?text=Hola%20Matrix%20Producciones%2C%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20largometraje%20Bajo%20la%20Lluvia."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block bg-white/10 hover:bg-white/15 text-white font-extrabold text-xs uppercase tracking-[3px] px-8 py-5 rounded transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
+                    >
+                      Más Información (WhatsApp)
+                    </a>
+                  </div>
+                ) : selectedConvocatoria.link.startsWith("http") ? (
+                  <a
+                    href={selectedConvocatoria.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-xs uppercase tracking-[4px] px-10 py-5 rounded transition-all duration-300 shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_35px_var(--accent)] hover:-translate-y-0.5 active:translate-y-0"
+                  >
+                    Aplicar a la Convocatoria
+                  </a>
+                ) : (
+                  <Link
+                    href={selectedConvocatoria.link}
+                    className="inline-block bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-xs uppercase tracking-[4px] px-10 py-5 rounded transition-all duration-300 shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_35px_var(--accent)] hover:-translate-y-0.5 active:translate-y-0"
+                  >
+                    Aplicar a la Convocatoria
+                  </Link>
+                )}
               </div>
             </div>
           )}
