@@ -41,24 +41,24 @@ export default function Tienda() {
 
   const faqs = [
     {
-      question: "¿Para quién es este producto?",
-      answer: "Este curso y libro están diseñados para personas que quieren entender cómo sanarse a sí mismas y sanar a otras personas a través del entendimiento profundo de las capas invisibles y los campos energéticos del cuerpo humano, inspirados en la sabiduría de Barbara Brennan.",
+      question: "¿Para quién son estos productos?",
+      answer: "Están diseñados para buscadores, estudiantes de arte y personas interesadas en el bienestar, la sanación energética y las grandes preguntas existenciales de la conciencia y la trascendencia sutil.",
     },
     {
       question: "¿Cómo funciona el 'Plazo de Garantía'?",
-      answer: "El videolibro cuenta con una Garantía Incondicional de 7 días respaldada por Hotmart. Tendrás tu dinero de vuelta al 100% y sin preguntas si decides que el contenido no cumple con tus expectativas dentro de ese período.",
+      answer: "El videolibro de Hotmart cuenta con una Garantía Incondicional de 7 días. Tendrás tu dinero de vuelta al 100% si decides que el contenido no cumple con tus expectativas dentro de ese período.",
     },
     {
       question: "¿Qué es y cómo funciona el Certificado de Conclusión digital?",
-      answer: "Al finalizar todas las videolecciones y completar el curso, la plataforma emitirá automáticamente un Certificado Digital de Conclusión a tu nombre, que podrás descargar o compartir de forma digital.",
+      answer: "Al finalizar todas las videolecciones del Videolibro en Hotmart, la plataforma emitirá automáticamente un Certificado Digital de Conclusión a tu nombre.",
     },
     {
-      question: "¿Cómo recibiré acceso al producto?",
-      answer: "Para el Videolibro, recibirás un correo de Hotmart con tus credenciales inmediatamente después del pago. Para el Libro Digital PDF comprado con Wompi, el sistema te enviará un correo automatizado desde contacto@matrixproducciones.com con el enlace seguro de descarga en menos de 60 segundos.",
+      question: "¿Cómo recibiré el Ebook '¿Cómo es el más allá?'?",
+      answer: "Inmediatamente después de realizar tu pago seguro con Wompi, nuestro sistema te enviará un correo automatizado de Matrix Producciones con el enlace seguro de descarga directa en formato PDF en menos de un minuto.",
     },
     {
       question: "¿Cómo realizo mi compra de forma segura?",
-      answer: "Solo debes hacer clic en el botón de compra del producto deseado. Serás redirigido a las pasarelas oficiales correspondientes (Hotmart para videolecciones, y Wompi para el libro digital en PDF) donde podrás pagar de forma 100% encriptada y segura.",
+      answer: "Solo debes hacer clic en el botón del producto que desees. Serás redirigido a las pasarelas oficiales correspondientes (Hotmart para videolecciones, y Wompi para el ebook PDF) donde podrás pagar de forma 100% encriptada y segura.",
     },
   ];
 
@@ -102,7 +102,7 @@ export default function Tienda() {
             </h3>
             <p className="text-white/60 text-sm leading-relaxed mb-6 font-light">
               Tu pago ha sido procesado de forma 100% segura a través de **Wompi**.<br/><br/>
-              En los próximos 60 segundos recibirás un correo electrónico de **Matrix Producciones** con el enlace de descarga seguro para tu **Libro Digital en PDF**.
+              En los próximos 60 segundos recibirás un correo electrónico de **Matrix Producciones** con el enlace de descarga seguro para tu **Ebook PDF: ¿Cómo es el más allá?**.
             </p>
             <button
               onClick={() => setShowSuccessModal(false)}
@@ -127,10 +127,10 @@ export default function Tienda() {
               Tienda Oficial Matrix
             </span>
             <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tight text-white leading-none">
-              Transformación Personal
+              Catálogo de Obras
             </h1>
             <p className="text-white/40 text-sm max-w-xl mx-auto uppercase tracking-[3px] mt-2">
-              Conecta con la sabiduría de Barbara Brennan en formato interactivo y digital
+              Explora formatos interactivos y lecturas profundas de crecimiento personal
             </p>
           </div>
 
@@ -239,39 +239,39 @@ export default function Tienda() {
 
           </div>
 
-          {/* ================= PRODUCTO 2: LIBRO DIGITAL COMPLETO (PDF) ================= */}
+          {/* ================= PRODUCTO 2: EBOOK PDF - ¿CÓMO ES EL MÁS ALLÁ? ================= */}
           <div className="grid lg:grid-cols-12 gap-12 items-center max-w-6xl mx-auto mb-32 border-t border-white/5 pt-32">
             
             {/* Product Copy & Buy Card (Left - Alternating Order) */}
             <div className="lg:col-span-6 space-y-8 order-2 lg:order-1">
               <div className="space-y-4">
                 <span className="text-accent text-[10px] uppercase tracking-[4px] font-extrabold block">
-                  📖 FORMATO DIGITAL COMPLETO
+                  📖 EBOOK DIGITAL COMPLETO
                 </span>
                 <h2 className="text-3xl md:text-5xl font-black uppercase text-white tracking-wide leading-none">
-                  Libro Hágase La Luz
+                  ¿Cómo es el más allá?
                 </h2>
                 <p className="text-white/40 text-sm font-semibold uppercase tracking-[3px]">
-                  El texto original en alta resolución
+                  Un viaje reflexivo sobre la existencia y la trascendencia sutil
                 </p>
               </div>
 
               <p className="text-white/60 text-base leading-relaxed font-light">
-                Accede a la obra maestra de **Barbara Brennan** en su formato digital íntegro. Este libro en PDF de alta resolución recopila la totalidad del texto, los diagramas clínicos de sanación y las complejas guías sobre las capas sutiles de la anatomía y los campos bioenergéticos humanos.
+                Una obra literaria orientada a explorar una de las interrogantes más profundas y universales del ser humano. Este libro digital recopila perspectivas filosóficas, espirituales y reflexiones reconfortantes que buscan aportar luz, tranquilidad y un entendimiento sereno sobre el plano sutil de la conciencia y la existencia.
               </p>
 
               <div className="space-y-4 pt-4 border-t border-white/5">
                 <div className="flex items-center gap-3">
                   <span className="w-2 h-2 rounded-full bg-accent" />
-                  <span className="text-white/70 text-sm font-light">Formato PDF de alta calidad compatible con Kindle, iPads y móviles.</span>
+                  <span className="text-white/70 text-sm font-light">Libro en formato PDF de alta resolución optimizado para lectura digital.</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="w-2 h-2 rounded-full bg-accent" />
-                  <span className="text-white/70 text-sm font-light">Despliegue y entrega automatizada en tu correo de forma inmediata.</span>
+                  <span className="text-white/70 text-sm font-light">Despliegue y entrega automatizada en tu correo electrónico en segundos.</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="w-2 h-2 rounded-full bg-accent" />
-                  <span className="text-white/70 text-sm font-light">Pago seguro certificado nacional a través del sistema Wompi.</span>
+                  <span className="text-white/70 text-sm font-light">Pago seguro certificado nacional a través del ecosistema Wompi.</span>
                 </div>
               </div>
 
@@ -281,7 +281,7 @@ export default function Tienda() {
                   onClick={handleWompiPayment}
                   className="w-full sm:w-auto bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-xs uppercase tracking-[3px] px-8 py-5 rounded-[2px] transition-all duration-300 text-center shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] hover:-translate-y-1 active:translate-y-0 cursor-pointer"
                 >
-                  Comprar con Wompi ($15.000 COP)
+                  Comprar Ebook ($15.000 COP)
                 </button>
               </div>
             </div>
@@ -295,10 +295,10 @@ export default function Tienda() {
                 {/* Badge */}
                 <div className="flex justify-between items-center z-10">
                   <span className="text-[9px] uppercase tracking-[3px] font-extrabold text-accent bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-full">
-                    Libro PDF
+                    Ebook PDF
                   </span>
                   <span className="text-[10px] text-white/40 font-mono">
-                    Edición Digital Completa
+                    Edición Digital
                   </span>
                 </div>
 
@@ -310,10 +310,10 @@ export default function Tienda() {
                   </div>
                   <div className="text-center space-y-2">
                     <h3 className="text-2xl font-black uppercase tracking-wider text-white leading-none">
-                      Hágase La Luz
+                      ¿Cómo es el más allá?
                     </h3>
                     <p className="text-white/40 text-[10px] uppercase tracking-[4px]">
-                      Lectura del Texto Sagrado
+                      Trascendencia y Conciencia
                     </p>
                   </div>
                 </div>
@@ -338,7 +338,7 @@ export default function Tienda() {
           <div className="max-w-5xl mx-auto mb-32 space-y-12">
             <div className="text-center space-y-2">
               <h2 className="text-2xl md:text-4xl font-extrabold uppercase tracking-wider text-white">
-                Contenido del Videolibro
+                Contenido del Videolibro Hágase La Luz
               </h2>
               <p className="text-white/40 text-xs uppercase tracking-[3px]">
                 Estructurado para una asimilación didáctica y espiritual profunda
