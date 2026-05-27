@@ -94,8 +94,8 @@ async function enviarLibroPorCorreo(email: string, monto: number, referencia: st
     return;
   }
 
-  // URL del PDF del Libro Digital (alojado en tu Cloudinary)
-  const enlaceDescarga = "https://res.cloudinary.com/decqj4zhj/image/upload/v1/documentos/libro-digital.pdf";
+  // URL del PDF del Libro Digital (alojado en la carpeta public de tu servidor)
+  const enlaceDescarga = "https://matrixproducciones.com/libro-digital.pdf";
 
   // Diseño HTML Cinematográfico de Alta Calidad para el Correo (Modo Oscuro con detalles verdes)
   const htmlContent = `
