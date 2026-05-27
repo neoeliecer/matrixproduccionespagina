@@ -33,7 +33,7 @@ export default function Tienda() {
     const publicKey = "pub_test_zpbUNvVzeFdnAdoK0StdhL3Qs4uEX3vS"; // Sandbox test key
     const redirectUrl = "https://matrixproducciones.com/tienda?success=true";
     
-    const wompiUrl = `https://checkout.wompi.co/p/?public_key=${publicKey}&currency=COP&amount_in_cents=${amountInCents}&reference=${reference}&redirect_url=${encodeURIComponent(redirectUrl)}`;
+    const wompiUrl = `https://checkout.wompi.co/p/?public-key=${publicKey}&currency=COP&amount-in-cents=${amountInCents}&reference=${reference}&redirect-url=${encodeURIComponent(redirectUrl)}`;
     
     // Abrir la pasarela de pagos segura en una nueva pestaña
     window.open(wompiUrl, "_blank");
