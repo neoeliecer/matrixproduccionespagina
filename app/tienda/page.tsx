@@ -1,25 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CinematicOverlay from "@/components/CinematicOverlay";
 
 export default function Tienda() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("success") === "true") {
+        setShowSuccessModal(true);
+        // Limpiar los parámetros de la URL para que no vuelva a abrirse al recargar
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, []);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
+  const handleWompiPayment = () => {
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 9);
+    // Generar una referencia única que Wompi reportará al webhook
+    const reference = `LIBRO_${timestamp}_${randomString}`;
+    const amountInCents = 1500000; // $15,000 COP en centavos
+    const publicKey = "pub_test_zpbUNvVzeFdnAdoK0StdhL3Qs4uEX3vS"; // Sandbox test key
+    const redirectUrl = "https://matrixproducciones.com/tienda?success=true";
+    
+    const wompiUrl = `https://checkout.wompi.co/p/?public_key=${publicKey}&currency=COP&amount_in_cents=${amountInCents}&reference=${reference}&redirect_url=${encodeURIComponent(redirectUrl)}`;
+    
+    // Abrir la pasarela de pagos segura en una nueva pestaña
+    window.open(wompiUrl, "_blank");
+  };
+
   const faqs = [
     {
       question: "¿Para quién es este producto?",
-      answer: "Este curso está diseñado para personas que quieren entender cómo sanarse a sí mismas y sanar a otras personas a través del entendimiento profundo de las capas invisibles y los campos energéticos del cuerpo humano, inspirados en la sabiduría de Barbara Brennan.",
+      answer: "Este curso y libro están diseñados para personas que quieren entender cómo sanarse a sí mismas y sanar a otras personas a través del entendimiento profundo de las capas invisibles y los campos energéticos del cuerpo humano, inspirados en la sabiduría de Barbara Brennan.",
     },
     {
       question: "¿Cómo funciona el 'Plazo de Garantía'?",
-      answer: "El curso cuenta con una Garantía Incondicional de 7 días respaldada por Hotmart. Tendrás tu dinero de vuelta al 100% y sin preguntas si decides que el contenido no cumple con tus expectativas dentro de ese período.",
+      answer: "El videolibro cuenta con una Garantía Incondicional de 7 días respaldada por Hotmart. Tendrás tu dinero de vuelta al 100% y sin preguntas si decides que el contenido no cumple con tus expectativas dentro de ese período.",
     },
     {
       question: "¿Qué es y cómo funciona el Certificado de Conclusión digital?",
@@ -27,11 +54,11 @@ export default function Tienda() {
     },
     {
       question: "¿Cómo recibiré acceso al producto?",
-      answer: "Inmediatamente después de realizar tu pago seguro, recibirás un correo electrónico de Hotmart con tus credenciales de acceso. Podrás ingresar al área de miembros y consumir los videolibros desde cualquier dispositivo móvil, tablet, computador o smart TV.",
+      answer: "Para el Videolibro, recibirás un correo de Hotmart con tus credenciales inmediatamente después del pago. Para el Libro Digital PDF comprado con Wompi, el sistema te enviará un correo automatizado desde contacto@matrixproducciones.com con el enlace seguro de descarga en menos de 60 segundos.",
     },
     {
-      question: "¿Cómo realizo mi compra?",
-      answer: "Solo debes hacer clic en el botón 'Comprar Ahora en Hotmart'. Serás redirigido a la pasarela oficial de pagos de Hotmart, donde podrás elegir tu método de pago preferido (tarjeta de crédito, PSE, PayPal, etc.) de forma 100% segura.",
+      question: "¿Cómo realizo mi compra de forma segura?",
+      answer: "Solo debes hacer clic en el botón de compra del producto deseado. Serás redirigido a las pasarelas oficiales correspondientes (Hotmart para videolecciones, y Wompi para el libro digital en PDF) donde podrás pagar de forma 100% encriptada y segura.",
     },
   ];
 
@@ -63,6 +90,30 @@ export default function Tienda() {
       <CinematicOverlay />
       <Navbar />
 
+      {/* MODAL DE COMPRA EXITOSA (WOMPI WEBHOOK REDIRECT) */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="relative max-w-md w-full bg-[#090909] border border-accent/20 rounded-3xl p-8 text-center shadow-[0_0_50px_rgba(0,255,136,0.15)]">
+            <div className="w-16 h-16 bg-accent/10 border border-accent/30 rounded-full flex items-center justify-center text-3xl text-accent mx-auto mb-6 shadow-[0_0_20px_var(--accent-glow)] animate-pulse">
+              ✅
+            </div>
+            <h3 className="text-2xl font-black uppercase tracking-wider text-white mb-4">
+              ¡Pago Exitoso!
+            </h3>
+            <p className="text-white/60 text-sm leading-relaxed mb-6 font-light">
+              Tu pago ha sido procesado de forma 100% segura a través de **Wompi**.<br/><br/>
+              En los próximos 60 segundos recibirás un correo electrónico de **Matrix Producciones** con el enlace de descarga seguro para tu **Libro Digital en PDF**.
+            </p>
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="w-full bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-xs uppercase tracking-[3px] py-4 rounded-[2px] transition-all duration-300 shadow-[0_0_15px_var(--accent-glow)] cursor-pointer"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
       <main className="relative min-h-screen bg-[#030303] pt-32 pb-24 px-6 md:px-12 overflow-hidden">
         {/* Neon glowing auras */}
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[140px] pointer-events-none" />
@@ -79,11 +130,11 @@ export default function Tienda() {
               Transformación Personal
             </h1>
             <p className="text-white/40 text-sm max-w-xl mx-auto uppercase tracking-[3px] mt-2">
-              Conecta con la sabiduría de Barbara Brennan en formato interactivo
+              Conecta con la sabiduría de Barbara Brennan en formato interactivo y digital
             </p>
           </div>
 
-          {/* ================= PRODUCT DISPLAY GRID ================= */}
+          {/* ================= PRODUCTO 1: VIDEOLIBRO PREMIUM ================= */}
           <div className="grid lg:grid-cols-12 gap-12 items-center max-w-6xl mx-auto mb-32">
             
             {/* Product Mockup Representation (Left) */}
@@ -136,7 +187,7 @@ export default function Tienda() {
             <div className="lg:col-span-6 space-y-8">
               <div className="space-y-4">
                 <span className="text-accent text-[10px] uppercase tracking-[4px] font-extrabold block">
-                  ✨ Estreno Exclusivo
+                  ✨ ESTRENO EXCLUSIVO EN VIDEO
                 </span>
                 <h2 className="text-3xl md:text-5xl font-black uppercase text-white tracking-wide leading-none">
                   Hágase La Luz
@@ -147,7 +198,7 @@ export default function Tienda() {
               </div>
 
               <p className="text-white/60 text-base leading-relaxed font-light">
-                Descubre una nueva forma de conectar con la sabiduría de **Barbara Brennan** a través de este exclusivo conjunto de videos interactivos del aclamado libro de **'Hágase la Luz'**. Sumérgete en cada capítulo y experimenta la profundidad de sus enseñanzas de una manera visualmente atractiva, moderna y accesible.
+                Descubre una nueva forma de conectar con la sabiduría de **Barbara Brennan** a través de este exclusivo conjunto de videos interactivos del aclamado libro de **&apos;Hágase la Luz&apos;**. Sumérgete en cada capítulo y experimenta la profundidad de sus enseñanzas de una manera visualmente atractiva, moderna y accesible.
               </p>
 
               <div className="space-y-4 pt-4 border-t border-white/5">
@@ -183,6 +234,101 @@ export default function Tienda() {
                 >
                   Ver Ficha Oficial
                 </a>
+              </div>
+            </div>
+
+          </div>
+
+          {/* ================= PRODUCTO 2: LIBRO DIGITAL COMPLETO (PDF) ================= */}
+          <div className="grid lg:grid-cols-12 gap-12 items-center max-w-6xl mx-auto mb-32 border-t border-white/5 pt-32">
+            
+            {/* Product Copy & Buy Card (Left - Alternating Order) */}
+            <div className="lg:col-span-6 space-y-8 order-2 lg:order-1">
+              <div className="space-y-4">
+                <span className="text-accent text-[10px] uppercase tracking-[4px] font-extrabold block">
+                  📖 FORMATO DIGITAL COMPLETO
+                </span>
+                <h2 className="text-3xl md:text-5xl font-black uppercase text-white tracking-wide leading-none">
+                  Libro Hágase La Luz
+                </h2>
+                <p className="text-white/40 text-sm font-semibold uppercase tracking-[3px]">
+                  El texto original en alta resolución
+                </p>
+              </div>
+
+              <p className="text-white/60 text-base leading-relaxed font-light">
+                Accede a la obra maestra de **Barbara Brennan** en su formato digital íntegro. Este libro en PDF de alta resolución recopila la totalidad del texto, los diagramas clínicos de sanación y las complejas guías sobre las capas sutiles de la anatomía y los campos bioenergéticos humanos.
+              </p>
+
+              <div className="space-y-4 pt-4 border-t border-white/5">
+                <div className="flex items-center gap-3">
+                  <span className="w-2 h-2 rounded-full bg-accent" />
+                  <span className="text-white/70 text-sm font-light">Formato PDF de alta calidad compatible con Kindle, iPads y móviles.</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-2 h-2 rounded-full bg-accent" />
+                  <span className="text-white/70 text-sm font-light">Despliegue y entrega automatizada en tu correo de forma inmediata.</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-2 h-2 rounded-full bg-accent" />
+                  <span className="text-white/70 text-sm font-light">Pago seguro certificado nacional a través del sistema Wompi.</span>
+                </div>
+              </div>
+
+              {/* Glowing CTA Button Container for Wompi */}
+              <div className="pt-6 flex flex-col sm:flex-row gap-4 items-center">
+                <button
+                  onClick={handleWompiPayment}
+                  className="w-full sm:w-auto bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-xs uppercase tracking-[3px] px-8 py-5 rounded-[2px] transition-all duration-300 text-center shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] hover:-translate-y-1 active:translate-y-0 cursor-pointer"
+                >
+                  Comprar con Wompi ($15.000 COP)
+                </button>
+              </div>
+            </div>
+
+            {/* Product Mockup Representation (Right - Alternating Order) */}
+            <div className="lg:col-span-6 flex justify-center order-1 lg:order-2">
+              <div className="relative group w-full max-w-md aspect-[4/5] bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-3xl p-8 backdrop-blur-md flex flex-col justify-between shadow-2xl hover:border-accent/30 transition-all duration-700">
+                {/* Glowing neon halo */}
+                <div className="absolute inset-0 rounded-3xl bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl pointer-events-none" />
+                
+                {/* Badge */}
+                <div className="flex justify-between items-center z-10">
+                  <span className="text-[9px] uppercase tracking-[3px] font-extrabold text-accent bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-full">
+                    Libro PDF
+                  </span>
+                  <span className="text-[10px] text-white/40 font-mono">
+                    Edición Digital Completa
+                  </span>
+                </div>
+
+                {/* Mockup Center Design */}
+                <div className="my-8 flex flex-col items-center justify-center space-y-6 relative z-10">
+                  {/* Glowing book icon representing the PDF */}
+                  <div className="w-24 h-24 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-4xl text-accent shadow-[0_0_30px_var(--accent-glow)] group-hover:scale-105 transition-transform duration-500">
+                    📖
+                  </div>
+                  <div className="text-center space-y-2">
+                    <h3 className="text-2xl font-black uppercase tracking-wider text-white leading-none">
+                      Hágase La Luz
+                    </h3>
+                    <p className="text-white/40 text-[10px] uppercase tracking-[4px]">
+                      Lectura del Texto Sagrado
+                    </p>
+                  </div>
+                </div>
+
+                {/* Secure checkout footer */}
+                <div className="pt-6 border-t border-white/5 flex justify-between items-center z-10">
+                  <div className="text-left">
+                    <span className="text-[9px] uppercase tracking-wider text-white/30 block">Entrega inmediata</span>
+                    <span className="text-[11px] font-bold text-white/80">📧 Envío Automático</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[9px] uppercase tracking-wider text-white/30 block">Valor único</span>
+                    <span className="text-base font-black text-accent drop-shadow-[0_0_10px_var(--accent)]">$15.000 COP</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -224,7 +370,7 @@ export default function Tienda() {
           {/* ================= MEET THE CREATOR SECTION ================= */}
           <div className="max-w-4xl mx-auto mb-32 bg-white/[0.01] border border-white/5 p-8 md:p-12 rounded-3xl backdrop-blur-md">
             <div className="flex flex-col md:flex-row gap-8 items-center">
-              {/* Creator Photo Placeholder */}
+              {/* Creator Photo */}
               <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-accent shrink-0 shadow-[0_0_20px_var(--accent-glow)]">
                 <img
                   src="/img/equipo/eliecer.jpg"
