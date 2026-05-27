@@ -29,7 +29,7 @@ export default function Talentos() {
       id: "kathleen-alvarez",
       name: "Kathleen Álvarez",
       role: "Actriz & Intérprete Dramática",
-      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600",
+      image: "/img/equipo/kath.png",
       tags: ["Dramático", "Teatro Clásico", "Cine Contemporáneo"],
       bio: "Estudiante de último año de la Escuela Cree en Cali. Kathleen destaca por su gran profundidad psicológica y magnetismo emocional delante de la cámara.",
       fullBio: "Kathleen es una actriz emergente con una notable inteligencia actoral. Cursando su último año en la Escuela Cree de Cali, se ha especializado en perfiles dramáticos complejos y de alta exigencia emocional. Su formación integra técnicas de actuación cinematográfica realista, expresión dramática corporal y modulación de voz. Aporta una mirada introspectiva, madura y muy expresiva a cada rol, siendo ideal para protagónicos en cortometrajes y largometrajes contemporáneos.",
