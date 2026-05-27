@@ -28,6 +28,7 @@ export default function Navbar() {
     { name: "Tienda", path: "/tienda" },
     { name: "Servicios", path: "/servicios" },
     { name: "Convocatorias", path: "/convocatorias" },
+    { name: "Talentos", path: "/talentos" },
     { name: "Cine con Propósito", path: "/recomendadas" },
     { name: "Eventos", path: "/eventos" },
     { name: "Blog", path: "/blog" },
