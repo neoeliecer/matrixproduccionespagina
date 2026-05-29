@@ -34,9 +34,9 @@ export async function POST(request: Request) {
         // Concatenar timestamp y el secreto de Wompi
         message += timestamp + wompiSecret;
 
-        // Generar hash SHA256
+        // Generar hash SHA256 (Wompi requiere SHA256 simple, NO HMAC)
         const calculatedChecksum = crypto
-          .createHmac('sha256', wompiSecret)
+          .createHash('sha256')
           .update(message)
           .digest('hex');
 
