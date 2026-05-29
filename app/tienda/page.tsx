@@ -24,19 +24,46 @@ export default function Tienda() {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  const handleWompiPayment = () => {
+  const handleWompiPayment = async () => {
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 9);
     // Generar una referencia única que Wompi reportará al webhook
     const reference = `LIBRO_${timestamp}_${randomString}`;
     const amountInCents = 1500000; // $15,000 COP en centavos
-    const publicKey = "pub_test_zpbUNvVzeFdnAdoK0StdhL3Qs4uEX3vS"; // Sandbox test key
+    const currency = "COP";
+    const publicKey = "pub_test_zpbUNvVzeFdnAdoK0StdhL3Qs4uEX3v5"; // Corrected sandbox key
     const redirectUrl = "https://matrixproducciones.com/tienda?success=true";
     
-    const wompiUrl = `https://checkout.wompi.co/p/?public-key=${publicKey}&currency=COP&amount-in-cents=${amountInCents}&reference=${reference}&redirect-url=${encodeURIComponent(redirectUrl)}`;
-    
-    // Abrir la pasarela de pagos segura en una nueva pestaña
-    window.open(wompiUrl, "_blank");
+    try {
+      // 1. Obtener la firma de integridad de forma segura desde el servidor
+      const response = await fetch("/api/wompi-signature", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reference,
+          amountInCents,
+          currency,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al obtener la firma de integridad del servidor");
+      }
+
+      const { signature } = await response.json();
+
+      // 2. Construir la URL completa del checkout con el parámetro obligatorio 'signature:integrity'
+      const wompiUrl = `https://checkout.wompi.co/p/?public-key=${publicKey}&currency=${currency}&amount-in-cents=${amountInCents}&reference=${reference}&signature:integrity=${signature}&redirect-url=${encodeURIComponent(redirectUrl)}`;
+      
+      // 3. Abrir la pasarela de pagos segura en una nueva pestaña
+      window.open(wompiUrl, "_blank");
+    } catch (error: any) {
+      console.error("Error al iniciar el pago con Wompi:", error);
+      alert(`No se pudo iniciar el pago: ${error.message || "Por favor, verifica la configuración de tu Secreto de Integridad."}`);
+    }
   };
 
   const faqs = [
