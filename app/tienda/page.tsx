@@ -31,7 +31,7 @@ export default function Tienda() {
     const reference = `LIBRO_${timestamp}_${randomString}`;
     const amountInCents = 3000000; // $30,000 COP en centavos
     const currency = "COP";
-    const publicKey = "pub_test_zpbUNvVzeFdnAdoK0StdhL3Qs4uEX3v5"; // Corrected sandbox key
+    const publicKey = "pub_prod_S038rLvQubpThhXiKFTqIGAS7gVLfjCD"; // Production public key
     const redirectUrl = "https://matrixproducciones.com/tienda?success=true";
     
     try {
@@ -303,13 +303,21 @@ export default function Tienda() {
               </div>
 
               {/* Glowing CTA Button Container for Wompi */}
-              <div className="pt-6 flex flex-col sm:flex-row gap-4 items-center">
+              <div className="pt-6 flex flex-col sm:flex-row gap-4 items-center w-full">
                 <button
                   onClick={handleWompiPayment}
                   className="w-full sm:w-auto bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-xs uppercase tracking-[3px] px-8 py-5 rounded-[2px] transition-all duration-300 text-center shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] hover:-translate-y-1 active:translate-y-0 cursor-pointer"
                 >
                   Comprar Ebook ($30.000 COP)
                 </button>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent('¡Hola! Te recomiendo este libro para que lo leas: "¿Cómo es el más allá?". Una obra profunda y reflexiva de Matrix Producciones sobre la existencia y el plano sutil de la conciencia. Puedes verlo aquí: https://matrixproducciones.com/tienda')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto border border-white/20 hover:border-white text-white font-extrabold text-xs uppercase tracking-[3px] px-8 py-5 rounded-[2px] backdrop-blur-sm transition-all duration-300 hover:bg-white/5 hover:-translate-y-1 active:translate-y-0 text-center"
+                >
+                  📢 Recomendar Libro
+                </a>
               </div>
             </div>
 
