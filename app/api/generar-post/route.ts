@@ -309,6 +309,55 @@ Debes responder ÚNICAMENTE con un objeto JSON válido con los siguientes campos
       );
     }
 
+    // 4.5 Publicar el artículo automáticamente en WordPress (Pantheon)
+    try {
+      const wpUsername = "neo";
+      const wpAppPassword = "24tA UUMa URmF XQjo jSav wkbW";
+      const wpAuth = "Basic " + Buffer.from(wpUsername + ":" + wpAppPassword).toString("base64");
+      
+      // Estructurar el contenido en HTML limpio compatible con Gutenberg/WordPress
+      let formattedContent = generatedPost.content
+        .split("\n\n")
+        .map((para: string) => {
+          if (para.startsWith("###")) {
+            return `<h3>${para.replace("###", "").trim()}</h3>`;
+          }
+          return `<p>${para}</p>`;
+        })
+        .join("\n");
+
+      // Inyectar la imagen destacada en el cuerpo del post para dar mayor impacto visual
+      if (generatedPost.image) {
+        formattedContent = `<img src="${generatedPost.image}" alt="${generatedPost.title}" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.05);" />\n` + formattedContent;
+      }
+
+      console.log(`Enviando post a WordPress Pantheon: "${generatedPost.title}"...`);
+      const wpResponse = await fetch("https://dev-matrix-producciones.pantheonsite.io/wp-json/wp/v2/posts", {
+        method: "POST",
+        headers: {
+          "Authorization": wpAuth,
+          "Content-Type": "application/json",
+          "User-Agent": "NextJS-Blog-CMS"
+        },
+        body: JSON.stringify({
+          title: generatedPost.title,
+          content: formattedContent,
+          excerpt: generatedPost.excerpt,
+          status: "publish"
+        })
+      });
+
+      if (wpResponse.ok) {
+        const wpData = await wpResponse.json();
+        console.log(`✅ Artículo publicado con éxito en WordPress Pantheon con ID: ${wpData.id}`);
+      } else {
+        const wpErrText = await wpResponse.text();
+        console.error("❌ Error al publicar en WordPress Pantheon:", wpErrText);
+      }
+    } catch (wpErr: any) {
+      console.error("⚠️ Excepción al intentar publicar en WordPress:", wpErr.message);
+    }
+
     // 5. Envío de Boletín Automático a Suscriptores mediante Brevo REST API
     if (groqApiKey && githubToken) {
       const brevoApiKey = process.env.BREVO_API_KEY;
