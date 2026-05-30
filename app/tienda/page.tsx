@@ -29,7 +29,7 @@ export default function Tienda() {
     const randomString = Math.random().toString(36).substring(2, 9);
     // Generar una referencia única que Wompi reportará al webhook
     const reference = `LIBRO_${timestamp}_${randomString}`;
-    const amountInCents = 1500000; // $15,000 COP en centavos
+    const amountInCents = 3000000; // $30,000 COP en centavos
     const currency = "COP";
     const publicKey = "pub_test_zpbUNvVzeFdnAdoK0StdhL3Qs4uEX3v5"; // Corrected sandbox key
     const redirectUrl = "https://matrixproducciones.com/tienda?success=true";
@@ -308,7 +308,7 @@ export default function Tienda() {
                   onClick={handleWompiPayment}
                   className="w-full sm:w-auto bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-xs uppercase tracking-[3px] px-8 py-5 rounded-[2px] transition-all duration-300 text-center shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] hover:-translate-y-1 active:translate-y-0 cursor-pointer"
                 >
-                  Comprar Ebook ($15.000 COP)
+                  Comprar Ebook ($30.000 COP)
                 </button>
               </div>
             </div>
@@ -353,7 +353,7 @@ export default function Tienda() {
                   </div>
                   <div className="text-right">
                     <span className="text-[9px] uppercase tracking-wider text-white/30 block">Valor único</span>
-                    <span className="text-base font-black text-accent drop-shadow-[0_0_10px_var(--accent)]">$15.000 COP</span>
+                    <span className="text-base font-black text-accent drop-shadow-[0_0_10px_var(--accent)]">$30.000 COP</span>
                   </div>
                 </div>
               </div>
