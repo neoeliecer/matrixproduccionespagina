@@ -355,7 +355,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido con los siguientes campos
                         <p style="font-size: 14px; color: #888888; line-height: 1.6; font-weight: 300; margin-bottom: 24px;">${generatedPost.excerpt}</p>
                         ${generatedPost.image ? `<img src="${generatedPost.image}" alt="${generatedPost.title}" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 24px; border: 1px solid #1a1a1a;" />` : ""}
                         <div style="text-align: center; margin-top: 32px; margin-bottom: 16px;">
-                          <a href="https://matrixproducciones.com/blog" style="background-color: #00ff88; color: #000000; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 3px; padding: 16px 32px; border-radius: 2px; text-decoration: none; display: inline-block;">Leer Artículo Completo →</a>
+                          <a href="https://matrixproducciones.com/blog?post=${encodeURIComponent(generatedPost.title)}" style="background-color: #00ff88; color: #000000; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 3px; padding: 16px 32px; border-radius: 2px; text-decoration: none; display: inline-block;">Leer Artículo Completo →</a>
                         </div>
                       </div>
                       <div style="background-color: #080808; padding: 20px; text-align: center; font-size: 10px; color: #444444; border-top: 1px solid #111111; line-height: 1.6;">
