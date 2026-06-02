@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 export default function Home() {
   const [activeTab, setActiveTab] = useState("all");
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [visitCount, setVisitCount] = useState<number | null>(null);
   const heroBgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -22,10 +23,35 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const fetchVisits = async () => {
+      try {
+        const hasSession = sessionStorage.getItem("matrix_visit_registered");
+        let res;
+        if (!hasSession) {
+          res = await fetch("/api/visitas", { method: "POST" });
+          sessionStorage.setItem("matrix_visit_registered", "true");
+        } else {
+          res = await fetch("/api/visitas", { method: "GET" });
+        }
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data.count === "number") {
+            setVisitCount(data.count);
+          }
+        }
+      } catch (err) {
+        console.error("Error cargando contador de visitas:", err);
+      }
+    };
+    fetchVisits();
+  }, []);
+
   const stats = [
     { number: "3", label: "Años De Trayectoria" },
     { number: "2", label: "Historias Filmadas" },
     { number: "100%", label: "Impacto Positivo" },
+    { number: visitCount !== null ? visitCount.toLocaleString() : "1,520+", label: "Espectadores Web" },
   ];
 
   const team = [
@@ -97,6 +123,16 @@ export default function Home() {
               Cine Documental de Impacto Positivo y Medioambiental
             </p>
 
+            {visitCount !== null && (
+              <div className="mt-6 inline-flex items-center gap-3 bg-[#0c0c0c]/85 border border-[#00ff87]/20 backdrop-blur-md px-5 py-2 rounded-md shadow-[0_0_20px_rgba(0,255,135,0.08)]">
+                <span className="flex h-2 w-2 rounded-full bg-[#00ff87] animate-pulse" />
+                <span className="text-[10px] uppercase tracking-[3px] font-bold text-white/60">Espectadores en Vivo:</span>
+                <span className="font-mono text-sm font-black text-[#00ff87] tracking-wider drop-shadow-[0_0_5px_rgba(0,255,135,0.4)]">
+                  {String(visitCount).padStart(5, "0")}
+                </span>
+              </div>
+            )}
+
             <div className="mt-12 flex flex-col sm:flex-row gap-6">
               <Link
                 href="/catalogo"
@@ -147,7 +183,7 @@ export default function Home() {
               </p>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-white/5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6 border-t border-white/5">
                 {stats.map((stat, i) => (
                   <div key={i} className="text-left group">
                     <div className="text-3xl md:text-5xl font-black text-accent drop-shadow-[0_0_15px_var(--accent-glow)] transition-all duration-300 group-hover:scale-105">
