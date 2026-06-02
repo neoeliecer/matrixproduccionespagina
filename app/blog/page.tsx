@@ -72,6 +72,21 @@ export default function Blog() {
       .substring(0, 30);               // Keep it short
   };
 
+  const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800";
+
+  const getOptimizedImageUrl = (url: string) => {
+    if (!url) return FALLBACK_IMAGE;
+    // Optimize raw Unsplash images if they don't already have formatting query parameters
+    if (url.includes("unsplash.com") && !url.includes("?")) {
+      return `${url}?auto=format&fit=crop&q=80&w=800`;
+    }
+    return url;
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = FALLBACK_IMAGE;
+  };
+
   // Load view counts for all posts
   useEffect(() => {
     const loadViews = async () => {
@@ -196,8 +211,9 @@ export default function Blog() {
                     >
                       <div className="relative aspect-video overflow-hidden border-b border-white/5">
                         <img
-                          src={post.image || "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800"}
-                          alt={post.title}
+                          src={getOptimizedImageUrl(post.image)}
+                          alt=""
+                          onError={handleImageError}
                           className="w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-105"
                         />
                         <div className="absolute top-4 left-4 bg-black/80 border border-white/10 px-3 py-1 rounded text-[9px] uppercase font-bold tracking-widest text-accent">
@@ -263,8 +279,9 @@ export default function Blog() {
 
               <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
                 <img
-                  src={selectedPost.image || "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800"}
-                  alt={selectedPost.title}
+                  src={getOptimizedImageUrl(selectedPost.image)}
+                  alt=""
+                  onError={handleImageError}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-6 left-6 bg-black/80 border border-white/10 px-4 py-1.5 rounded text-xs uppercase font-bold tracking-widest text-accent">
@@ -310,8 +327,9 @@ export default function Blog() {
                             }}
                           >
                             <img
-                              src={url}
-                              alt={`Detrás de cámaras ${uIdx + 1}`}
+                              src={getOptimizedImageUrl(url)}
+                              alt=""
+                              onError={handleImageError}
                               className="w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-105"
                               loading="lazy"
                             />
