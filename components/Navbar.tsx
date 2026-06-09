@@ -31,6 +31,7 @@ export default function Navbar() {
     { name: "Talentos", path: "/talentos" },
     { name: "Cine con Propósito", path: "/recomendadas" },
     { name: "Eventos", path: "/eventos" },
+    { name: "Galerías", path: "/galerias" },
     { name: "Blog", path: "/blog" },
     { name: "Contacto", path: "/contacto" },
   ];

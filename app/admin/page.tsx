@@ -3,7 +3,8 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CinematicOverlay from "@/components/CinematicOverlay";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Script from "next/script";
 import Link from "next/link";
 import postsData from "@/data/posts.json";
 import convocatoriasData from "@/data/convocatorias.json";
@@ -15,7 +16,7 @@ export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isGeneratingPost, setIsGeneratingPost] = useState(false);
   const [isGeneratingConvocatoria, setIsGeneratingConvocatoria] = useState(false);
-  const [activeTab, setActiveTab] = useState<"blog" | "convocatorias" | "recomendadas" | "eventos">("blog");
+  const [activeTab, setActiveTab] = useState<"blog" | "convocatorias" | "recomendadas" | "eventos" | "galerias">("blog");
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   
   const [posts, setPosts] = useState(postsData);
@@ -54,6 +55,68 @@ export default function Admin() {
   const [isDashGeneratingMovie, setIsDashGeneratingMovie] = useState(false);
   const [dashEventLocation, setDashEventLocation] = useState("Cali");
   const [isDashGeneratingEvent, setIsDashGeneratingEvent] = useState(false);
+
+  // Estados para Galerías
+  const [galleryTitle, setGalleryTitle] = useState("");
+  const [galleryCategory, setGalleryCategory] = useState("Niños");
+  const [galleryDate, setGalleryDate] = useState("");
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isSavingGallery, setIsSavingGallery] = useState(false);
+
+  const openCloudinaryWidget = () => {
+    // @ts-ignore
+    const widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "drs232qlq",
+        uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "matrix_preset",
+        sources: ["local", "url", "camera", "google_drive"],
+        multiple: true,
+        clientAllowedFormats: ["jpg", "jpeg", "png", "webp", "heic", "heif"],
+        maxImageFileSize: 15000000,
+        theme: "minimal",
+      },
+      (error: any, result: any) => {
+        if (!error && result && result.event === "success") {
+          setUploadedImages((prev) => [...prev, result.info.secure_url]);
+        }
+      }
+    );
+    widget.open();
+  };
+
+  const handleSaveGallery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!galleryTitle || uploadedImages.length === 0) {
+      setMessage({ type: "error", text: "Introduce el título y sube al menos una foto." });
+      return;
+    }
+    setIsSavingGallery(true);
+    try {
+      const response = await fetch("/api/galerias", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: galleryTitle,
+          category: galleryCategory,
+          date: galleryDate || new Date().toLocaleDateString("es-CO"),
+          images: uploadedImages,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setMessage({ type: "success", text: "¡Galería guardada con éxito en los datos locales!" });
+        setGalleryTitle("");
+        setGalleryCategory("Niños");
+        setGalleryDate("");
+        setUploadedImages([]);
+      } else {
+        setMessage({ type: "error", text: "Error al guardar la galería." });
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Error de conexión." });
+    }
+    setIsSavingGallery(false);
+  };
 
   const handleCreateRecommendation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -502,6 +565,7 @@ export default function Admin() {
     <>
       <CinematicOverlay />
       <Navbar />
+      <Script src="https://upload-widget.cloudinary.com/global/all.js" strategy="afterInteractive" />
 
       <main className="relative min-h-screen bg-[#030303] pt-32 pb-24 px-6 md:px-12 overflow-hidden">
         {/* Glow halo */}
@@ -829,6 +893,16 @@ export default function Admin() {
                     }`}
                   >
                     Eventos ({events.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("galerias")}
+                    className={`pb-3 text-xs uppercase tracking-[2px] font-extrabold transition-all cursor-pointer ${
+                      activeTab === "galerias"
+                        ? "text-accent border-b-2 border-accent"
+                        : "text-white/40 hover:text-white"
+                    }`}
+                  >
+                    📸 Galerías
                   </button>
                 </div>
 
@@ -1214,6 +1288,59 @@ export default function Admin() {
                             </a>
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  ) : activeTab === "galerias" ? (
+                    <div className="grid md:grid-cols-2 gap-8 p-8">
+                      {/* Left: Form to Add Gallery */}
+                      <form onSubmit={handleSaveGallery} className="space-y-6 md:border-r md:border-white/5 md:pr-8">
+                        <h3 className="text-lg font-extrabold uppercase text-white tracking-wider mb-4">
+                          Subir Nueva Galería de Fotos
+                        </h3>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Título del Evento / Partido *</label>
+                          <input type="text" value={galleryTitle} onChange={(e) => setGalleryTitle(e.target.value)} required className="bg-black/50 border border-white/10 focus:border-accent text-white p-3 text-sm rounded outline-none transition-colors" placeholder="Ej: Flag Football - Titanes Palmira" />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Categoría (Filtro) *</label>
+                          <select value={galleryCategory} onChange={(e) => setGalleryCategory(e.target.value)} className="bg-black/50 border border-white/10 focus:border-accent text-white p-3 text-sm rounded outline-none transition-colors">
+                            <option value="Niños">Infantil (Niños)</option>
+                            <option value="Adultos">Adultos</option>
+                            <option value="General">General / Mixto</option>
+                          </select>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Imágenes (Cloudinary / Drive) *</label>
+                          <button type="button" onClick={openCloudinaryWidget} className="w-full bg-[#00ff87]/10 text-[#00ff87] border border-[#00ff87]/30 font-bold p-4 rounded outline-none uppercase tracking-[2px] text-xs hover:bg-[#00ff87]/20 transition-all shadow-[0_0_15px_rgba(0,255,135,0.1)]">
+                            ☁️ Seleccionar de Google Drive / PC
+                          </button>
+                          {uploadedImages.length > 0 && (
+                            <span className="text-xs font-bold text-white/80 mt-2 bg-white/5 p-2 rounded block">
+                              ✅ {uploadedImages.length} fotos listas para ser publicadas.
+                            </span>
+                          )}
+                        </div>
+
+                        <button type="submit" disabled={isSavingGallery || uploadedImages.length === 0} className="w-full bg-accent text-black font-extrabold text-xs uppercase tracking-[3px] p-5 rounded hover:bg-[#00cc6a] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                          {isSavingGallery ? "Guardando..." : "Publicar Galería"}
+                        </button>
+                      </form>
+
+                      {/* Right: Info */}
+                      <div>
+                        <h3 className="text-lg font-extrabold uppercase text-white tracking-wider mb-4">
+                          Estado de Cloudinary
+                        </h3>
+                        <p className="text-sm text-white/60 mb-6 leading-relaxed">
+                          La conexión directa con Cloudinary permite subir cientos de fotos rápidamente desde Google Drive o tu computadora sin que pasen por el servidor de Vercel. 
+                        </p>
+                        <div className="bg-white/5 border border-white/10 p-4 rounded-lg">
+                          <p className="text-xs text-white/60 mb-2 uppercase tracking-[1px] font-bold">Cloud Name Activo:</p>
+                          <p className="text-accent font-mono text-sm">{process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "drs232qlq"}</p>
+                        </div>
                       </div>
                     </div>
                   ) : activeTab === "blog" ? (
