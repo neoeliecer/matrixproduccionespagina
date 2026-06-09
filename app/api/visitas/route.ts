@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 
 const NAMESPACE = "matrixproducciones";
-const KEY = "visitas";
+const KEY = "visitas_v2";
 const COUNTER_API_URL = `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}`;
 
+const OFFSET = 39;
+
 // Fallback count in case the external API is offline
-const FALLBACK_BASE = 1520;
+const FALLBACK_BASE = 40;
 
 // Helper to fetch with timeout to prevent hanging the serverless function
 async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 4000) {
@@ -29,7 +31,7 @@ export async function GET() {
     const response = await fetchWithTimeout(COUNTER_API_URL, { cache: "no-store" }, 3000);
     if (response.ok) {
       const data = await response.json();
-      return NextResponse.json({ count: data.value });
+      return NextResponse.json({ count: data.value + OFFSET });
     }
   } catch (error) {
     console.error("⚠️ Error leyendo visitas de CounterAPI, usando fallback:", error);
@@ -45,7 +47,7 @@ export async function POST(request: Request) {
     const response = await fetchWithTimeout(`${COUNTER_API_URL}/increment`, { method: "GET", cache: "no-store" }, 3000);
     if (response.ok) {
       const data = await response.json();
-      count = data.value;
+      count = data.value + OFFSET;
     }
   } catch (error) {
     console.error("⚠️ Error incrementando visitas en CounterAPI, usando fallback:", error);
