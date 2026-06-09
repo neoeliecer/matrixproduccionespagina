@@ -35,7 +35,8 @@ export default function Galerias() {
       });
   }, []);
 
-  const categories = ["Todas", "Niños", "Adultos", "General"];
+  const uniqueCategories = Array.from(new Set(galerias.map((g) => g.category))).filter(Boolean);
+  const categories = ["Todas", ...uniqueCategories];
 
   const filteredGalerias = activeCategory === "Todas"
     ? galerias

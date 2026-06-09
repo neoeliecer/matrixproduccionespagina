@@ -58,7 +58,7 @@ export default function Admin() {
 
   // Estados para Galerías
   const [galleryTitle, setGalleryTitle] = useState("");
-  const [galleryCategory, setGalleryCategory] = useState("Niños");
+  const [galleryCategory, setGalleryCategory] = useState("");
   const [galleryDate, setGalleryDate] = useState("");
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [isSavingGallery, setIsSavingGallery] = useState(false);
@@ -106,7 +106,7 @@ export default function Admin() {
       if (response.ok && data.success) {
         setMessage({ type: "success", text: "¡Galería guardada con éxito en los datos locales!" });
         setGalleryTitle("");
-        setGalleryCategory("Niños");
+        setGalleryCategory("");
         setGalleryDate("");
         setUploadedImages([]);
       } else {
@@ -1305,11 +1305,23 @@ export default function Admin() {
 
                         <div className="flex flex-col gap-2">
                           <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Categoría (Filtro) *</label>
-                          <select value={galleryCategory} onChange={(e) => setGalleryCategory(e.target.value)} className="bg-black/50 border border-white/10 focus:border-accent text-white p-3 text-sm rounded outline-none transition-colors">
-                            <option value="Niños">Infantil (Niños)</option>
-                            <option value="Adultos">Adultos</option>
-                            <option value="General">General / Mixto</option>
-                          </select>
+                          <input 
+                            type="text" 
+                            list="gallery-categories"
+                            value={galleryCategory} 
+                            onChange={(e) => setGalleryCategory(e.target.value)} 
+                            required 
+                            className="bg-black/50 border border-white/10 focus:border-accent text-white p-3 text-sm rounded outline-none transition-colors" 
+                            placeholder="Elige una o escribe una nueva..." 
+                          />
+                          <datalist id="gallery-categories">
+                            <option value="Infantil (Niños)" />
+                            <option value="Femenino" />
+                            <option value="Adultos" />
+                            <option value="General / Mixto" />
+                            <option value="Premier de Cine" />
+                            <option value="Detrás de Cámaras" />
+                          </datalist>
                         </div>
 
                         <div className="flex flex-col gap-2">
