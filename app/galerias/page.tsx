@@ -11,6 +11,7 @@ interface Galeria {
   title: string;
   category: string;
   date: string;
+  password?: string;
   images: string[];
 }
 
@@ -19,6 +20,11 @@ export default function Galerias() {
   const [activeCategory, setActiveCategory] = useState<string>("Todas");
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // States for locked galleries
+  const [unlockedGalerias, setUnlockedGalerias] = useState<string[]>([]);
+  const [passwordInputs, setPasswordInputs] = useState<Record<string, string>>({});
+  const [passwordErrors, setPasswordErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetch("/api/galerias")
@@ -41,6 +47,16 @@ export default function Galerias() {
   const filteredGalerias = activeCategory === "Todas"
     ? galerias
     : galerias.filter((g) => g.category === activeCategory);
+
+  const handleUnlock = (galeriaId: string, correctPassword?: string) => {
+    const input = passwordInputs[galeriaId] || "";
+    if (input === correctPassword) {
+      setUnlockedGalerias((prev) => [...prev, galeriaId]);
+      setPasswordErrors((prev) => ({ ...prev, [galeriaId]: false }));
+    } else {
+      setPasswordErrors((prev) => ({ ...prev, [galeriaId]: true }));
+    }
+  };
 
   return (
     <>
@@ -106,37 +122,70 @@ export default function Galerias() {
                       </div>
                     </div>
                     <p className="text-xs text-white/40 uppercase tracking-widest mt-4 md:mt-0">
-                      {galeria.images.length} Fotografías
+                      {galeria.password ? "🔒 Álbum Privado" : `${galeria.images.length} Fotografías`}
                     </p>
                   </div>
 
-                  {/* Masonry-like Grid for Images */}
-                  <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-                    {galeria.images.map((imgUrl, idx) => {
-                      // Usar cloudinary parameters para optimizar el thumbnail
-                      const thumbUrl = imgUrl.includes("res.cloudinary.com") 
-                        ? imgUrl.replace("/upload/", "/upload/w_400,c_scale,q_auto,f_auto/")
-                        : imgUrl;
-
-                      return (
-                        <div 
-                          key={idx} 
-                          className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-lg bg-white/5 border border-white/10"
-                          onClick={() => setSelectedPhoto(imgUrl)}
-                        >
-                          <img 
-                            src={thumbUrl} 
-                            alt={`${galeria.title} - Foto ${idx + 1}`}
-                            className="w-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:opacity-60"
-                            loading="lazy"
+                  {galeria.password && !unlockedGalerias.includes(galeria.id) ? (
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-12 flex flex-col items-center justify-center text-center max-w-2xl mx-auto backdrop-blur-md shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+                      <div className="text-5xl mb-6">🔒</div>
+                      <h3 className="text-2xl font-black uppercase tracking-widest text-white mb-2">Álbum Protegido</h3>
+                      <p className="text-sm text-white/50 mb-8 max-w-sm">
+                        Este evento es privado. Introduce la contraseña proporcionada por el organizador para ver y descargar las fotos.
+                      </p>
+                      <div className="flex w-full max-w-sm flex-col gap-2">
+                        <div className="flex gap-2">
+                          <input 
+                            type="password" 
+                            value={passwordInputs[galeria.id] || ""}
+                            onChange={(e) => setPasswordInputs({ ...passwordInputs, [galeria.id]: e.target.value })}
+                            placeholder="Contraseña del álbum..." 
+                            className="flex-1 bg-black/50 border border-white/20 focus:border-accent outline-none rounded p-4 text-center tracking-[5px] text-white transition-colors"
+                            onKeyDown={(e) => e.key === "Enter" && handleUnlock(galeria.id, galeria.password)}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                            <span className="text-accent text-[10px] uppercase tracking-[2px] font-bold">Ver & Descargar</span>
-                          </div>
+                          <button 
+                            onClick={() => handleUnlock(galeria.id, galeria.password)}
+                            className="bg-accent hover:bg-[#00cc6a] text-black font-extrabold uppercase px-6 rounded transition-all"
+                          >
+                            Entrar
+                          </button>
                         </div>
-                      );
-                    })}
-                  </div>
+                        {passwordErrors[galeria.id] && (
+                          <span className="text-red-400 text-xs font-bold uppercase tracking-widest mt-2">
+                            ❌ Contraseña incorrecta
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Masonry-like Grid for Images */
+                    <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+                      {galeria.images.map((imgUrl, idx) => {
+                        // Usar cloudinary parameters para optimizar el thumbnail
+                        const thumbUrl = imgUrl.includes("res.cloudinary.com") 
+                          ? imgUrl.replace("/upload/", "/upload/w_400,c_scale,q_auto,f_auto/")
+                          : imgUrl;
+
+                        return (
+                          <div 
+                            key={idx} 
+                            className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-lg bg-white/5 border border-white/10"
+                            onClick={() => setSelectedPhoto(imgUrl)}
+                          >
+                            <img 
+                              src={thumbUrl} 
+                              alt={`${galeria.title} - Foto ${idx + 1}`}
+                              className="w-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:opacity-60"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                              <span className="text-accent text-[10px] uppercase tracking-[2px] font-bold">Ver & Descargar</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
