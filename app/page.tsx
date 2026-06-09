@@ -126,7 +126,7 @@ export default function Home() {
             {visitCount !== null && (
               <div className="mt-6 inline-flex items-center gap-3 bg-[#0c0c0c]/85 border border-[#00ff87]/20 backdrop-blur-md px-5 py-2 rounded-md shadow-[0_0_20px_rgba(0,255,135,0.08)]">
                 <span className="flex h-2 w-2 rounded-full bg-[#00ff87] animate-pulse" />
-                <span className="text-[10px] uppercase tracking-[3px] font-bold text-white/60">Espectadores en Vivo:</span>
+                <span className="text-[10px] uppercase tracking-[3px] font-bold text-white/60">Visitas a la página:</span>
                 <span className="font-mono text-sm font-black text-[#00ff87] tracking-wider drop-shadow-[0_0_5px_rgba(0,255,135,0.4)]">
                   {String(visitCount).padStart(5, "0")}
                 </span>
