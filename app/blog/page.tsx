@@ -12,6 +12,8 @@ export default function Blog() {
   const [selectedPost, setSelectedPost] = useState<typeof postsData[0] | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
+  const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
 
   const [emailInput, setEmailInput] = useState("");
   const [subStatus, setSubStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -72,7 +74,7 @@ export default function Blog() {
       .substring(0, 30);               // Keep it short
   };
 
-  const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800";
+  const FALLBACK_IMAGE = "/img/hero-bg.jpg";
 
   const getOptimizedImageUrl = (url: string) => {
     if (!url) return FALLBACK_IMAGE;
@@ -84,32 +86,60 @@ export default function Blog() {
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.src = FALLBACK_IMAGE;
+    if (!e.currentTarget.src.includes("hero-bg.jpg")) {
+      e.currentTarget.src = FALLBACK_IMAGE;
+    }
   };
 
-  // Load view counts for all posts
+  // Load views and likes for all posts
   useEffect(() => {
-    const loadViews = async () => {
-      const counts: Record<string, number> = {};
+    const loadViewsAndLikes = async () => {
+      const views: Record<string, number> = {};
+      const likes: Record<string, number> = {};
+      const userLiked: Record<string, boolean> = {};
+
       for (const post of posts) {
         const key = getPostKey(post.title);
+        
+        // Load user's personal likes from localStorage
+        if (typeof window !== "undefined") {
+          userLiked[post.title] = localStorage.getItem(`matrix_liked_${key}`) === "true";
+        }
+
+        // Fetch views count
         try {
           const res = await fetch(`https://api.counterapi.dev/v1/matrixproducciones_blog/${key}`);
           if (res.ok) {
             const data = await res.json();
-            counts[post.title] = data.count || 0;
+            views[post.title] = data.count || 0;
           } else {
-            counts[post.title] = Math.max(12, (post.title.length * 3) % 97);
+            views[post.title] = Math.max(12, (post.title.length * 3) % 97);
           }
         } catch (e) {
-          counts[post.title] = Math.max(12, (post.title.length * 3) % 97);
+          views[post.title] = Math.max(12, (post.title.length * 3) % 97);
+        }
+
+        // Fetch likes count
+        try {
+          const res = await fetch(`https://api.counterapi.dev/v1/matrixproducciones_blog_likes/${key}`);
+          if (res.ok) {
+            const data = await res.json();
+            likes[post.title] = data.count || 0;
+          } else {
+            likes[post.title] = Math.max(2, (post.title.length * 2) % 19);
+          }
+        } catch (e) {
+          likes[post.title] = Math.max(2, (post.title.length * 2) % 19);
         }
       }
-      setViewCounts(counts);
+
+      setViewCounts(views);
+      setLikeCounts(likes);
+      setLikedPosts(userLiked);
     };
 
     if (posts.length > 0) {
-      loadViews();
+      loadViewsAndLikes();
     }
   }, [posts]);
 
@@ -127,6 +157,41 @@ export default function Blog() {
       }
     } catch (e) {
       console.warn("Error incrementing view count:", e);
+    }
+  };
+
+  // Register a like on a post
+  const handleLikePost = async (postTitle: string) => {
+    const key = getPostKey(postTitle);
+    
+    // Check if already liked by this user
+    if (likedPosts[postTitle]) return;
+
+    // Optimistic UI updates
+    setLikeCounts((prev) => ({
+      ...prev,
+      [postTitle]: (prev[postTitle] || 0) + 1,
+    }));
+    setLikedPosts((prev) => ({
+      ...prev,
+      [postTitle]: true,
+    }));
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`matrix_liked_${key}`, "true");
+    }
+
+    try {
+      const res = await fetch(`https://api.counterapi.dev/v1/matrixproducciones_blog_likes/${key}/up`);
+      if (res.ok) {
+        const data = await res.json();
+        setLikeCounts((prev) => ({
+          ...prev,
+          [postTitle]: data.count || (prev[postTitle] || 0) + 1,
+        }));
+      }
+    } catch (e) {
+      console.warn("Error registering like on CounterAPI:", e);
     }
   };
 
@@ -225,8 +290,12 @@ export default function Blog() {
                         <div className="space-y-4">
                           <div className="flex justify-between items-center text-[10px] text-white/40 font-bold uppercase tracking-wider">
                             <span>{post.date}</span>
-                            <span className="flex items-center gap-1">
-                              👁️ {viewCounts[post.title] !== undefined ? viewCounts[post.title] : "..."} • {post.readTime} lectura
+                            <span className="flex items-center gap-1.5 flex-wrap">
+                              <span>👁️ {viewCounts[post.title] !== undefined ? viewCounts[post.title] : "..."}</span>
+                              <span>•</span>
+                              <span className="text-[#ff4b4b]">❤️ {likeCounts[post.title] !== undefined ? likeCounts[post.title] : "..."}</span>
+                              <span>•</span>
+                              <span>{post.readTime} lectura</span>
                             </span>
                           </div>
                           <h2 className="text-xl font-extrabold uppercase text-white tracking-wide transition-colors group-hover:text-accent leading-tight">
@@ -290,11 +359,25 @@ export default function Blog() {
               </div>
 
               <div className="space-y-4 pt-4">
-                <div className="flex gap-6 text-[10px] text-white/40 font-bold uppercase tracking-wider flex-wrap">
+                <div className="flex gap-6 text-[10px] text-white/40 font-bold uppercase tracking-wider flex-wrap items-center">
                   <span>🗓️ {selectedPost.date}</span>
                   <span>👁️ {viewCounts[selectedPost.title] !== undefined ? viewCounts[selectedPost.title] : "..."} vistas</span>
                   <span>⏱️ {selectedPost.readTime} de lectura</span>
                   <span>✍️ Autor: {selectedPost.author || "Eliecer"}</span>
+                  
+                  {/* Likes status button */}
+                  <button
+                    onClick={() => handleLikePost(selectedPost.title)}
+                    disabled={likedPosts[selectedPost.title]}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all duration-300 ${
+                      likedPosts[selectedPost.title]
+                        ? "bg-[#ff4b4b]/10 border-[#ff4b4b]/30 text-[#ff4b4b] cursor-default"
+                        : "bg-white/5 border border-white/10 hover:border-[#ff4b4b] hover:bg-[#ff4b4b]/5 text-white hover:text-[#ff4b4b] cursor-pointer"
+                    }`}
+                  >
+                    <span>{likedPosts[selectedPost.title] ? "❤️" : "🤍"}</span>
+                    <span>{likeCounts[selectedPost.title] !== undefined ? likeCounts[selectedPost.title] : "..."}</span>
+                  </button>
                 </div>
 
                 <h1 className="text-3xl md:text-5xl font-black uppercase text-white leading-tight">
@@ -348,12 +431,35 @@ export default function Blog() {
                 })}
               </div>
 
-              {/* Share widget */}
-              <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-                <span className="text-[10px] uppercase tracking-[3px] font-bold text-white/40">
-                  Compartir esta historia:
-                </span>
-                <div className="flex flex-wrap gap-3">
+              {/* Likes & Share Action Row */}
+              <div className="pt-10 border-t border-white/5 space-y-8">
+                {/* Big Interactive Like Section */}
+                <div className="flex flex-col items-center justify-center p-8 rounded-2xl bg-white/[0.01] border border-white/5 text-center space-y-4 hover:border-accent/10 transition-all duration-500 max-w-xl mx-auto">
+                  <h4 className="text-[10px] uppercase tracking-[3px] font-bold text-white/50">¿Te gustó este artículo?</h4>
+                  <button
+                    onClick={() => handleLikePost(selectedPost.title)}
+                    disabled={likedPosts[selectedPost.title]}
+                    className={`flex items-center gap-3 px-8 py-4 rounded-full font-extrabold text-xs uppercase tracking-[3px] transition-all duration-500 ${
+                      likedPosts[selectedPost.title]
+                        ? "bg-[#ff4b4b]/20 border border-[#ff4b4b]/40 text-[#ff4b4b] cursor-default shadow-[0_0_20px_rgba(255,75,75,0.15)]"
+                        : "bg-white/5 border border-white/10 text-white hover:border-[#ff4b4b] hover:bg-[#ff4b4b]/5 hover:scale-105 active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(255,255,255,0.02)] hover:shadow-[0_0_25px_rgba(255,75,75,0.1)]"
+                    }`}
+                  >
+                    <span className={`text-base ${likedPosts[selectedPost.title] ? "scale-110" : "animate-pulse"}`}>
+                      {likedPosts[selectedPost.title] ? "❤️" : "🤍"}
+                    </span>
+                    <span>
+                      {likedPosts[selectedPost.title] ? "¡Te gusta esta nota!" : "Me Gusta"}
+                      {likeCounts[selectedPost.title] !== undefined ? ` (${likeCounts[selectedPost.title]})` : ""}
+                    </span>
+                  </button>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                  <span className="text-[10px] uppercase tracking-[3px] font-bold text-white/40">
+                    Compartir esta historia:
+                  </span>
+                  <div className="flex flex-wrap gap-3">
                   {/* WhatsApp */}
                   <a
                     href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
@@ -413,6 +519,7 @@ export default function Blog() {
                   >
                     🔗 Copiar Enlace
                   </button>
+                  </div>
                 </div>
               </div>
             </div>
