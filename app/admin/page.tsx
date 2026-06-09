@@ -68,8 +68,8 @@ export default function Admin() {
     // @ts-ignore
     const widget = window.cloudinary.createUploadWidget(
       {
-        cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "drs232qlq",
-        uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "matrix_preset",
+        cloudName: "drs232qlq",
+        uploadPreset: "matrix_preset",
         sources: ["local", "url", "camera", "google_drive"],
         multiple: true,
         clientAllowedFormats: ["jpg", "jpeg", "png", "webp", "heic", "heif"],
