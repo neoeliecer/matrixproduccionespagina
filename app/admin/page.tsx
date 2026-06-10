@@ -117,8 +117,9 @@ export default function Admin() {
       }
     } catch (err) {
       setMessage({ type: "error", text: "Error de conexión." });
+    } finally {
+      setIsSavingGallery(false);
     }
-    setIsSavingGallery(false);
   };
 
   const handleCreateRecommendation = async (e: React.FormEvent) => {
