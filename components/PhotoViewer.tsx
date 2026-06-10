@@ -72,34 +72,36 @@ export default function PhotoViewer({ images, initialIndex, onClose }: PhotoView
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999] bg-black/95 flex flex-col items-center justify-center p-4 backdrop-blur-sm">
       {/* Botón Cerrar (Arriba Derecha) */}
       <button 
         onClick={onClose}
-        className="absolute top-6 right-6 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full w-12 h-12 flex items-center justify-center text-xl transition-all z-50"
+        className="absolute top-6 right-6 md:top-10 md:right-10 text-white hover:text-[#00ff87] bg-black/50 border border-white/20 hover:border-[#00ff87] rounded-full w-14 h-14 flex items-center justify-center transition-all z-[10000] shadow-[0_0_20px_rgba(0,0,0,0.8)]"
+        title="Cerrar (Esc)"
       >
-        ✕
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
 
       {/* Flecha Izquierda */}
       {images.length > 1 && (
         <button 
           onClick={handlePrev}
-          className="absolute left-4 md:left-10 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-2xl transition-all z-50"
+          className="absolute left-2 md:left-10 text-white hover:text-[#00ff87] bg-black/50 border border-white/20 hover:border-[#00ff87] rounded-full w-14 h-14 md:w-20 md:h-20 flex items-center justify-center transition-all z-[10000] shadow-[0_0_20px_rgba(0,0,0,0.8)]"
+          title="Anterior (Flecha Izquierda)"
         >
-          ←
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
       )}
 
       {/* Imagen Principal */}
-      <div className="relative max-w-5xl max-h-[75vh] w-full flex items-center justify-center px-12 md:px-24">
+      <div className="relative max-w-[90vw] max-h-[80vh] w-full flex items-center justify-center px-0 md:px-24 mt-8 md:mt-0">
         <img 
           key={currentImage} // Force re-render for animation
           src={currentImage} 
           alt={`Foto ${currentIndex + 1} de ${images.length}`} 
           className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-[0_0_50px_rgba(0,255,135,0.15)] animate-fade-in"
         />
-        <div className="absolute top-4 left-4 md:-left-8 bg-black/80 px-3 py-1 rounded-full text-white/50 text-xs font-bold tracking-widest backdrop-blur-md border border-white/10">
+        <div className="absolute -top-10 md:top-4 left-4 md:-left-8 bg-black/80 px-4 py-2 rounded-full text-white/80 text-sm font-black tracking-widest backdrop-blur-md border border-white/20 z-[10000]">
           {currentIndex + 1} / {images.length}
         </div>
       </div>
@@ -108,14 +110,15 @@ export default function PhotoViewer({ images, initialIndex, onClose }: PhotoView
       {images.length > 1 && (
         <button 
           onClick={handleNext}
-          className="absolute right-4 md:right-10 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-2xl transition-all z-50"
+          className="absolute right-2 md:right-10 text-white hover:text-[#00ff87] bg-black/50 border border-white/20 hover:border-[#00ff87] rounded-full w-14 h-14 md:w-20 md:h-20 flex items-center justify-center transition-all z-[10000] shadow-[0_0_20px_rgba(0,0,0,0.8)]"
+          title="Siguiente (Flecha Derecha)"
         >
-          →
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       )}
 
       {/* Botones de Acción */}
-      <div className="mt-8 flex flex-wrap gap-4 justify-center relative z-50">
+      <div className="mt-8 flex flex-wrap gap-4 justify-center relative z-[10000]">
         <a
           href={getDownloadUrl(currentImage)}
           download
