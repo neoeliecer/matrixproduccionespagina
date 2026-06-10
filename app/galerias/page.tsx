@@ -18,7 +18,7 @@ interface Galeria {
 export default function Galerias() {
   const [galerias, setGalerias] = useState<Galeria[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("Todas");
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<{images: string[], index: number} | null>(null);
   const [loading, setLoading] = useState(true);
 
   // States for locked galleries
@@ -170,7 +170,7 @@ export default function Galerias() {
                           <div 
                             key={idx} 
                             className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-lg bg-white/5 border border-white/10"
-                            onClick={() => setSelectedPhoto(imgUrl)}
+                            onClick={() => setSelectedPhoto({ images: galeria.images, index: idx })}
                           >
                             <img 
                               src={thumbUrl} 
@@ -195,10 +195,10 @@ export default function Galerias() {
       
       <Footer />
 
-      {/* Fullscreen Viewer */}
       {selectedPhoto && (
         <PhotoViewer 
-          imageSrc={selectedPhoto} 
+          images={selectedPhoto.images} 
+          initialIndex={selectedPhoto.index}
           onClose={() => setSelectedPhoto(null)} 
         />
       )}
