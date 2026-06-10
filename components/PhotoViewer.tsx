@@ -35,7 +35,7 @@ export default function PhotoViewer({ images, initialIndex, onClose }: PhotoView
     if (isPlaying) {
       interval = setInterval(() => {
         handleNext();
-      }, 2500); // Cambia de foto cada 2.5 segundos
+      }, 3000); // Cambia de foto cada 3 segundos
     }
     return () => clearInterval(interval);
   }, [isPlaying, currentIndex, images.length]);
