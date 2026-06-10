@@ -146,6 +146,11 @@ export default function Galerias() {
                         <span className="text-xs text-white/40 uppercase tracking-widest">
                           {galeria.date}
                         </span>
+                        <img 
+                          src={`https://hits.sh/matrixproducciones.com/galerias/${galeria.id}.svg?color=00cc6a&label=Vistas`} 
+                          alt="Contador de Vistas" 
+                          className="h-5 opacity-80"
+                        />
                       </div>
                     </div>
                     

@@ -11,6 +11,7 @@ interface PhotoViewerProps {
 export default function PhotoViewer({ images, initialIndex, onClose }: PhotoViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [copied, setCopied] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const currentImage = images[currentIndex];
 
@@ -20,10 +21,24 @@ export default function PhotoViewer({ images, initialIndex, onClose }: PhotoView
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowRight") handleNext();
       if (e.key === "ArrowLeft") handlePrev();
+      if (e.key === " ") {
+        e.preventDefault();
+        setIsPlaying(prev => !prev);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentIndex, images.length]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        handleNext();
+      }, 2500); // Cambia de foto cada 2.5 segundos
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, currentIndex, images.length]);
 
   const handleNext = () => {
     if (currentIndex < images.length - 1) {
@@ -119,6 +134,15 @@ export default function PhotoViewer({ images, initialIndex, onClose }: PhotoView
 
       {/* Botones de Acción */}
       <div className="mt-8 flex flex-wrap gap-4 justify-center relative z-[10000]">
+        {images.length > 1 && (
+          <button
+            onClick={() => setIsPlaying(!isPlaying)}
+            className={`flex items-center gap-2 border ${isPlaying ? 'border-[#00ff87] text-[#00ff87]' : 'border-white/20 text-white hover:border-[#00ff87]'} font-extrabold text-xs uppercase tracking-[3px] px-8 py-4 rounded backdrop-blur-md transition-all hover:bg-white/5 hover:scale-105 active:scale-95`}
+          >
+            <span>{isPlaying ? "⏸️ Pausar" : "▶️ Reproducir"}</span>
+          </button>
+        )}
+        
         <a
           href={getDownloadUrl(currentImage)}
           download
