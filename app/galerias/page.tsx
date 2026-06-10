@@ -20,6 +20,8 @@ export default function Galerias() {
   const [activeCategory, setActiveCategory] = useState<string>("Todas");
   const [selectedPhoto, setSelectedPhoto] = useState<{images: string[], index: number} | null>(null);
   const [loading, setLoading] = useState(true);
+  const [albumIdParam, setAlbumIdParam] = useState<string | null>(null);
+  const [copiedAlbum, setCopiedAlbum] = useState<string | null>(null);
 
   // States for locked galleries
   const [unlockedGalerias, setUnlockedGalerias] = useState<string[]>([]);
@@ -34,6 +36,10 @@ export default function Galerias() {
         const sorted = data.sort((a: Galeria, b: Galeria) => Number(b.id) - Number(a.id));
         setGalerias(sorted);
         setLoading(false);
+        
+        // Check for specific album sharing
+        const params = new URLSearchParams(window.location.search);
+        setAlbumIdParam(params.get("album"));
       })
       .catch((err) => {
         console.error("Error loading galerias", err);
@@ -44,9 +50,28 @@ export default function Galerias() {
   const uniqueCategories = Array.from(new Set(galerias.map((g) => g.category))).filter(Boolean);
   const categories = ["Todas", ...uniqueCategories];
 
-  const filteredGalerias = activeCategory === "Todas"
-    ? galerias
-    : galerias.filter((g) => g.category === activeCategory);
+  const filteredGalerias = galerias.filter((g) => {
+    if (albumIdParam) return g.id === albumIdParam;
+    return activeCategory === "Todas" ? true : g.category === activeCategory;
+  });
+
+  const handleShareAlbum = (galeriaId: string) => {
+    const shareUrl = `${window.location.origin}/galerias?album=${galeriaId}`;
+    if (navigator.share) {
+      navigator.share({
+        title: "Mira este álbum fotográfico",
+        url: shareUrl,
+      }).catch(() => fallbackCopy(shareUrl, galeriaId));
+    } else {
+      fallbackCopy(shareUrl, galeriaId);
+    }
+  };
+
+  const fallbackCopy = (url: string, id: string) => {
+    navigator.clipboard.writeText(url);
+    setCopiedAlbum(id);
+    setTimeout(() => setCopiedAlbum(null), 3000);
+  };
 
   const handleUnlock = (galeriaId: string, correctPassword?: string) => {
     const input = passwordInputs[galeriaId] || "";
@@ -75,22 +100,24 @@ export default function Galerias() {
             </p>
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap justify-center gap-4 mb-16">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-[2px] transition-all duration-300 ${
-                  activeCategory === cat
-                    ? "bg-accent text-black shadow-[0_0_15px_rgba(0,255,135,0.4)]"
-                    : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          {/* Filters (Hide if sharing specific album) */}
+          {!albumIdParam && (
+            <div className="flex flex-wrap justify-center gap-4 mb-16">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-[2px] transition-all duration-300 ${
+                    activeCategory === cat
+                      ? "bg-accent text-black shadow-[0_0_15px_rgba(0,255,135,0.4)]"
+                      : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Galleries Grid */}
           {loading ? (
@@ -121,9 +148,18 @@ export default function Galerias() {
                         </span>
                       </div>
                     </div>
-                    <p className="text-xs text-white/40 uppercase tracking-widest mt-4 md:mt-0">
-                      {galeria.password ? "🔒 Álbum Privado" : `${galeria.images.length} Fotografías`}
-                    </p>
+                    
+                    <div className="flex flex-col items-end gap-2 mt-4 md:mt-0">
+                      <p className="text-xs text-white/40 uppercase tracking-widest">
+                        {galeria.password ? "🔒 Álbum Privado" : `${galeria.images.length} Fotografías`}
+                      </p>
+                      <button
+                        onClick={() => handleShareAlbum(galeria.id)}
+                        className="flex items-center gap-2 border border-white/20 hover:border-accent text-white font-extrabold text-[10px] uppercase tracking-[2px] px-4 py-2 rounded transition-all hover:bg-white/5 active:scale-95"
+                      >
+                        {copiedAlbum === galeria.id ? "✅ Copiado" : "🔗 Compartir Álbum"}
+                      </button>
+                    </div>
                   </div>
 
                   {galeria.password && !unlockedGalerias.includes(galeria.id) ? (
