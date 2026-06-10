@@ -1321,8 +1321,8 @@ export default function Admin() {
                           <datalist id="gallery-categories">
                             <option value="Infantil (Niños)" />
                             <option value="Femenino" />
-                            <option value="Adultos" />
-                            <option value="General / Mixto" />
+                            <option value="Masculino" />
+                            <option value="Mixto" />
                             <option value="Premier de Cine" />
                             <option value="Detrás de Cámaras" />
                           </datalist>
