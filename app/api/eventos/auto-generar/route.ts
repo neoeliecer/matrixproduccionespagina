@@ -56,6 +56,14 @@ const FEEDS_EVENTOS = [
     ]
   },
   {
+    location: "Francia",
+    lang: "es",
+    urls: [
+      "https://news.google.com/rss/search?q=festival+cine+cannes+francia+teatro+cultura&hl=es&gl=FR&ceid=FR:es",
+      "https://news.google.com/rss/search?q=eventos+culturales+arte+francia+paris&hl=es&gl=FR&ceid=FR:es"
+    ]
+  },
+  {
     location: "Estados Unidos",
     lang: "en",
     urls: [
@@ -298,6 +306,12 @@ export async function POST(request: Request) {
           title: "Festival de Cine de Madrid y Muestra Estival de Teatro",
           description: "La capital madrileña se llena de cine independiente, debates con realizadores y obras de teatro contemporáneas al aire libre.",
           link: "https://www.madridcultura.es"
+        };
+      } else if (selectedGroup.location === "Francia") {
+        availableItem = {
+          title: "Muestra de Cine Independiente en París y Festivales de Verano",
+          description: "Francia celebra lo mejor del cine de autor y el teatro europeo con una agenda cultural que destaca producciones independientes en el corazón de París.",
+          link: "https://www.paris.fr/culture"
         };
       } else if (selectedGroup.location === "Nueva York") {
         availableItem = {

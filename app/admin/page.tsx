@@ -885,10 +885,14 @@ export default function Admin() {
                         className="bg-[#0a0a0a] border border-white/10 px-3 py-2.5 rounded text-white text-xs focus:outline-none focus:border-accent w-full uppercase tracking-wider font-bold"
                       >
                         <option value="Cali">Cali</option>
+                        <option value="Medellín">Medellín</option>
+                        <option value="Bogotá">Bogotá</option>
+                        <option value="Manizales">Manizales</option>
                         <option value="Colombia">Colombia</option>
                         <option value="Estados Unidos">Estados Unidos</option>
                         <option value="Nueva York">Nueva York</option>
                         <option value="España">España</option>
+                        <option value="Francia">Francia</option>
                         <option value="Atlanta">Atlanta</option>
                       </select>
                     </div>
