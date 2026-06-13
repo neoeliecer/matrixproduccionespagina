@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const { email, location, interests } = await request.json().catch(() => ({ email: "", location: "Todas", interests: [] }));
+    const { email, locations, interests } = await request.json().catch(() => ({ email: "", locations: ["Todas"], interests: [] }));
 
     if (!email || typeof email !== "string" || !email.includes("@")) {
       return NextResponse.json({ error: "Por favor, ingresa un correo electrónico válido." }, { status: 400 });
@@ -46,7 +46,12 @@ export async function POST(request: Request) {
         // Migración de arreglo de strings a arreglo de objetos si es necesario
         currentSubscribers = parsedData.map((sub: any) => {
           if (typeof sub === "string") {
-            return { email: sub, location: "Todas", interests: ["Artículos", "Eventos", "Convocatorias"] };
+            return { email: sub, locations: ["Todas"], interests: ["Artículos", "Eventos", "Convocatorias"] };
+          }
+          // Compatibilidad con objeto anterior (location as string -> locations as array)
+          if (sub.location && typeof sub.location === "string" && !sub.locations) {
+            sub.locations = [sub.location];
+            delete sub.location;
           }
           return sub;
         });
@@ -60,13 +65,13 @@ export async function POST(request: Request) {
     
     if (existingIndex !== -1) {
       // Actualizamos sus preferencias
-      currentSubscribers[existingIndex].location = location || "Todas";
+      currentSubscribers[existingIndex].locations = locations && locations.length > 0 ? locations : ["Todas"];
       currentSubscribers[existingIndex].interests = interests && interests.length > 0 ? interests : ["Artículos", "Eventos", "Convocatorias"];
     } else {
       // 3. Añadir el nuevo suscriptor
       currentSubscribers.push({
         email: cleanEmail,
-        location: location || "Todas",
+        locations: locations && locations.length > 0 ? locations : ["Todas"],
         interests: interests && interests.length > 0 ? interests : ["Artículos", "Eventos", "Convocatorias"]
       });
     }

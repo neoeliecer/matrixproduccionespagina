@@ -138,6 +138,34 @@ export default function Admin() {
     setEditPassword(item.password || "");
   };
 
+  const handleDelete = async (item: any, type: string) => {
+    const itemTitle = item.title || item.titulo || item.name;
+    if (!confirm(`⚠️ ¿Estás completamente seguro de borrar: "${itemTitle}"?\nEsta acción no se puede deshacer y lo borrará del repositorio.`)) {
+      return;
+    }
+    try {
+      const response = await fetch("/api/admin/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password: password,
+          type: type,
+          title: itemTitle,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setMessage({ type: "success", text: data.message });
+        // Recargar la página para reflejar los cambios
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        setMessage({ type: "error", text: data.error || "Error al borrar el elemento." });
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Error de conexión al intentar borrar." });
+    }
+  };
+
   const handleSaveEdit = async () => {
     if (!editingItem || !editingType) return;
     setIsSavingEdit(true);
@@ -1136,13 +1164,21 @@ export default function Admin() {
                                 Director: {item.director}
                               </p>
                             </div>
-                            <a
-                              href="/recomendadas"
-                              target="_blank"
-                              className="text-white/40 hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
-                            >
-                              Ver
-                            </a>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleDelete(item, "movies")}
+                                className="text-[#ff4b4b] hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-[#ff4b4b]/30 hover:bg-[#ff4b4b]/20 px-3 py-1.5 rounded transition-colors"
+                              >
+                                Borrar
+                              </button>
+                              <a
+                                href="/recomendadas"
+                                target="_blank"
+                                className="text-white/40 hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
+                              >
+                                Ver
+                              </a>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1333,13 +1369,21 @@ export default function Admin() {
                                 📍 {item.location} | 🗓️ {item.date}
                               </p>
                             </div>
-                            <a
-                              href="/eventos"
-                              target="_blank"
-                              className="text-white/40 hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
-                            >
-                              Ver
-                            </a>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleDelete(item, "events")}
+                                className="text-[#ff4b4b] hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-[#ff4b4b]/30 hover:bg-[#ff4b4b]/20 px-3 py-1.5 rounded transition-colors"
+                              >
+                                Borrar
+                              </button>
+                              <a
+                                href="/eventos"
+                                target="_blank"
+                                className="text-white/40 hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
+                              >
+                                Ver
+                              </a>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1438,6 +1482,12 @@ export default function Admin() {
                                 </div>
                                 <div className="flex gap-2">
                                   <button
+                                    onClick={() => handleDelete(g, "galleries")}
+                                    className="text-[#ff4b4b] hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-[#ff4b4b]/30 hover:bg-[#ff4b4b]/20 px-3 py-1.5 rounded transition-colors"
+                                  >
+                                    Borrar
+                                  </button>
+                                  <button
                                     onClick={() => handleEditClick(g, "galeria")}
                                     className="text-white/40 hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
                                   >
@@ -1473,6 +1523,12 @@ export default function Admin() {
                         </div>
 
                         <div className="flex gap-4">
+                          <button
+                            onClick={() => handleDelete(post, "posts")}
+                            className="text-[#ff4b4b] hover:text-white text-[10px] uppercase tracking-[2px] font-bold border border-[#ff4b4b]/30 hover:bg-[#ff4b4b]/20 px-3 py-1.5 rounded transition-colors"
+                          >
+                            Borrar
+                          </button>
                           <button
                             onClick={() => handleEditClick(post, "post")}
                             className="text-white/40 hover:text-white text-[10px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
@@ -1510,6 +1566,12 @@ export default function Admin() {
                         </div>
 
                         <div className="flex gap-4">
+                          <button
+                            onClick={() => handleDelete(item, "convocatorias")}
+                            className="text-[#ff4b4b] hover:text-white text-[10px] uppercase tracking-[2px] font-bold border border-[#ff4b4b]/30 hover:bg-[#ff4b4b]/20 px-3 py-1.5 rounded transition-colors"
+                          >
+                            Borrar
+                          </button>
                           <a
                             href="/convocatorias"
                             target="_blank"

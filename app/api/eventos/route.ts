@@ -267,7 +267,9 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
               if (typeof sub === "string") return true;
               
               const isInterestedInEvents = sub.interests && sub.interests.includes("Eventos");
-              const matchesLocation = sub.location === "Todas" || sub.location === newEvent.categoryLocation;
+              
+              const userLocations = sub.locations || (sub.location ? [sub.location] : ["Todas"]);
+              const matchesLocation = userLocations.includes("Todas") || userLocations.includes(newEvent.categoryLocation);
               
               return isInterestedInEvents && matchesLocation;
             });

@@ -16,7 +16,7 @@ export default function Blog() {
   const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
 
   const [emailInput, setEmailInput] = useState("");
-  const [locationInput, setLocationInput] = useState("Todas");
+  const [locationsInput, setLocationsInput] = useState<string[]>(["Todas"]);
   const [interestsInput, setInterestsInput] = useState<string[]>(["Artículos", "Eventos", "Convocatorias"]);
   const [subStatus, setSubStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [subMessage, setSubMessage] = useState("");
@@ -39,7 +39,7 @@ export default function Blog() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           email: emailInput,
-          location: locationInput,
+          locations: locationsInput,
           interests: interestsInput
         }),
       });
@@ -622,7 +622,7 @@ export default function Blog() {
                 </p>
 
                 <form onSubmit={handleSubscribe} className="pt-6 flex flex-col gap-4">
-                  <div className="flex flex-col sm:flex-row gap-4 w-full">
+                  <div className="flex flex-col gap-4 w-full">
                     <input
                       type="email"
                       required
@@ -630,23 +630,38 @@ export default function Blog() {
                       value={emailInput}
                       onChange={(e) => setEmailInput(e.target.value)}
                       disabled={subStatus === "loading"}
-                      className="flex-1 bg-white/[0.02] border border-white/10 px-6 py-4 rounded-xl text-white text-sm focus:outline-none focus:border-accent disabled:opacity-50 transition-colors backdrop-blur-md"
+                      className="w-full bg-white/[0.02] border border-white/10 px-6 py-4 rounded-xl text-white text-sm focus:outline-none focus:border-accent disabled:opacity-50 transition-colors backdrop-blur-md"
                     />
-                    <select
-                      value={locationInput}
-                      onChange={(e) => setLocationInput(e.target.value)}
-                      disabled={subStatus === "loading"}
-                      className="bg-[#0a0a0a] border border-white/10 px-6 py-4 rounded-xl text-white text-sm focus:outline-none focus:border-accent transition-colors md:w-1/3 appearance-none font-bold"
-                    >
-                      <option value="Todas">🌍 Todas las ciudades</option>
-                      <option value="Cali">🇨🇴 Cali</option>
-                      <option value="Bogotá">🇨🇴 Bogotá</option>
-                      <option value="Medellín">🇨🇴 Medellín</option>
-                      <option value="Manizales">🇨🇴 Manizales</option>
-                      <option value="España">🇪🇸 España</option>
-                      <option value="Nueva York">🇺🇸 Nueva York</option>
-                      <option value="Atlanta">🇺🇸 Atlanta</option>
-                    </select>
+                  </div>
+
+                  <div className="text-left bg-white/[0.01] border border-white/5 p-4 rounded-xl space-y-3">
+                    <p className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-2">¿De qué ciudades deseas recibir eventos?</p>
+                    <div className="flex flex-wrap gap-4">
+                      {["Todas", "Cali", "Bogotá", "Medellín", "Manizales", "España", "Nueva York", "Atlanta"].map(city => (
+                        <label key={city} className="flex items-center gap-2 cursor-pointer group">
+                          <input 
+                            type="checkbox" 
+                            checked={locationsInput.includes(city)}
+                            onChange={(e) => {
+                              if (city === "Todas") {
+                                setLocationsInput(e.target.checked ? ["Todas"] : []);
+                              } else {
+                                let newLocations = locationsInput.filter(l => l !== "Todas");
+                                if (e.target.checked) {
+                                  newLocations = [...newLocations, city];
+                                } else {
+                                  newLocations = newLocations.filter(l => l !== city);
+                                }
+                                if (newLocations.length === 0) newLocations = ["Todas"];
+                                setLocationsInput(newLocations);
+                              }
+                            }}
+                            className="accent-accent w-4 h-4 rounded border-white/20 bg-black cursor-pointer"
+                          />
+                          <span className="text-xs text-white/70 group-hover:text-white transition-colors uppercase tracking-wider font-bold">{city}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                   
                   <div className="text-left bg-white/[0.01] border border-white/5 p-4 rounded-xl space-y-3">
