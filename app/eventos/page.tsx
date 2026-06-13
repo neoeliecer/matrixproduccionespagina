@@ -262,35 +262,7 @@ export default function Eventos() {
             </p>
           </div>
 
-          {/* Interactive Toolbar Banner */}
-          <div className="max-w-4xl mx-auto bg-white/[0.01] border border-white/5 p-6 rounded-2xl backdrop-blur-md flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-accent/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-            <div className="space-y-2 text-center md:text-left relative z-10">
-              <span className="text-accent text-[9px] uppercase tracking-widest font-black block">Centro de Operaciones</span>
-              <h3 className="text-white font-extrabold uppercase text-base tracking-wider">
-                Cartelera Automatizada & Libre
-              </h3>
-              <p className="text-white/40 text-[10px] uppercase tracking-wider font-light">
-                Puedes proponer tu evento o encargar a la IA Matrix que rastree las redes culturales
-              </p>
-            </div>
-
-            <div className="flex gap-4 relative z-10 w-full md:w-auto">
-              <button
-                onClick={handleTriggerAICrawler}
-                disabled={isScanning}
-                className="flex-1 md:flex-none bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-[10px] uppercase tracking-[3px] py-4 px-6 rounded transition-all duration-300 shadow-[0_0_15px_var(--accent-glow)] hover:shadow-[0_0_25px_var(--accent)] hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>🤖</span> Rastrear con IA
-              </button>
-              <button
-                onClick={() => setIsSubmitModalOpen(true)}
-                className="flex-1 md:flex-none border border-white/10 hover:border-white/30 hover:bg-white/5 text-white font-extrabold text-[10px] uppercase tracking-[3px] py-4 px-6 rounded transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>✍️</span> Publicar Evento
-              </button>
-            </div>
-          </div>
+          {/* FILTER SYSTEM & SEARCH (El banner de operaciones ha sido movido a /admin por seguridad) */}
 
           {/* FILTER SYSTEM & SEARCH */}
           <div className="max-w-5xl mx-auto space-y-6">

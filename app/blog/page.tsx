@@ -16,6 +16,8 @@ export default function Blog() {
   const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
 
   const [emailInput, setEmailInput] = useState("");
+  const [locationInput, setLocationInput] = useState("Todas");
+  const [interestsInput, setInterestsInput] = useState<string[]>(["Artículos", "Eventos", "Convocatorias"]);
   const [subStatus, setSubStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [subMessage, setSubMessage] = useState("");
 
@@ -35,7 +37,11 @@ export default function Blog() {
       const res = await fetch("/api/suscribir", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailInput }),
+        body: JSON.stringify({ 
+          email: emailInput,
+          location: locationInput,
+          interests: interestsInput
+        }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -615,20 +621,61 @@ export default function Blog() {
                   Recibe en tu correo electrónico análisis profundos, historias exclusivas detrás de cámaras y actualizaciones automáticas cada vez que la IA publique un nuevo artículo.
                 </p>
 
-                <form onSubmit={handleSubscribe} className="pt-6 flex flex-col sm:flex-row gap-4">
-                  <input
-                    type="email"
-                    required
-                    placeholder="Tu correo electrónico..."
-                    value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
-                    disabled={subStatus === "loading"}
-                    className="flex-1 bg-white/[0.02] border border-white/10 px-6 py-4 rounded-full text-white text-sm focus:outline-none focus:border-accent disabled:opacity-50 transition-colors backdrop-blur-md"
-                  />
+                <form onSubmit={handleSubscribe} className="pt-6 flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4 w-full">
+                    <input
+                      type="email"
+                      required
+                      placeholder="Tu correo electrónico..."
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      disabled={subStatus === "loading"}
+                      className="flex-1 bg-white/[0.02] border border-white/10 px-6 py-4 rounded-xl text-white text-sm focus:outline-none focus:border-accent disabled:opacity-50 transition-colors backdrop-blur-md"
+                    />
+                    <select
+                      value={locationInput}
+                      onChange={(e) => setLocationInput(e.target.value)}
+                      disabled={subStatus === "loading"}
+                      className="bg-[#0a0a0a] border border-white/10 px-6 py-4 rounded-xl text-white text-sm focus:outline-none focus:border-accent transition-colors md:w-1/3 appearance-none font-bold"
+                    >
+                      <option value="Todas">🌍 Todas las ciudades</option>
+                      <option value="Cali">🇨🇴 Cali</option>
+                      <option value="Bogotá">🇨🇴 Bogotá</option>
+                      <option value="Medellín">🇨🇴 Medellín</option>
+                      <option value="Manizales">🇨🇴 Manizales</option>
+                      <option value="España">🇪🇸 España</option>
+                      <option value="Nueva York">🇺🇸 Nueva York</option>
+                      <option value="Atlanta">🇺🇸 Atlanta</option>
+                    </select>
+                  </div>
+                  
+                  <div className="text-left bg-white/[0.01] border border-white/5 p-4 rounded-xl space-y-3">
+                    <p className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-2">¿Qué tipo de noticias deseas recibir?</p>
+                    <div className="flex flex-wrap gap-4">
+                      {["Artículos", "Eventos", "Convocatorias"].map(item => (
+                        <label key={item} className="flex items-center gap-2 cursor-pointer group">
+                          <input 
+                            type="checkbox" 
+                            checked={interestsInput.includes(item)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setInterestsInput([...interestsInput, item]);
+                              } else {
+                                setInterestsInput(interestsInput.filter(i => i !== item));
+                              }
+                            }}
+                            className="accent-accent w-4 h-4 rounded border-white/20 bg-black cursor-pointer"
+                          />
+                          <span className="text-xs text-white/70 group-hover:text-white transition-colors uppercase tracking-wider font-bold">{item}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
                   <button
                     type="submit"
-                    disabled={subStatus === "loading"}
-                    className="bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-[10px] uppercase tracking-[3px] px-8 py-4 sm:py-0 rounded-full transition-all duration-300 shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] disabled:opacity-50 disabled:shadow-none shrink-0"
+                    disabled={subStatus === "loading" || interestsInput.length === 0}
+                    className="bg-accent hover:bg-[#00cc6a] text-black font-extrabold text-[10px] uppercase tracking-[3px] px-8 py-4 rounded-xl transition-all duration-300 shadow-[0_0_20px_var(--accent-glow)] hover:shadow-[0_0_30px_var(--accent)] disabled:opacity-50 disabled:shadow-none w-full"
                   >
                     {subStatus === "loading" ? "Procesando..." : "Suscribirse"}
                   </button>

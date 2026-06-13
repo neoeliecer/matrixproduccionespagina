@@ -15,6 +15,31 @@ const FEEDS_EVENTOS = [
     ]
   },
   {
+    location: "Medellín",
+    lang: "es",
+    urls: [
+      "https://news.google.com/rss/search?q=cine+teatro+eventos+culturales+medellin&hl=es-419&gl=CO&ceid=CO:es-419",
+      "https://news.google.com/rss/search?q=agenda+cultural+teatro+medellin&hl=es-419&gl=CO&ceid=CO:es-419"
+    ]
+  },
+  {
+    location: "Bogotá",
+    lang: "es",
+    urls: [
+      "https://news.google.com/rss/search?q=cine+teatro+eventos+culturales+bogota&hl=es-419&gl=CO&ceid=CO:es-419",
+      "https://news.google.com/rss/search?q=agenda+cultural+teatro+bogota&hl=es-419&gl=CO&ceid=CO:es-419"
+    ]
+  },
+  {
+    location: "Manizales",
+    lang: "es",
+    urls: [
+      "https://news.google.com/rss/search?q=cine+teatro+eventos+culturales+manizales&hl=es-419&gl=CO&ceid=CO:es-419",
+      "https://news.google.com/rss/search?q=agenda+cultural+teatro+manizales&hl=es-419&gl=CO&ceid=CO:es-419",
+      "https://news.google.com/rss/search?q=festival+teatro+manizales&hl=es-419&gl=CO&ceid=CO:es-419"
+    ]
+  },
+  {
     location: "Colombia",
     lang: "es",
     urls: [
@@ -252,6 +277,24 @@ export async function POST(request: Request) {
           description: "La escena local caleña presenta una cartelera especial con directores locales, obras clásicas adaptadas e instalaciones multisensoriales en el Teatro Municipal.",
           link: "https://www.cali.gov.co/cultura/"
         };
+      } else if (selectedGroup.location === "Medellín") {
+        availableItem = {
+          title: "Festival Internacional de Cine y Teatro de Medellín",
+          description: "Medellín se viste de arte con proyecciones independientes y artes escénicas en las calles y teatros de la ciudad de la eterna primavera.",
+          link: "https://www.medellin.gov.co/cultura"
+        };
+      } else if (selectedGroup.location === "Bogotá") {
+        availableItem = {
+          title: "Feria de las Artes Escénicas y Cine Iberoamericano en Bogotá",
+          description: "La capital colombiana acoge a decenas de compañías de teatro y directores de cine en una muestra cultural sin precedentes en Corferias.",
+          link: "https://www.culturarecreacionydeporte.gov.co"
+        };
+      } else if (selectedGroup.location === "Manizales") {
+        availableItem = {
+          title: "Festival Internacional de Teatro de Manizales",
+          description: "La ciudad de las puertas abiertas celebra la nueva edición del festival de teatro más antiguo de América con obras nacionales e internacionales.",
+          link: "https://www.festivaldemanizales.com/"
+        };
       } else if (selectedGroup.location === "España") {
         availableItem = {
           title: "Festival de Cine de Madrid y Muestra Estival de Teatro",
@@ -344,6 +387,97 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
         { error: "Error al guardar el evento en el repositorio, pero se guardó localmente.", event: generatedEvent },
         { status: 502 }
       );
+    }
+
+    // Envío de Boletín Automático a Suscriptores mediante Brevo REST API
+    if (groqApiKey && githubToken) {
+      const brevoApiKey = process.env.BREVO_API_KEY;
+      if (brevoApiKey) {
+        try {
+          const repoOwner = "neoeliecer";
+          const repoName = "matrixproduccionespagina";
+          const subscribersUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/data/subscribers.json`;
+          
+          const getSubsResponse = await fetch(subscribersUrl, {
+            headers: {
+              Authorization: `token ${githubToken}`,
+              Accept: "application/vnd.github.v3+json",
+              "User-Agent": "NextJS-Events-Auto",
+            },
+            cache: "no-store",
+          });
+
+          if (getSubsResponse.ok) {
+            const subsData = await getSubsResponse.json();
+            const decodedSubs = Buffer.from(subsData.content, "base64").toString("utf-8");
+            const allSubscribers: any[] = JSON.parse(decodedSubs);
+
+            // Filtrar suscriptores basados en ubicación e intereses
+            // Si el suscriptor es un string antiguo, asumimos interés en todo y "Todas" las ciudades.
+            const targetSubscribers = allSubscribers.filter(sub => {
+              if (typeof sub === "string") return true;
+              
+              const isInterestedInEvents = sub.interests && sub.interests.includes("Eventos");
+              const matchesLocation = sub.location === "Todas" || sub.location === selectedGroup.location;
+              
+              return isInterestedInEvents && matchesLocation;
+            });
+
+            if (targetSubscribers.length > 0) {
+              const bccEmails = targetSubscribers.map(sub => {
+                return typeof sub === "string" ? { email: sub } : { email: sub.email };
+              });
+
+              // Enviar correos en copia oculta (BCC)
+              const sendEmailResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
+                method: "POST",
+                headers: {
+                  "api-key": brevoApiKey,
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                },
+                body: JSON.stringify({
+                  sender: { name: "Matrix Producciones", email: "info@matrixproducciones.com" },
+                  to: [{ email: "info@matrixproducciones.com", name: "Boletín Matrix" }],
+                  bcc: bccEmails,
+                  subject: `🎭 Nuevo Evento en ${selectedGroup.location}: ${generatedEvent.title}`,
+                  htmlContent: `
+                    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #030303; border: 1px solid #1a1a1a; border-radius: 16px; overflow: hidden; color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                      <div style="background-color: #080808; padding: 28px; text-align: center; border-bottom: 1px solid #111111;">
+                        <h1 style="color: #00ff88; font-size: 18px; text-transform: uppercase; letter-spacing: 5px; margin: 0; font-weight: bold;">Matrix Producciones</h1>
+                        <span style="color: #666666; font-size: 9px; text-transform: uppercase; letter-spacing: 3px; display: block; margin-top: 5px;">Alerta de Evento Cultural</span>
+                      </div>
+                      <div style="padding: 32px 24px;">
+                        <span style="background-color: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.2); padding: 4px 12px; border-radius: 4px; font-size: 9px; font-weight: bold; text-transform: uppercase; color: #00ff88; letter-spacing: 2px; display: inline-block; margin-bottom: 16px;">📍 ${selectedGroup.location} | ${generatedEvent.tag}</span>
+                        <h1 style="font-size: 22px; line-height: 1.3; font-weight: 800; margin: 0 0 16px 0; color: #ffffff; text-transform: uppercase; letter-spacing: 1px;">${generatedEvent.title}</h1>
+                        <p style="font-size: 14px; color: #00ff88; font-weight: bold; margin-bottom: 16px;">🗓️ ${generatedEvent.date} | 🏛️ ${generatedEvent.location}</p>
+                        <p style="font-size: 14px; color: #888888; line-height: 1.6; font-weight: 300; margin-bottom: 24px;">${generatedEvent.excerpt}</p>
+                        ${generatedEvent.image ? `<img src="${generatedEvent.image}" alt="${generatedEvent.title}" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 24px; border: 1px solid #1a1a1a;" />` : ""}
+                        <div style="text-align: center; margin-top: 32px; margin-bottom: 16px;">
+                          <a href="https://matrixproducciones.com/eventos" style="background-color: #00ff88; color: #000000; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 3px; padding: 16px 32px; border-radius: 2px; text-decoration: none; display: inline-block;">Ver en Cartelera →</a>
+                        </div>
+                      </div>
+                      <div style="background-color: #080808; padding: 20px; text-align: center; font-size: 10px; color: #444444; border-top: 1px solid #111111; line-height: 1.6;">
+                        &copy; ${new Date().getFullYear()} Matrix Producciones. Todos los derechos reservados.<br />
+                        Estás recibiendo este correo porque te suscribiste a las alertas de Eventos en ${selectedGroup.location} a través de matrixproducciones.com.
+                      </div>
+                    </div>
+                  `
+                })
+              });
+
+              if (sendEmailResponse.ok) {
+                console.log(`Alerta de evento enviada con éxito a ${targetSubscribers.length} suscriptores de ${selectedGroup.location}.`);
+              } else {
+                const mailErr = await sendEmailResponse.text();
+                console.error("Error enviando alerta de evento a través de Brevo:", mailErr);
+              }
+            }
+          }
+        } catch (mailError) {
+          console.error("Excepción en el proceso de envío de alerta de evento:", mailError);
+        }
+      }
     }
 
     return NextResponse.json({

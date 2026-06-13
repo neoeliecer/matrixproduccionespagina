@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json().catch(() => ({ email: "" }));
+    const { email, location, interests } = await request.json().catch(() => ({ email: "", location: "Todas", interests: [] }));
 
     if (!email || typeof email !== "string" || !email.includes("@")) {
       return NextResponse.json({ error: "Por favor, ingresa un correo electrónico válido." }, { status: 400 });
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     const filePath = "data/subscribers.json";
     const githubApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
 
-    let currentSubscribers: string[] = [];
+    let currentSubscribers: any[] = [];
     let fileSha = "";
 
     // 1. Obtener la lista actual de suscriptores desde GitHub
@@ -41,23 +41,35 @@ export async function POST(request: Request) {
         const fileData = await getFileResponse.json();
         fileSha = fileData.sha;
         const decodedContent = Buffer.from(fileData.content, "base64").toString("utf-8");
-        currentSubscribers = JSON.parse(decodedContent);
+        const parsedData = JSON.parse(decodedContent);
+        
+        // Migración de arreglo de strings a arreglo de objetos si es necesario
+        currentSubscribers = parsedData.map((sub: any) => {
+          if (typeof sub === "string") {
+            return { email: sub, location: "Todas", interests: ["Artículos", "Eventos", "Convocatorias"] };
+          }
+          return sub;
+        });
       }
     } catch (e) {
       console.error("Error leyendo subscribers.json de GitHub, inicializando vacío:", e);
     }
 
-    // 2. Verificar duplicados
-    if (currentSubscribers.includes(cleanEmail)) {
-      return NextResponse.json({
-        success: true,
-        alreadySubscribed: true,
-        message: "Este correo ya está registrado en nuestro boletín.",
+    // 2. Verificar duplicados (y actualizar preferencias si ya existe)
+    const existingIndex = currentSubscribers.findIndex(sub => sub.email === cleanEmail);
+    
+    if (existingIndex !== -1) {
+      // Actualizamos sus preferencias
+      currentSubscribers[existingIndex].location = location || "Todas";
+      currentSubscribers[existingIndex].interests = interests && interests.length > 0 ? interests : ["Artículos", "Eventos", "Convocatorias"];
+    } else {
+      // 3. Añadir el nuevo suscriptor
+      currentSubscribers.push({
+        email: cleanEmail,
+        location: location || "Todas",
+        interests: interests && interests.length > 0 ? interests : ["Artículos", "Eventos", "Convocatorias"]
       });
     }
-
-    // 3. Añadir el nuevo suscriptor
-    currentSubscribers.push(cleanEmail);
 
     // 4. Guardar la lista actualizada de vuelta en GitHub
     const updatedContentBase64 = Buffer.from(JSON.stringify(currentSubscribers, null, 2)).toString("base64");
