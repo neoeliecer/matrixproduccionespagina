@@ -169,9 +169,11 @@ export default function Admin() {
         
       } else {
         setMessage({ type: "error", text: data.error || "Error al borrar el elemento." });
+        alert("ERROR AL BORRAR: " + (data.error || "Error desconocido"));
       }
-    } catch (err) {
+    } catch (err: any) {
       setMessage({ type: "error", text: "Error de conexión al intentar borrar." });
+      alert("ERROR DE CONEXIÓN: " + err.message);
     }
   };
 

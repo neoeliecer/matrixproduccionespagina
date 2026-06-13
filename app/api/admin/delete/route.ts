@@ -95,16 +95,21 @@ export async function POST(request: Request) {
     }
 
     // 5. Guardar los cambios (Local y GitHub)
+    
+    // Intento local (En Vercel fallará con EROFS, lo ignoramos)
     try {
-      // Local
       const localPath = path.join(process.cwd(), filePath);
       const dir = path.dirname(localPath);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
       fs.writeFileSync(localPath, JSON.stringify(currentData, null, 2), "utf-8");
-      
-      // GitHub
+    } catch (e) {
+      console.warn("No se pudo guardar localmente (esperado en Vercel EROFS):", e);
+    }
+    
+    // Guardar en GitHub
+    try {
       if (githubToken) {
         const updatedContentBase64 = Buffer.from(JSON.stringify(currentData, null, 2)).toString("base64");
         const putFileResponse = await fetch(githubApiUrl, {
@@ -131,8 +136,8 @@ export async function POST(request: Request) {
       
       return NextResponse.json({ success: true, message: `Elemento "${title}" borrado con éxito.` });
     } catch (e) {
-      console.error("Error saving deleted changes:", e);
-      return NextResponse.json({ error: "Error al guardar los cambios tras borrar." }, { status: 500 });
+      console.error("Error saving deleted changes to GitHub:", e);
+      return NextResponse.json({ error: "Error al guardar los cambios en GitHub tras borrar." }, { status: 500 });
     }
 
   } catch (error: any) {
