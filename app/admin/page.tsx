@@ -10,6 +10,7 @@ import postsData from "@/data/posts.json";
 import convocatoriasData from "@/data/convocatorias.json";
 import recommendationsData from "@/data/recommendations.json";
 import eventsData from "@/data/events.json";
+import galeriasData from "@/data/galerias.json";
 
 export default function Admin() {
   const [password, setPassword] = useState("");
@@ -23,6 +24,7 @@ export default function Admin() {
   const [convocatorias, setConvocatorias] = useState(convocatoriasData);
   const [recommendations, setRecommendations] = useState(recommendationsData);
   const [events, setEvents] = useState(eventsData);
+  const [galerias, setGalerias] = useState(galeriasData);
 
   const [eventTitle, setEventTitle] = useState("");
   const [eventLocation, setEventLocation] = useState("");
@@ -63,6 +65,13 @@ export default function Admin() {
   const [galleryDate, setGalleryDate] = useState("");
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [isSavingGallery, setIsSavingGallery] = useState(false);
+
+  // Estados para Edición de Visibilidad/Password
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingType, setEditingType] = useState<"post" | "galeria" | null>(null);
+  const [editVisible, setEditVisible] = useState(true);
+  const [editPassword, setEditPassword] = useState("");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   const openCloudinaryWidget = () => {
     // @ts-ignore
@@ -119,6 +128,47 @@ export default function Admin() {
       setMessage({ type: "error", text: "Error de conexión." });
     } finally {
       setIsSavingGallery(false);
+    }
+  };
+
+  const handleEditClick = (item: any, type: "post" | "galeria") => {
+    setEditingItem(item);
+    setEditingType(type);
+    setEditVisible(item.visible !== undefined ? item.visible : true);
+    setEditPassword(item.password || "");
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingItem || !editingType) return;
+    setIsSavingEdit(true);
+    try {
+      const endpoint = editingType === "galeria" ? "/api/galerias" : "/api/posts";
+      const response = await fetch(endpoint, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingItem.id,
+          visible: editVisible,
+          password: editPassword,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setMessage({ type: "success", text: "¡Actualizado con éxito!" });
+        if (editingType === "galeria") {
+          setGalerias(galerias.map((g: any) => g.id === editingItem.id ? data.data : g));
+        } else {
+          setPosts(posts.map((p: any) => p.id === editingItem.id ? data.data : p));
+        }
+        setEditingItem(null);
+        setEditingType(null);
+      } else {
+        setMessage({ type: "error", text: "Error al actualizar." });
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Error de conexión." });
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -1356,17 +1406,54 @@ export default function Admin() {
                         </button>
                       </form>
 
-                      {/* Right: Info */}
-                      <div>
-                        <h3 className="text-lg font-extrabold uppercase text-white tracking-wider mb-4">
-                          Estado de Cloudinary
-                        </h3>
-                        <p className="text-sm text-white/60 mb-6 leading-relaxed">
-                          La conexión directa con Cloudinary permite subir cientos de fotos rápidamente desde Google Drive o tu computadora sin que pasen por el servidor de Vercel. 
-                        </p>
-                        <div className="bg-white/5 border border-white/10 p-4 rounded-lg">
-                          <p className="text-xs text-white/60 mb-2 uppercase tracking-[1px] font-bold">Cloud Name Activo:</p>
-                          <p className="text-accent font-mono text-sm">{process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "drs232qlq"}</p>
+                      {/* Right: Info and List */}
+                      <div className="space-y-8 max-h-[700px] overflow-y-auto pr-2">
+                        <div>
+                          <h3 className="text-lg font-extrabold uppercase text-white tracking-wider mb-4">
+                            Estado de Cloudinary
+                          </h3>
+                          <div className="bg-white/5 border border-white/10 p-4 rounded-lg">
+                            <p className="text-xs text-white/60 mb-2 uppercase tracking-[1px] font-bold">Cloud Name Activo:</p>
+                            <p className="text-accent font-mono text-sm">{process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "drs232qlq"}</p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-extrabold uppercase text-white tracking-wider mb-4">
+                            Galerías Registradas ({galerias.length})
+                          </h3>
+                          <div className="space-y-4">
+                            {galerias.map((g, idx) => (
+                              <div key={idx} className="border border-white/5 p-4 rounded-xl bg-white/[0.01] hover:bg-white/[0.02] transition-colors flex justify-between items-center gap-4">
+                                <div>
+                                  <span className="text-[8px] bg-accent/10 border border-accent/20 px-2 py-0.5 rounded text-accent uppercase font-bold tracking-widest">
+                                    {g.category}
+                                  </span>
+                                  <h4 className="text-sm font-extrabold uppercase text-white tracking-wide mt-2">
+                                    {g.title}
+                                  </h4>
+                                  <p className="text-[10px] text-white/40 mt-1 uppercase font-bold">
+                                    {g.images?.length || 0} fotos | {g.date}
+                                  </p>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleEditClick(g, "galeria")}
+                                    className="text-white/40 hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
+                                  >
+                                    Editar
+                                  </button>
+                                  <a
+                                    href="/galerias"
+                                    target="_blank"
+                                    className="text-white/40 hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
+                                  >
+                                    Ver
+                                  </a>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1386,6 +1473,12 @@ export default function Admin() {
                         </div>
 
                         <div className="flex gap-4">
+                          <button
+                            onClick={() => handleEditClick(post, "post")}
+                            className="text-white/40 hover:text-white text-[10px] uppercase tracking-[2px] font-bold border border-white/10 px-3 py-1.5 rounded transition-colors"
+                          >
+                            Editar
+                          </button>
                           <a
                             href="/blog"
                             target="_blank"
@@ -1433,6 +1526,40 @@ export default function Admin() {
             </div>
           )}
         </div>
+
+        {editingItem && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="bg-[#050505] border border-white/10 p-8 rounded-lg max-w-md w-full shadow-2xl relative">
+              <button onClick={() => {setEditingItem(null); setEditingType(null)}} className="absolute top-4 right-4 text-white/50 hover:text-white text-xl">✕</button>
+              <h3 className="text-lg font-extrabold uppercase text-white tracking-widest mb-6">
+                Configuración: <br/> <span className="text-accent text-sm break-all">{editingItem.title}</span>
+              </h3>
+              
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 bg-white/5 p-4 rounded border border-white/5">
+                  <input type="checkbox" id="editVisible" checked={editVisible} onChange={(e) => setEditVisible(e.target.checked)} className="accent-accent w-5 h-5 cursor-pointer" />
+                  <label htmlFor="editVisible" className="text-xs font-bold text-white/80 uppercase tracking-[1px] cursor-pointer">Elemento Visible</label>
+                </div>
+                
+                <div className="flex flex-col gap-2">
+                  <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Candado de Contraseña</label>
+                  <input 
+                    type="text" 
+                    value={editPassword} 
+                    onChange={(e) => setEditPassword(e.target.value)} 
+                    className="bg-black/50 border border-white/10 focus:border-accent text-white p-3 text-sm rounded outline-none transition-colors placeholder:text-white/20" 
+                    placeholder="Ej: TITANES (Dejar vacío para público)" 
+                  />
+                  <p className="text-[10px] text-white/40 leading-relaxed mt-1">Si escribes una contraseña, los usuarios deberán ingresarla para ver el contenido completo.</p>
+                </div>
+                
+                <button onClick={handleSaveEdit} disabled={isSavingEdit} className="w-full bg-accent text-black font-extrabold text-xs uppercase tracking-[3px] p-4 rounded hover:bg-[#00cc6a] transition-all shadow-[0_0_15px_rgba(0,255,135,0.2)] disabled:opacity-50">
+                  {isSavingEdit ? "Guardando..." : "Guardar Cambios"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       <Footer />

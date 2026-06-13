@@ -17,11 +17,12 @@ export default function Catalogo() {
     {
       title: "La Despedida",
       tag: "Documental Íntimo",
-      desc: "Un documental íntimo que refleja el valor de las despedidas en la vida humana, explorando las emociones profundas detrás de cada cierre y nuevo ciclo.",
+      status: "En Postproducción (Work in Progress)",
+      desc: "Un documental íntimo que refleja el valor de las despedidas en la vida humana, explorando las emociones profundas detrás de cada cierre y nuevo ciclo. Actualmente en etapa de postproducción (Work in Progress).",
       duration: "45 min",
       year: "2025",
       image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800",
-      videoUrl: "#",
+      videoUrl: "",
     },
     {
       title: "Mandalas",
@@ -235,8 +236,15 @@ export default function Catalogo() {
                       alt={film.title}
                       className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105 group-hover:brightness-110"
                     />
-                    <div className="absolute top-4 left-4 bg-black/80 border border-white/10 px-3 py-1 rounded text-[9px] uppercase font-bold tracking-widest text-accent">
-                      {film.tag}
+                    <div className="absolute top-4 left-4 flex gap-2">
+                      <div className="bg-black/80 border border-white/10 px-3 py-1 rounded text-[9px] uppercase font-bold tracking-widest text-accent">
+                        {film.tag}
+                      </div>
+                      {film.status === "En Postproducción (Work in Progress)" && (
+                        <div className="bg-[#ff4b4b]/20 border border-[#ff4b4b]/30 px-3 py-1 rounded text-[9px] uppercase font-bold tracking-widest text-[#ff4b4b]">
+                          {film.status}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -254,14 +262,20 @@ export default function Catalogo() {
                       </p>
                     </div>
 
-                    <a
-                      href={film.videoUrl}
-                      target={film.videoUrl !== "#" ? "_blank" : undefined}
-                      rel={film.videoUrl !== "#" ? "noopener noreferrer" : undefined}
-                      className="border border-white/10 hover:border-accent bg-white/5 hover:bg-accent hover:text-black font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded-[2px] w-full transition-all duration-300 text-center block"
-                    >
-                      Ver Trailer
-                    </a>
+                    {film.videoUrl ? (
+                      <a
+                        href={film.videoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="border border-white/10 hover:border-accent bg-white/5 hover:bg-accent hover:text-black font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded-[2px] w-full transition-all duration-300 text-center block"
+                      >
+                        Ver Trailer
+                      </a>
+                    ) : (
+                      <div className="border border-white/10 bg-black/50 text-white/40 font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded-[2px] w-full text-center block cursor-not-allowed">
+                        Próximamente / En Desarrollo
+                      </div>
+                    )}
                   </div>
                 </article>
               ))}

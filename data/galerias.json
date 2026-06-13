@@ -4,7 +4,7 @@
     "createdAt": "2026-06-10T05:08:24.895Z",
     "title": "Flag Futbol Juego Palmira",
     "category": "Adultos",
-    "password": "",
+    "password": "TITANES",
     "date": "10/6/2026",
     "images": [
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781068083/titanes%20juego%20masculino/yukaz2t0uifquv7kgje3.jpg",
@@ -51,14 +51,15 @@
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781068095/titanes%20juego%20masculino/dmmmarwqwpzddf8rjcf9.jpg",
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781068096/titanes%20juego%20masculino/s0prfd0mwt7d29g0eira.jpg",
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781068096/titanes%20juego%20masculino/a2iyeab8oe0wddsfaemz.jpg"
-    ]
+    ],
+    "visible": true
   },
   {
     "id": "1781068019317",
     "createdAt": "2026-06-10T05:06:59.317Z",
     "title": "Flag futbol femenino juego Palmira",
     "category": "Femenino",
-    "password": "",
+    "password": "TITANES",
     "date": "10/6/2026",
     "images": [
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781067938/juego%20femenino/xizongoornofhxkderkb.jpg",
@@ -161,14 +162,15 @@
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781067998/juego%20femenino/rfodhxvfdbdqdgwu6tar.jpg",
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781067999/juego%20femenino/vwnz3x0gq8xta3urc38f.jpg",
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781068000/juego%20femenino/fybcx4egctqrbwguitk5.jpg"
-    ]
+    ],
+    "visible": true
   },
   {
     "id": "1781067013683",
     "createdAt": "2026-06-10T04:50:13.683Z",
     "title": "Flag Futbol Juego Palmira",
     "category": "Infantil (Niños)",
-    "password": "",
+    "password": "TITANES",
     "date": "9/6/2026",
     "images": [
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781066925/e4wvskf2lfbnmmlpcno6.jpg",
@@ -408,6 +410,7 @@
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781067000/nuxtunb9t21hjzlicuco.jpg",
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781067001/awqunlcdx1duxcf4ywty.jpg",
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781067001/ytduxxzrhroa3ljdgf6y.jpg"
-    ]
+    ],
+    "visible": true
   }
 ]

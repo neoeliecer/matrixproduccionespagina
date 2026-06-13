@@ -12,6 +12,7 @@ interface Galeria {
   category: string;
   date: string;
   password?: string;
+  visible?: boolean;
   images: string[];
 }
 
@@ -51,6 +52,7 @@ export default function Galerias() {
   const categories = ["Todas", ...uniqueCategories];
 
   const filteredGalerias = galerias.filter((g) => {
+    if (g.visible === false) return false;
     if (albumIdParam) return g.id === albumIdParam;
     return activeCategory === "Todas" ? true : g.category === activeCategory;
   });

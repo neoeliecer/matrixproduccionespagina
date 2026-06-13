@@ -19,6 +19,10 @@ export default function Blog() {
   const [subStatus, setSubStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [subMessage, setSubMessage] = useState("");
 
+  const [unlockedPosts, setUnlockedPosts] = useState<string[]>([]);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailInput || !emailInput.includes("@")) {
@@ -200,6 +204,8 @@ export default function Blog() {
 
   // Filter posts based on search term & selected category
   const filteredPosts = posts.filter((post) => {
+    if (post.visible === false) return false;
+
     const matchesSearch =
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -281,8 +287,15 @@ export default function Blog() {
                           onError={handleImageError}
                           className="w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-105"
                         />
-                        <div className="absolute top-4 left-4 bg-black/80 border border-white/10 px-3 py-1 rounded text-[9px] uppercase font-bold tracking-widest text-accent">
-                          {post.category}
+                        <div className="absolute top-4 left-4 flex gap-2">
+                          <div className="bg-black/80 border border-white/10 px-3 py-1 rounded text-[9px] uppercase font-bold tracking-widest text-accent">
+                            {post.category}
+                          </div>
+                          {post.password && (
+                            <div className="bg-black/80 border border-[#ff4b4b]/30 px-3 py-1 rounded text-[9px] uppercase font-bold tracking-widest text-[#ff4b4b]">
+                              🔒 Privado
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -331,6 +344,66 @@ export default function Blog() {
                 )}
               </div>
             </>
+          ) : selectedPost.password && !unlockedPosts.includes(selectedPost.title) ? (
+            <div className="max-w-xl mx-auto py-20 text-center animate-fade-in">
+              <button
+                onClick={() => {
+                  setSelectedPost(null);
+                  if (typeof window !== "undefined") {
+                    window.history.pushState({}, "", "/blog");
+                  }
+                }}
+                className="text-accent hover:text-white text-xs uppercase tracking-[3px] font-bold flex items-center justify-center gap-2 mb-10 cursor-pointer w-full"
+              >
+                ← Volver al blog
+              </button>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-12 flex flex-col items-center justify-center backdrop-blur-md shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+                <div className="text-5xl mb-6">🔒</div>
+                <h3 className="text-2xl font-black uppercase tracking-widest text-white mb-2">Artículo Protegido</h3>
+                <p className="text-sm text-white/50 mb-8 max-w-sm">
+                  Este artículo requiere contraseña para ser leído.
+                </p>
+                <div className="flex w-full flex-col gap-2">
+                  <div className="flex gap-2">
+                    <input 
+                      type="password" 
+                      value={passwordInput}
+                      onChange={(e) => setPasswordInput(e.target.value)}
+                      placeholder="Contraseña..." 
+                      className="flex-1 bg-black/50 border border-white/20 focus:border-accent outline-none rounded p-4 text-center tracking-[5px] text-white transition-colors"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                           if (passwordInput === selectedPost.password) {
+                              setUnlockedPosts([...unlockedPosts, selectedPost.title]);
+                              setPasswordError(false);
+                           } else {
+                              setPasswordError(true);
+                           }
+                        }
+                      }}
+                    />
+                    <button 
+                      onClick={() => {
+                        if (passwordInput === selectedPost.password) {
+                          setUnlockedPosts([...unlockedPosts, selectedPost.title]);
+                          setPasswordError(false);
+                        } else {
+                          setPasswordError(true);
+                        }
+                      }}
+                      className="bg-accent hover:bg-[#00cc6a] text-black font-extrabold uppercase px-6 rounded transition-all"
+                    >
+                      Entrar
+                    </button>
+                  </div>
+                  {passwordError && (
+                    <span className="text-red-400 text-xs font-bold uppercase tracking-widest mt-2">
+                      ❌ Contraseña incorrecta
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           ) : (
             /* Single Post Detail Mode */
             <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">

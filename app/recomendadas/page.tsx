@@ -4,11 +4,89 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CinematicOverlay from "@/components/CinematicOverlay";
 import recommendationsData from "@/data/recommendations.json";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Recomendadas() {
   const [films, setFilms] = useState(recommendationsData);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
+  
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
+  const [likedFilms, setLikedFilms] = useState<Record<string, boolean>>({});
+
+  const getFilmKey = (title: string) => {
+    return title
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "_")
+      .substring(0, 30);
+  };
+
+  useEffect(() => {
+    const loadLikes = async () => {
+      const likes: Record<string, number> = {};
+      const userLiked: Record<string, boolean> = {};
+
+      for (const film of films) {
+        const key = getFilmKey(film.title);
+        
+        if (typeof window !== "undefined") {
+          userLiked[film.title] = localStorage.getItem(`matrix_liked_film_${key}`) === "true";
+        }
+
+        try {
+          const res = await fetch(`https://api.counterapi.dev/v1/matrixproducciones_recomendadas_likes/${key}`);
+          if (res.ok) {
+            const data = await res.json();
+            likes[film.title] = data.count || 0;
+          } else {
+            likes[film.title] = Math.max(2, (film.title.length * 2) % 19);
+          }
+        } catch (e) {
+          likes[film.title] = Math.max(2, (film.title.length * 2) % 19);
+        }
+      }
+
+      setLikeCounts(likes);
+      setLikedFilms(userLiked);
+    };
+
+    if (films.length > 0) {
+      loadLikes();
+    }
+  }, [films]);
+
+  const handleLikeFilm = async (filmTitle: string) => {
+    const key = getFilmKey(filmTitle);
+    
+    if (likedFilms[filmTitle]) return;
+
+    setLikeCounts((prev) => ({
+      ...prev,
+      [filmTitle]: (prev[filmTitle] || 0) + 1,
+    }));
+    setLikedFilms((prev) => ({
+      ...prev,
+      [filmTitle]: true,
+    }));
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`matrix_liked_film_${key}`, "true");
+    }
+
+    try {
+      const res = await fetch(`https://api.counterapi.dev/v1/matrixproducciones_recomendadas_likes/${key}/up`);
+      if (res.ok) {
+        const data = await res.json();
+        setLikeCounts((prev) => ({
+          ...prev,
+          [filmTitle]: data.count || (prev[filmTitle] || 0) + 1,
+        }));
+      }
+    } catch (e) {
+      console.warn("Error registering like on CounterAPI:", e);
+    }
+  };
 
   const categories = ["Todos", "Documentales", "Espirituales", "Ambientales", "Biográficas", "Historia", "Autoayuda"];
 
@@ -113,20 +191,40 @@ export default function Recomendadas() {
                       </div>
                     </div>
 
-                    {film.trailerUrl && film.trailerUrl !== "#" ? (
-                      <a
-                        href={film.trailerUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="border border-white/10 hover:border-accent bg-white/5 hover:bg-accent hover:text-black font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded-[2px] w-full transition-all duration-300 text-center block cursor-pointer"
+                    <div className="space-y-4">
+                      {film.trailerUrl && film.trailerUrl !== "#" ? (
+                        <a
+                          href={film.trailerUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="border border-white/10 hover:border-accent bg-white/5 hover:bg-accent hover:text-black font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded-[2px] w-full transition-all duration-300 text-center block cursor-pointer"
+                        >
+                          Ver Tráiler Oficial
+                        </a>
+                      ) : (
+                        <span className="border border-white/5 bg-white/[0.01] text-white/20 font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded-[2px] w-full text-center block cursor-default">
+                          Sin Tráiler Disponible
+                        </span>
+                      )}
+
+                      <button
+                        onClick={() => handleLikeFilm(film.title)}
+                        disabled={likedFilms[film.title]}
+                        className={`w-full flex items-center justify-center gap-2 font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded-[2px] transition-all duration-300 ${
+                          likedFilms[film.title]
+                            ? "bg-[#ff4b4b]/20 border border-[#ff4b4b]/40 text-[#ff4b4b] cursor-default"
+                            : "bg-white/5 border border-white/10 text-white hover:border-[#ff4b4b] hover:bg-[#ff4b4b]/5 cursor-pointer"
+                        }`}
                       >
-                        Ver Tráiler Oficial
-                      </a>
-                    ) : (
-                      <span className="border border-white/5 bg-white/[0.01] text-white/20 font-extrabold text-[10px] uppercase tracking-[3px] py-4 rounded-[2px] w-full text-center block cursor-default">
-                        Sin Tráiler Disponible
-                      </span>
-                    )}
+                        <span className={`text-sm ${likedFilms[film.title] ? "scale-110" : "animate-pulse"}`}>
+                          {likedFilms[film.title] ? "❤️" : "🤍"}
+                        </span>
+                        <span>
+                          {likedFilms[film.title] ? "Te Gusta" : "Me Gusta"}
+                          {likeCounts[film.title] !== undefined ? ` (${likeCounts[film.title]})` : ""}
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))

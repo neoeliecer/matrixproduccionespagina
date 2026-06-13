@@ -121,3 +121,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const githubToken = process.env.GITHUB_TOKEN;
+    
+    if (!body.id) {
+      return NextResponse.json({ success: false, error: "Gallery ID is required" }, { status: 400 });
+    }
+
+    const { galerias, sha } = await getGalerias(githubToken);
+
+    const index = galerias.findIndex((g: any) => g.id === body.id);
+    if (index === -1) {
+      return NextResponse.json({ success: false, error: "Gallery not found" }, { status: 404 });
+    }
+
+    // Update gallery fields
+    galerias[index] = { ...galerias[index], ...body };
+
+    const saveSuccess = await saveGalerias(galerias, sha, githubToken);
+
+    if (!saveSuccess) {
+      return NextResponse.json({ success: false, error: "Error guardando en GitHub" }, { status: 502 });
+    }
+
+    return NextResponse.json({ success: true, data: galerias[index] });
+  } catch (error) {
+    console.error("Error en PUT galerias:", error);
+    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+  }
+}

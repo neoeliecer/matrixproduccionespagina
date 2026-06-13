@@ -54,26 +54,7 @@ export default function Home() {
     { number: visitCount !== null ? visitCount.toLocaleString() : "1,520+", label: "Espectadores Web" },
   ];
 
-  const team = [
-    {
-      name: "Eliecer Rojas",
-      role: "Productor & Creativo Audiovisual",
-      image: "/img/equipo/eliecer.jpg",
-      bio: "Apasionado por el cine y la narrativa audiovisual de transformación social y ambiental.",
-    },
-    {
-      name: "Mileidy Ruiz",
-      role: "Directora de Arte",
-      image: "/img/equipo/mama.jpg",
-      bio: "Directora de arte, egresada de la Escuela de Arte Arturo Michelena en Valencia, Venezuela. Aporta una visión conceptual y estética única en cada producción.",
-    },
-    {
-      name: "Kathleen Álvarez",
-      role: "Productora Audiovisual",
-      image: "/img/equipo/kath.png",
-      bio: "Productora audiovisual, estudiante de último semestre de la Escuela Cree. Aporta sensibilidad artística, dinamismo y rigurosidad en cada etapa del desarrollo de producción.",
-    },
-  ];
+  const team: { name: string; role: string; image: string; bio: string; }[] = [];
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
