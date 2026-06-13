@@ -511,9 +511,61 @@ export default function Eventos() {
                 })}
               </div>
 
+              {/* === Botones para compartir === */}
+              <div className="pt-6 mt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+                <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                  Compartir Evento:
+                </span>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      const url = window.location.href;
+                      const text = `¡Mira este evento en Matrix Producciones! ${selectedEvent.title}`;
+                      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, '_blank');
+                    }}
+                    className="w-10 h-10 rounded-full bg-white/5 hover:bg-[#25D366] text-white flex items-center justify-center transition-colors shadow-lg hover:scale-110"
+                    title="Compartir en WhatsApp"
+                  >
+                    📱
+                  </button>
+                  <button
+                    onClick={() => {
+                      const url = window.location.href;
+                      const text = `¡Mira este evento en Matrix Producciones! ${selectedEvent.title}`;
+                      window.open(`mailto:?subject=${encodeURIComponent(selectedEvent.title)}&body=${encodeURIComponent(text + "\n\n" + url)}`, '_blank');
+                    }}
+                    className="w-10 h-10 rounded-full bg-white/5 hover:bg-[#EA4335] text-white flex items-center justify-center transition-colors shadow-lg hover:scale-110"
+                    title="Compartir por Correo"
+                  >
+                    ✉️
+                  </button>
+                  <button
+                    onClick={() => {
+                      const url = window.location.href;
+                      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+                    }}
+                    className="w-10 h-10 rounded-full bg-white/5 hover:bg-[#1877F2] text-white flex items-center justify-center transition-colors shadow-lg hover:scale-110"
+                    title="Compartir en Facebook"
+                  >
+                    📘
+                  </button>
+                  <button
+                    onClick={() => {
+                      const url = window.location.href;
+                      const text = `¡Mira este evento en Matrix Producciones! ${selectedEvent.title}`;
+                      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+                    }}
+                    className="w-10 h-10 rounded-full bg-white/5 hover:bg-[#1DA1F2] text-white flex items-center justify-center transition-colors shadow-lg hover:scale-110"
+                    title="Compartir en X (Twitter)"
+                  >
+                    🐦
+                  </button>
+                </div>
+              </div>
+
               {/* Botón de Enlace al Sitio Oficial / Compra de Entradas */}
               {selectedEvent.link && (
-                <div className="pt-8 border-t border-white/5 text-center">
+                <div className="pt-6 mt-6 border-t border-white/5 text-center">
                   <a
                     href={selectedEvent.link}
                     target="_blank"
