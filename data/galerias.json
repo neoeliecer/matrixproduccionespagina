@@ -4,7 +4,7 @@
     "createdAt": "2026-06-10T05:08:24.895Z",
     "title": "Flag Futbol Juego Palmira",
     "category": "Adultos",
-    "password": "TITANES",
+    "password": "",
     "date": "10/6/2026",
     "images": [
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781068083/titanes%20juego%20masculino/yukaz2t0uifquv7kgje3.jpg",
@@ -59,7 +59,7 @@
     "createdAt": "2026-06-10T05:06:59.317Z",
     "title": "Flag futbol femenino juego Palmira",
     "category": "Femenino",
-    "password": "TITANES",
+    "password": "",
     "date": "10/6/2026",
     "images": [
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781067938/juego%20femenino/xizongoornofhxkderkb.jpg",
@@ -170,7 +170,7 @@
     "createdAt": "2026-06-10T04:50:13.683Z",
     "title": "Flag Futbol Juego Palmira",
     "category": "Infantil (Niños)",
-    "password": "TITANES",
+    "password": "",
     "date": "9/6/2026",
     "images": [
       "https://res.cloudinary.com/drs232qiq/image/upload/v1781066925/e4wvskf2lfbnmmlpcno6.jpg",

@@ -108,6 +108,13 @@ Mantén tus respuestas elegantes, organizadas con negritas de WhatsApp/Markdown,
         })
       }).catch(err => console.error("❌ Error guardando lead en Google Sheets:", err.message));
 
+      // Suscribir automáticamente al Newsletter de Brevo
+      fetch("https://matrixproducciones.com/api/suscribir", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email })
+      }).catch(err => console.error("❌ Error suscribiendo lead al newsletter:", err.message));
+
       // Notificar por correo al administrador del nuevo lead
       enviarNotificacionLeadCapturado(name, email).catch(err =>
         console.error("Error al enviar notificación de lead capturado:", err)
