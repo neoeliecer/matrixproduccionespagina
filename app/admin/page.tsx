@@ -143,6 +143,9 @@ export default function Admin() {
     if (!confirm(`⚠️ ¿Estás completamente seguro de borrar: "${itemTitle}"?\nEsta acción no se puede deshacer y lo borrará del repositorio.`)) {
       return;
     }
+    
+    setMessage({ type: "success", text: "Borrando elemento..." });
+    
     try {
       const response = await fetch("/api/admin/delete", {
         method: "POST",
@@ -156,8 +159,14 @@ export default function Admin() {
       const data = await response.json();
       if (response.ok && data.success) {
         setMessage({ type: "success", text: data.message });
-        // Recargar la página para reflejar los cambios
-        setTimeout(() => window.location.reload(), 1500);
+        
+        // Actualizar el estado de la UI inmediatamente sin recargar la página
+        if (type === "events") setEvents(events.filter((e: any) => e.title !== itemTitle));
+        else if (type === "movies") setRecommendations(recommendations.filter((m: any) => m.title !== itemTitle));
+        else if (type === "galleries") setGalerias(galerias.filter((g: any) => g.title !== itemTitle));
+        else if (type === "posts") setPosts(posts.filter((p: any) => p.title !== itemTitle));
+        else if (type === "convocatorias") setConvocatorias(convocatorias.filter((c: any) => c.title !== itemTitle));
+        
       } else {
         setMessage({ type: "error", text: data.error || "Error al borrar el elemento." });
       }
