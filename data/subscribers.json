@@ -1,4 +1,41 @@
 [
-  "eliecer.asesor@gmail.com",
-  "andresrcconsultor@gmail.com"
+  {
+    "email": "eliecer.asesor@gmail.com",
+    "locations": [
+      "Todas"
+    ],
+    "interests": [
+      "Artículos",
+      "Eventos",
+      "Convocatorias"
+    ]
+  },
+  {
+    "email": "andresrcconsultor@gmail.com",
+    "locations": [
+      "Todas"
+    ],
+    "interests": [
+      "Artículos",
+      "Eventos",
+      "Convocatorias"
+    ]
+  },
+  {
+    "email": "mail@mail.com",
+    "locations": [
+      "Medellín",
+      "España",
+      "Atlanta",
+      "Nueva York",
+      "Manizales",
+      "Cali",
+      "Bogotá"
+    ],
+    "interests": [
+      "Artículos",
+      "Eventos",
+      "Convocatorias"
+    ]
+  }
 ]
