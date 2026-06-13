@@ -98,6 +98,11 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const githubToken = process.env.GITHUB_TOKEN;
+    const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+    
+    if (!body.password || body.password !== adminPassword) {
+      return NextResponse.json({ success: false, error: "Contraseña de administrador incorrecta." }, { status: 401 });
+    }
     
     const { galerias, sha } = await getGalerias(githubToken);
 
@@ -126,6 +131,11 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     const githubToken = process.env.GITHUB_TOKEN;
+    const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+    
+    if (!body.password || body.password !== adminPassword) {
+      return NextResponse.json({ success: false, error: "Contraseña de administrador incorrecta." }, { status: 401 });
+    }
     
     if (!body.id) {
       return NextResponse.json({ success: false, error: "Gallery ID is required" }, { status: 400 });

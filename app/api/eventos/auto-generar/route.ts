@@ -197,9 +197,7 @@ export async function POST(request: Request) {
     const groqApiKey = process.env.GROQ_API_KEY;
     const githubToken = process.env.GITHUB_TOKEN;
 
-    // Si se provee contraseña, se debe validar (caso n8n/cron jobs).
-    // Si viene del cliente interactivo para demos, no se requiere contraseña obligatoria.
-    if (password && password !== adminPassword) {
+    if (!password || password !== adminPassword) {
       return NextResponse.json({ error: "Contraseña de administrador incorrecta." }, { status: 401 });
     }
 

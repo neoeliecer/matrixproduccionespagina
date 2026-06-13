@@ -114,12 +114,13 @@ export async function POST(request: Request) {
     const githubToken = process.env.GITHUB_TOKEN;
     const groqApiKey = process.env.GROQ_API_KEY;
 
+    // Control de seguridad obligatorio para TODAS las acciones (guardar y autocompletar)
+    if (!password || password !== adminPassword) {
+      return NextResponse.json({ error: "Contraseña de administrador incorrecta." }, { status: 401 });
+    }
+
     // --- ACCIÓN: AUTOCOMPLETAR CON IA ---
-    // Requiere obligatoriamente la contraseña de administrador
     if (action === "autocompletar") {
-      if (!password || password !== adminPassword) {
-        return NextResponse.json({ error: "Contraseña de administrador incorrecta." }, { status: 401 });
-      }
 
       if (!title || title.trim() === "") {
         return NextResponse.json({ error: "Debes ingresar el título del evento para autocompletar." }, { status: 400 });

@@ -126,7 +126,7 @@ export async function POST(request: Request) {
     const githubToken = process.env.GITHUB_TOKEN;
 
     // Control de acceso seguro
-    if (password && password !== adminPassword) {
+    if (!password || password !== adminPassword) {
       return NextResponse.json({ error: "Contraseña inválida" }, { status: 401 });
     }
 
