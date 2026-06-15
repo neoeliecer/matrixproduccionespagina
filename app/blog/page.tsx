@@ -637,7 +637,7 @@ export default function Blog() {
                   <div className="text-left bg-white/[0.01] border border-white/5 p-4 rounded-xl space-y-3">
                     <p className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-2">¿De qué ciudades deseas recibir eventos?</p>
                     <div className="flex flex-wrap gap-4">
-                      {["Todas", "Cali", "Bogotá", "Medellín", "Manizales", "España", "Nueva York", "Atlanta"].map(city => (
+                      {["Todas", "Cali", "Bogotá", "Medellín", "Manizales", "España", "Francia", "Nueva York", "Atlanta"].map(city => (
                         <label key={city} className="flex items-center gap-2 cursor-pointer group">
                           <input 
                             type="checkbox" 
