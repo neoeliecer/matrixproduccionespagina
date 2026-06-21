@@ -40,13 +40,14 @@ export default function Servicios() {
       features: ["Narrativas de cambio", "Estrategia de distribución", "Documentales medioambientales"],
     },
     {
-      title: "Creación de Páginas Web",
+      title: "Páginas Web en WordPress",
       icon: "🌐",
-      desc: "Diseñamos y desarrollamos sitios web corporativos y portafolios interactivos con diseños prémium de última generación. ¡Aprovecha nuestra promoción!",
+      desc: "Desarrollamos sitios web corporativos y portafolios interactivos autogestionables en WordPress. Disfruta de una plataforma robusta y flexible con las mejores ventajas del mercado. ¡Aprovecha la promoción!",
       features: [
-        "Plan Básico Promocional: 3 secciones (Quiénes Somos, Servicios, Contacto)",
+        "Plan Básico Promocional: 3 páginas (Quiénes Somos, Servicios, Contacto)",
         "Hospedaje y dominio web incluidos por 1 año",
-        "Diseño Next.js / React moderno y optimización SEO"
+        "Ventajas WordPress: Módulos interactivos y personalización avanzada a tu medida",
+        "Actualización fácil: Gestiona, edita y sube contenidos tú mismo sin saber código",
       ],
       price: "$800.000 COP",
       badge: "Promoción",
