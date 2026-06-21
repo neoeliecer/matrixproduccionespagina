@@ -6,10 +6,23 @@ import CinematicOverlay from "@/components/CinematicOverlay";
 import { useState, useEffect } from "react";
 import postsData from "@/data/posts.json";
 
+interface BlogPost {
+  title: string;
+  excerpt: string;
+  category: string;
+  readTime: string;
+  author: string;
+  image: string;
+  content: string;
+  date: string;
+  visible?: boolean;
+  password?: string;
+}
+
 export default function Blog() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [posts, setPosts] = useState(postsData);
-  const [selectedPost, setSelectedPost] = useState<typeof postsData[0] | null>(null);
+  const [posts, setPosts] = useState<BlogPost[]>(postsData as BlogPost[]);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});

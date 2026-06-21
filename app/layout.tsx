@@ -3,6 +3,7 @@ import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import ChatWidget from "@/components/ChatWidget";
+import WhatsAppWidget from "@/components/WhatsAppWidget";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#030303] text-white selection:bg-[#00ff88]/30 selection:text-[#00ff88]">
         {children}
         <ChatWidget />
+        <WhatsAppWidget />
         <Analytics />
       </body>
     </html>

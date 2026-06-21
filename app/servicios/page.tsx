@@ -4,8 +4,17 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CinematicOverlay from "@/components/CinematicOverlay";
 
+interface ServiceItem {
+  title: string;
+  icon: string;
+  desc: string;
+  features: string[];
+  price?: string;
+  badge?: string;
+}
+
 export default function Servicios() {
-  const services = [
+  const services: ServiceItem[] = [
     {
       title: "Producción de Cine Documental",
       icon: "🎥",
@@ -33,8 +42,14 @@ export default function Servicios() {
     {
       title: "Creación de Páginas Web",
       icon: "🌐",
-      desc: "Diseñamos y desarrollamos sitios web corporativos, portafolios interactivos y plataformas a medida con diseños prémium de última generación y animaciones fluidas.",
-      features: ["Desarrollo Next.js & React moderno", "Optimización SEO y rendimiento veloz", "Interfaces interactivas y adaptables (UI/UX)"],
+      desc: "Diseñamos y desarrollamos sitios web corporativos y portafolios interactivos con diseños prémium de última generación. ¡Aprovecha nuestra promoción!",
+      features: [
+        "Plan Básico Promocional: 3 secciones (Quiénes Somos, Servicios, Contacto)",
+        "Hospedaje y dominio web incluidos por 1 año",
+        "Diseño Next.js / React moderno y optimización SEO"
+      ],
+      price: "$800.000 COP",
+      badge: "Promoción",
     },
     {
       title: "Desarrollo de Aplicaciones Android",
@@ -83,8 +98,14 @@ export default function Servicios() {
             {services.map((service, index) => (
               <div
                 key={index}
-                className="bg-white/[0.01] border border-white/5 p-8 md:p-12 rounded-2xl backdrop-blur-md hover:border-accent/30 hover:bg-white/[0.02] transition-all duration-500 flex flex-col justify-between group shadow-2xl relative"
+                className="bg-white/[0.01] border border-white/5 p-8 md:p-12 rounded-2xl backdrop-blur-md hover:border-accent/30 hover:bg-white/[0.02] transition-all duration-500 flex flex-col justify-between group shadow-2xl relative overflow-hidden"
               >
+                {service.badge && (
+                  <div className="absolute top-4 right-4 bg-[#25d366]/10 border border-[#25d366]/30 text-[#25d366] text-[8px] md:text-[9px] uppercase font-black tracking-[2px] px-3 py-1.5 rounded shadow-[0_0_10px_rgba(37,211,102,0.1)]">
+                    {service.badge}
+                  </div>
+                )}
+
                 <div className="space-y-6">
                   <div className="w-16 h-16 rounded-2xl bg-accent/5 border border-accent/10 flex items-center justify-center text-3xl transition-transform duration-500 group-hover:scale-110 group-hover:bg-accent/10 group-hover:border-accent/20 group-hover:shadow-[0_0_20px_var(--accent-glow)]">
                     {service.icon}
@@ -97,6 +118,13 @@ export default function Servicios() {
                   <p className="text-white/50 text-sm leading-relaxed font-light">
                     {service.desc}
                   </p>
+
+                  {service.price && (
+                    <div className="bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3 flex items-center justify-between">
+                      <span className="text-[9px] uppercase tracking-[2px] text-white/40 font-bold">Valor Básico:</span>
+                      <span className="text-sm font-black text-accent drop-shadow-[0_0_8px_var(--accent-glow)]">{service.price}</span>
+                    </div>
+                  )}
 
                   <ul className="space-y-2 pt-4">
                     {service.features.map((feature, fIndex) => (

@@ -128,6 +128,19 @@ export default function Home() {
                 Conócenos
               </a>
             </div>
+
+            {/* Direct WhatsApp link */}
+            <div className="mt-8 flex items-center justify-center">
+              <a
+                href="https://wa.me/573174734070?text=Hola%20Matrix%20Producciones%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 text-[10px] md:text-xs uppercase tracking-[3px] text-white/50 hover:text-[#25D366] transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse shadow-[0_0_8px_rgba(37,211,102,0.6)]" />
+                ¿Prefieres chat directo? Escríbenos por WhatsApp ➔
+              </a>
+            </div>
           </div>
 
           {/* Scroll Down mouse indicator */}
