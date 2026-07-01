@@ -33,6 +33,7 @@ export default function Navbar() {
     { name: "Eventos", path: "/eventos" },
     { name: "Galerías", path: "/galerias" },
     { name: "Blog", path: "/blog" },
+    { name: "Biblioteca", path: "/biblioteca" },
     { name: "Contacto", path: "/contacto" },
   ];
 
