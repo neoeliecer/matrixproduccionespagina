@@ -3,11 +3,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CinematicOverlay from "@/components/CinematicOverlay";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface LibraryItem {
   id: string;
-  type: "manual" | "libro" | "plantilla";
+  type: "manual" | "libro" | "plantilla" | "multimedia";
   title: string;
   excerpt: string;
   icon: string;
@@ -19,12 +19,16 @@ interface LibraryItem {
   downloadUrl?: string;
   isDownload?: boolean;
   isExternal?: boolean;
+  isMedia?: boolean;
+  mediaType?: "video" | "audio";
+  mediaUrl?: string;
 }
 
 export default function Biblioteca() {
-  const [activeCategory, setActiveCategory] = useState<"todos" | "manual" | "libro" | "plantilla">("todos");
+  const [activeCategory, setActiveCategory] = useState<"todos" | "manual" | "libro" | "plantilla" | "multimedia">("todos");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedManual, setSelectedManual] = useState<string | null>(null);
+  const [activeMedia, setActiveMedia] = useState<LibraryItem | null>(null);
 
   // Checklist interactivo para el manual de Zello
   const [checklist, setChecklist] = useState({
@@ -57,6 +61,32 @@ export default function Biblioteca() {
       manualId: "zello"
     },
     {
+      id: "biblioteca-video",
+      type: "multimedia",
+      title: "Biblioteca Digital (Video de Presentación)",
+      excerpt: "Conoce en video la estructura, funcionamiento y alcances de la biblioteca de recursos y herramientas de producción de Matrix.",
+      icon: "🎥",
+      duration: "5:28 min",
+      author: "Matrix Producciones",
+      actionText: "Ver Video ➔",
+      isMedia: true,
+      mediaType: "video",
+      mediaUrl: "https://res.cloudinary.com/drs232qiq/video/upload/v1783001547/szpgybbm5l6ylhm1hix9.mp4"
+    },
+    {
+      id: "maquinaria-tecnica-audio",
+      type: "multimedia",
+      title: "La Maquinaria Técnica tras el Cine Documental",
+      excerpt: "Lección en audio sobre la logística, equipamiento y organización técnica requerida para rodar documentales de calidad cinematográfica.",
+      icon: "🎙️",
+      duration: "23:08 min",
+      author: "Eliecer / Matrix",
+      actionText: "Escuchar Audio ➔",
+      isMedia: true,
+      mediaType: "audio",
+      mediaUrl: "https://res.cloudinary.com/drs232qiq/video/upload/v1783001553/kieujjtbznpjvyuylv6k.mp4"
+    },
+    {
       id: "documental-ebook",
       type: "libro",
       title: "Guía del Cine Documental Contemporáneo",
@@ -84,7 +114,7 @@ export default function Biblioteca() {
       id: "script-template",
       type: "plantilla",
       title: "Planilla de Continuista / Script",
-      excerpt: "Plantilla para llevar el control de escenas, planos, tomas, lentes y detalles técnicos durante el rodaje. Indispensable para organizar la postproducción.",
+      excerpt: "Planilla para llevar el control de escenas, planos, tomas, lentes y detalles técnicos durante el rodaje. Indispensable para organizar la postproducción.",
       icon: "🎞️",
       duration: "Planilla Excel / PDF",
       author: "Producción Matrix",
@@ -99,6 +129,7 @@ export default function Biblioteca() {
     { id: "manual", name: "Manuales Técnicos" },
     { id: "libro", name: "Libros y E-books" },
     { id: "plantilla", name: "Plantillas de Rodaje" },
+    { id: "multimedia", name: "Multimedia" },
   ];
 
   const filteredItems = libraryItems.filter((item) => {
@@ -205,6 +236,13 @@ export default function Biblioteca() {
                         {item.isManual ? (
                           <button
                             onClick={() => setSelectedManual(item.manualId || null)}
+                            className="inline-flex items-center gap-2 text-accent group-hover:text-white transition-colors cursor-pointer"
+                          >
+                            {item.actionText}
+                          </button>
+                        ) : item.isMedia ? (
+                          <button
+                            onClick={() => setActiveMedia(item)}
                             className="inline-flex items-center gap-2 text-accent group-hover:text-white transition-colors cursor-pointer"
                           >
                             {item.actionText}
@@ -580,6 +618,235 @@ export default function Biblioteca() {
       </main>
 
       <Footer />
+
+      {activeMedia && (
+        <MediaPlayerModal
+          media={activeMedia}
+          onClose={() => setActiveMedia(null)}
+        />
+      )}
     </>
+  );
+}
+
+// ================= HELPER COMPONENTS =================
+
+interface MediaPlayerModalProps {
+  media: LibraryItem;
+  onClose: () => void;
+}
+
+function MediaPlayerModal({ media, onClose }: MediaPlayerModalProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-black/90 flex flex-col items-center justify-center p-4 backdrop-blur-md animate-fade-in">
+      <button 
+        onClick={onClose}
+        className="absolute top-6 right-6 md:top-10 md:right-10 text-white hover:text-[#00ff87] bg-black/50 border border-white/20 hover:border-[#00ff87] rounded-full w-14 h-14 flex items-center justify-center transition-all z-[10000] shadow-[0_0_20px_rgba(0,0,0,0.8)] cursor-pointer"
+        title="Cerrar (Esc)"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
+      <div className="w-full max-w-2xl relative">
+        {media.mediaType === "video" ? (
+          <VideoPlayer src={media.mediaUrl || ""} title={media.title} />
+        ) : (
+          <AudioPlayer src={media.mediaUrl || ""} title={media.title} author={media.author} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function VideoPlayer({ src, title }: { src: string; title: string }) {
+  return (
+    <div className="w-full bg-[#080808]/90 border border-white/10 rounded-3xl p-4 md:p-6 flex flex-col gap-4 backdrop-blur-xl shadow-2xl relative group overflow-hidden">
+      <div className="absolute -inset-px rounded-3xl border border-accent/25 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 shadow-[0_0_30px_rgba(0,255,135,0.15)]" />
+      
+      <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/5 bg-black">
+        <video src={src} controls autoPlay className="w-full h-full object-contain" />
+      </div>
+
+      <div className="text-center">
+        <h4 className="text-md font-extrabold uppercase text-white tracking-wider leading-tight">{title}</h4>
+      </div>
+    </div>
+  );
+}
+
+function AudioPlayer({ src, title, author }: { src: string; title: string; author: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.8);
+  const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const updateTime = () => setCurrentTime(audio.currentTime);
+    const updateDuration = () => setDuration(audio.duration || 0);
+
+    audio.addEventListener("timeupdate", updateTime);
+    audio.addEventListener("loadedmetadata", updateDuration);
+
+    return () => {
+      audio.removeEventListener("timeupdate", updateTime);
+      audio.removeEventListener("loadedmetadata", updateDuration);
+    };
+  }, [src]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch(() => setIsPlaying(false));
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
+
+  const togglePlay = () => setIsPlaying(!isPlaying);
+
+  const formatTime = (time: number) => {
+    const mins = Math.floor(time / 60);
+    const secs = Math.floor(time % 60);
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
+  const handleScrub = (value: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = value;
+      setCurrentTime(value);
+    }
+  };
+
+  return (
+    <div className="w-full bg-[#080808]/95 border border-white/10 rounded-3xl p-6 md:p-8 flex flex-col items-center gap-6 backdrop-blur-xl shadow-2xl relative overflow-hidden group">
+      <div className="absolute -inset-px rounded-3xl border border-accent/25 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 shadow-[0_0_30px_rgba(0,255,135,0.15)]" />
+      
+      <audio ref={audioRef} src={src} preload="metadata" />
+
+      {/* Vinyl Disc Container */}
+      <div className="relative w-40 h-40 flex items-center justify-center">
+        {/* Record disc */}
+        <div 
+          className={`w-36 h-36 rounded-full border-4 border-white/10 bg-gradient-to-tr from-accent/20 via-black to-accent/20 flex items-center justify-center relative shadow-2xl`}
+          style={{ 
+            animation: isPlaying ? "spin-record 10s linear infinite" : "none",
+            transform: `rotate(${currentTime * 10}deg)`,
+            transition: isPlaying ? "none" : "transform 0.5s ease-out"
+          }}
+        >
+          <div className="absolute inset-4 rounded-full border border-white/5" />
+          <div className="absolute inset-8 rounded-full border border-white/5" />
+          <div className="absolute inset-12 rounded-full border border-white/5" />
+          <div className="w-10 h-10 rounded-full bg-[#030303] border border-white/10 flex items-center justify-center">
+            <div className="w-3 h-3 rounded-full bg-accent" />
+          </div>
+        </div>
+
+        {/* CSS simulated wave animation at bottom of the disc */}
+        <div className="absolute bottom-1 flex gap-1 items-end h-8 justify-center w-full pointer-events-none">
+          {[...Array(10)].map((_, i) => (
+            <div
+              key={i}
+              className="w-1 bg-accent rounded-full transition-all duration-300"
+              style={{
+                height: isPlaying ? `${Math.floor(Math.random() * 20) + 4}px` : "4px",
+                animation: isPlaying ? `sound-bar-pulse 1s ease-in-out infinite alternate` : "none",
+                animationDelay: `${i * 0.15}s`
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="text-center space-y-1">
+        <h4 className="text-md font-extrabold uppercase text-white tracking-wider max-w-md line-clamp-1 leading-tight">{title}</h4>
+        <p className="text-accent text-[10px] font-bold uppercase tracking-[3px]">{author}</p>
+      </div>
+
+      <div className="w-full space-y-2">
+        <input
+          type="range"
+          min="0"
+          max={duration || 100}
+          value={currentTime}
+          onChange={(e) => handleScrub(Number(e.target.value))}
+          className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent"
+        />
+        <div className="flex justify-between text-[9px] font-bold uppercase tracking-wider text-white/40">
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-6">
+        <button
+          onClick={() => setIsMuted(!isMuted)}
+          className="text-white/60 hover:text-white transition-colors cursor-pointer"
+        >
+          {isMuted ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          )}
+        </button>
+
+        <button
+          onClick={togglePlay}
+          className="w-14 h-14 rounded-full bg-accent text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_var(--accent-glow)] cursor-pointer"
+        >
+          {isPlaying ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+          ) : (
+            <svg className="ml-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          )}
+        </button>
+
+        <div className="flex items-center gap-2 w-20">
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={(e) => {
+              setVolume(Number(e.target.value));
+              setIsMuted(false);
+            }}
+            className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent"
+          />
+        </div>
+      </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes spin-record {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes sound-bar-pulse {
+          0% { height: 4px; }
+          100% { height: 28px; }
+        }
+      `}} />
+    </div>
   );
 }
