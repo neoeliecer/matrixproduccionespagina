@@ -97,6 +97,19 @@ export default function Biblioteca() {
       mediaUrl: "https://res.cloudinary.com/drs232qiq/video/upload/v1783001553/kieujjtbznpjvyuylv6k.mp4"
     },
     {
+      id: "set-seguro-video",
+      type: "multimedia",
+      title: "Arquitectura de Set Seguro",
+      excerpt: "Conoce las pautas de seguridad física, reglamentaciones y diseño logístico para mantener un set de grabación libre de riesgos y accidentes.",
+      icon: "🛡️",
+      duration: "7:45 min",
+      author: "Eliecer / Matrix",
+      actionText: "Ver Video ➔",
+      isMedia: true,
+      mediaType: "video",
+      mediaUrl: "https://res.cloudinary.com/drs232qiq/video/upload/v1783006754/k1deo8pvos7ih1xwuimy.mp4"
+    },
+    {
       id: "documental-ebook",
       type: "libro",
       title: "Guía del Cine Documental Contemporáneo",
