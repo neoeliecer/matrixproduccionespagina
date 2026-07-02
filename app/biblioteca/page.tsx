@@ -29,6 +29,16 @@ export default function Biblioteca() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedManual, setSelectedManual] = useState<string | null>(null);
   const [activeMedia, setActiveMedia] = useState<LibraryItem | null>(null);
+  const [dynamicBooks, setDynamicBooks] = useState<LibraryItem[]>([]);
+
+  useEffect(() => {
+    fetch("/api/libros")
+      .then((res) => res.json())
+      .then((data) => {
+        setDynamicBooks(data);
+      })
+      .catch((err) => console.error("Error loading dynamic books:", err));
+  }, []);
 
   // Checklist interactivo para el manual de Zello
   const [checklist, setChecklist] = useState({
@@ -132,7 +142,9 @@ export default function Biblioteca() {
     { id: "multimedia", name: "Multimedia" },
   ];
 
-  const filteredItems = libraryItems.filter((item) => {
+  const allLibraryItems = [...libraryItems, ...dynamicBooks];
+
+  const filteredItems = allLibraryItems.filter((item) => {
     const matchesCategory = activeCategory === "todos" || item.type === activeCategory;
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           item.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
