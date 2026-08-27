@@ -35,6 +35,7 @@ export default function Navbar() {
     { name: "Blog", path: "/blog" },
     { name: "Biblioteca", path: "/biblioteca" },
     { name: "Cultura", path: "/cultura" },
+    { name: "Medicinal", path: "/medicinal" },
     { name: "Contacto", path: "/contacto" },
   ];
 
