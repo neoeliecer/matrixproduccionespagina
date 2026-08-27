@@ -34,6 +34,7 @@ export default function Navbar() {
     { name: "Galerías", path: "/galerias" },
     { name: "Blog", path: "/blog" },
     { name: "Biblioteca", path: "/biblioteca" },
+    { name: "Cultura", path: "/cultura" },
     { name: "Contacto", path: "/contacto" },
   ];
 
