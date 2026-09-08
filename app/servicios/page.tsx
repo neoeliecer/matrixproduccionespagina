@@ -10,11 +10,52 @@ interface ServiceItem {
   desc: string;
   features: string[];
   price?: string;
+  priceUsd?: string;
   badge?: string;
 }
 
 export default function Servicios() {
   const services: ServiceItem[] = [
+    {
+      title: "Video Promocional con IA",
+      icon: "🎬",
+      desc: "Creamos videos promocionales cortos en formato Reel optimizados para Instagram y Facebook, utilizando inteligencia artificial para lograr calidad visual profesional en tiempos récord.",
+      features: [
+        "Guion y storyboard adaptados a tu marca",
+        "Producción con tecnología de IA de última generación",
+        "Formato optimizado para Reels/Stories (vertical)",
+        "Entrega en calidad lista para publicar",
+      ],
+      price: "$150.000 COP",
+      priceUsd: "$50 USD",
+      badge: "Popular",
+    },
+    {
+      title: "Imágenes Promocionales",
+      icon: "🖼️",
+      desc: "Diseñamos imágenes impactantes para tus campañas en redes sociales, anuncios publicitarios y materiales de marketing, con estilo visual profesional que refleja la identidad de tu marca.",
+      features: [
+        "Diseño personalizado para tu marca",
+        "Formatos optimizados para cada plataforma",
+        "Alta resolución para impresión y digital",
+        "Entrega rápida en formato editable",
+      ],
+      price: "$30.000 COP",
+      badge: "Nuevo",
+    },
+    {
+      title: "Campaña en Redes Sociales",
+      icon: "📢",
+      desc: "Configuración y gestión completa de campañas publicitarias en Facebook e Instagram Ads, con segmentación de audiencia estratégica para maximizar el alcance de tu marca.",
+      features: [
+        "Configuración de campaña en Facebook e Instagram",
+        "Segmentación de audiencia estratégica",
+        "Gestión y optimización continua",
+        "Renovación sin costo adicional de gestión",
+      ],
+      price: "$70.000 COP",
+      priceUsd: "$20 USD",
+    },
     {
       title: "Producción de Cine Documental",
       icon: "🎥",
@@ -121,9 +162,17 @@ export default function Servicios() {
                   </p>
 
                   {service.price && (
-                    <div className="bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3 flex items-center justify-between">
-                      <span className="text-[9px] uppercase tracking-[2px] text-white/40 font-bold">Valor Básico:</span>
-                      <span className="text-sm font-black text-accent drop-shadow-[0_0_8px_var(--accent-glow)]">{service.price}</span>
+                    <div className="bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] uppercase tracking-[2px] text-white/40 font-bold">COP:</span>
+                        <span className="text-sm font-black text-accent drop-shadow-[0_0_8px_var(--accent-glow)]">{service.price}</span>
+                      </div>
+                      {service.priceUsd && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] uppercase tracking-[2px] text-white/40 font-bold">USD:</span>
+                          <span className="text-sm font-black text-emerald-400">{service.priceUsd}</span>
+                        </div>
+                      )}
                     </div>
                   )}
 
