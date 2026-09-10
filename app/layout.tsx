@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/react";
 import ChatWidget from "@/components/ChatWidget";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 
@@ -36,7 +35,6 @@ export default function RootLayout({
         {children}
         <ChatWidget />
         <WhatsAppWidget />
-        <Analytics />
       </body>
     </html>
   );

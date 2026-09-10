@@ -55,7 +55,7 @@ async function saveGalerias(galerias: any[], sha?: string, githubToken?: string)
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(localPath, JSON.stringify(galerias, null, 2), "utf-8");
   } catch (e) {
-    console.error("Error writing galerias locally (Vercel EROFS is normal):", e);
+    console.error("Error writing galerias locally:", e);
   }
 
   if (githubToken) {

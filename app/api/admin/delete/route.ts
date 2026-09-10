@@ -96,7 +96,7 @@ export async function POST(request: Request) {
 
     // 5. Guardar los cambios (Local y GitHub)
     
-    // Intento local (En Vercel fallará con EROFS, lo ignoramos)
+    // Intento local (puede fallar en entornos serverless, lo ignoramos)
     try {
       const localPath = path.join(process.cwd(), filePath);
       const dir = path.dirname(localPath);
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
       }
       fs.writeFileSync(localPath, JSON.stringify(currentData, null, 2), "utf-8");
     } catch (e) {
-      console.warn("No se pudo guardar localmente (esperado en Vercel EROFS):", e);
+      console.warn("No se pudo guardar localmente:", e);
     }
     
     // Guardar en GitHub
