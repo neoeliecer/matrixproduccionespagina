@@ -35,7 +35,20 @@ async function getGalerias(githubToken?: string) {
     }
   }
 
-  // Fallback
+  // Fallback: raw GitHub content (works without token for public repos)
+  try {
+    const rawUrl = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${filePath}`;
+    const response = await fetch(rawUrl, { cache: "no-store" });
+    if (response.ok) {
+      const content = await response.text();
+      galerias = JSON.parse(content);
+      return { galerias, sha };
+    }
+  } catch (e) {
+    console.error("Error reading galerias from raw GitHub:", e);
+  }
+
+  // Fallback: local fs (only works on Node.js, not Cloudflare Workers)
   try {
     const localPath = path.join(process.cwd(), "data", "galerias.json");
     if (fs.existsSync(localPath)) {
