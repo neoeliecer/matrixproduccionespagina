@@ -30,21 +30,30 @@ export default function Galerias() {
   const [passwordErrors, setPasswordErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    fetch("/api/galerias")
+    const galUrl = "https://raw.githubusercontent.com/neoeliecer/matrixproduccionespagina/main/data/galerias.json";
+    fetch(galUrl)
       .then((res) => res.json())
       .then((data) => {
-        // Sort newest first
         const sorted = data.sort((a: Galeria, b: Galeria) => Number(b.id) - Number(a.id));
         setGalerias(sorted);
         setLoading(false);
-        
-        // Check for specific album sharing
         const params = new URLSearchParams(window.location.search);
         setAlbumIdParam(params.get("album"));
       })
-      .catch((err) => {
-        console.error("Error loading galerias", err);
-        setLoading(false);
+      .catch(() => {
+        fetch("/api/galerias")
+          .then((res) => res.json())
+          .then((data) => {
+            const sorted = data.sort((a: Galeria, b: Galeria) => Number(b.id) - Number(a.id));
+            setGalerias(sorted);
+            setLoading(false);
+            const params = new URLSearchParams(window.location.search);
+            setAlbumIdParam(params.get("album"));
+          })
+          .catch((err) => {
+            console.error("Error loading galerias", err);
+            setLoading(false);
+          });
       });
   }, []);
 
