@@ -41,7 +41,7 @@ export default function Footer() {
               Facebook
             </a>
             <a
-              href="https://youtube.com"
+              href="https://www.youtube.com/@Dondeestaeliecer"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white/50 hover:text-accent font-semibold text-xs uppercase tracking-[3px] transition-colors"
