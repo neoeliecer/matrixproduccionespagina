@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { generateJson } from "@/lib/ai";
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
 
       const geminiKey = process.env.GEMINI_API_KEY;
       if (!groqApiKey && !geminiKey) {
-        return NextResponse.json({ error: "No hay clave de IA configurada." }, { status: 500 });
+        return NextResponse.json({ error: "No hay clave de IA configurada (falta GEMINI_API_KEY o GROQ_API_KEY)." }, { status: 500 });
       }
 
       const systemPrompt = `Eres un asistente experto en cine y valores humanos para "Matrix Producciones". 
@@ -44,53 +45,13 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
 }`;
 
       let generatedData: any = null;
-      const geminiKeyToUse = process.env.GEMINI_API_KEY;
-      if (geminiKeyToUse) {
-        try {
-          const gemRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${geminiKeyToUse}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: systemPrompt + "\n\nResponde OBLIGATORIAMENTE con un único objeto JSON válido sin texto adicional." }] }],
-              generationConfig: { responseMimeType: "application/json" }
-            })
-          });
-          if (gemRes.ok) {
-            const gemData = await gemRes.json();
-            const textRaw = gemData.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (textRaw) {
-              generatedData = JSON.parse(textRaw);
-            }
-          }
-        } catch (e) {
-          console.error("Gemini error, fallback a Groq:", e);
-        }
-      }
-
-      if (!generatedData && groqApiKey) {
-        const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${groqApiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
-            messages: [{ role: "system", content: systemPrompt }],
-            temperature: 0.7,
-            max_tokens: 1500,
-            response_format: { type: "json_object" }
-          }),
-        });
-
-        if (groqResponse.ok) {
-          const groqData = await groqResponse.json();
-          generatedData = JSON.parse(groqData.choices[0].message.content);
-        }
-      }
-
-      if (!generatedData) {
-        return NextResponse.json({ error: "Error al generar recomendación con IA." }, { status: 502 });
+      try {
+        const result = await generateJson(systemPrompt + "\n\nResponde OBLIGATORIAMENTE con un único objeto JSON válido sin texto adicional.");
+        generatedData = result.data;
+        console.log(`✅ Recomendación generada con ${result.provider}`);
+      } catch (e: any) {
+        console.error("Error generando recomendación con IA:", e.message || e);
+        return NextResponse.json({ error: e.message || "Error al generar recomendación con IA." }, { status: 502 });
       }
 
       // Si la URL de imagen está vacía o no es válida, poner una por defecto

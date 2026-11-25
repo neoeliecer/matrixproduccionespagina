@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { generateJson } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -75,9 +76,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Contraseña inválida" }, { status: 401 });
     }
 
-    if (!groqApiKey) {
+    if (!groqApiKey && !process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        { error: "GROQ_API_KEY no está configurada." },
+        { error: "No hay clave de IA configurada (falta GEMINI_API_KEY o GROQ_API_KEY)." },
         { status: 500 }
       );
     }
@@ -201,31 +202,18 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
   "link": "Enlace oficial o de la fuente para aplicar (usa '${availableItem.link}' si es válido, de lo contrario coloca uno coherente)"
 }`;
 
-    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${groqApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: [{ role: "system", content: systemPrompt }],
-        temperature: 0.7,
-        max_tokens: 1500,
-        response_format: { type: "json_object" }
-      }),
-    });
-
-    if (!groqResponse.ok) {
-      const errText = await groqResponse.text();
+    let generatedConvocatoria: any;
+    try {
+      const result = await generateJson(systemPrompt);
+      generatedConvocatoria = result.data;
+      console.log(`✅ Convocatoria generada con ${result.provider}`);
+    } catch (e: any) {
+      console.error("Error generando convocatoria con IA:", e.message || e);
       return NextResponse.json(
-        { error: `Error en Groq API: ${errText}` },
+        { error: e.message || "Error al generar la convocatoria con IA." },
         { status: 502 }
       );
     }
-
-    const groqData = await groqResponse.json();
-    const generatedConvocatoria = JSON.parse(groqData.choices[0].message.content);
 
     // Complementar con la fecha actual de publicación en español
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };

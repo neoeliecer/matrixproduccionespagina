@@ -770,7 +770,7 @@ export default function Admin() {
                       Generador de Artículos
                     </h3>
                     <p className="text-white/50 text-[11px] leading-relaxed font-light">
-                      Solicita a la IA (Groq / Llama 3) rastrear noticias del cine e industria cultural y redactar un artículo en español alineado con la visión de Matrix Producciones.
+                      Solicita a la IA (Gemini / Groq) rastrear noticias del cine e industria cultural y redactar un artículo en español alineado con la visión de Matrix Producciones.
                     </p>
                   </div>
 

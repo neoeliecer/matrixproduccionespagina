@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { generateJson } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -209,9 +210,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Contraseña de administrador incorrecta." }, { status: 401 });
     }
 
-    if (!groqApiKey) {
+    if (!groqApiKey && !process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        { error: "La API key de Groq (GROQ_API_KEY) no está configurada." },
+        { error: "No hay clave de IA configurada (falta GEMINI_API_KEY o GROQ_API_KEY)." },
         { status: 500 }
       );
     }
@@ -355,28 +356,16 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
   "image": "URL de imagen realista de Unsplash relacionada con cine, teatro, cámaras o arte según corresponda (ej. https://images.unsplash.com/photo-...)"
 }`;
 
-    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${groqApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [{ role: "system", content: systemPrompt }],
-        temperature: 0.7,
-        max_tokens: 1500,
-        response_format: { type: "json_object" }
-      }),
-    });
-
-    if (!groqResponse.ok) {
-      const errText = await groqResponse.text();
-      return NextResponse.json({ error: `Error en Groq API: ${errText}` }, { status: 502 });
+    let generatedEvent: any;
+    try {
+      // Respaldo con Groq usa llama-3.3-70b-versatile (más potente para redacción)
+      const result = await generateJson(systemPrompt, "llama-3.3-70b-versatile");
+      generatedEvent = result.data;
+      console.log(`✅ Evento rastreado generado con ${result.provider}`);
+    } catch (e: any) {
+      console.error("Error redactando evento con IA:", e.message || e);
+      return NextResponse.json({ error: e.message || "Error al generar el evento con IA." }, { status: 502 });
     }
-
-    const groqData = await groqResponse.json();
-    const generatedEvent = JSON.parse(groqData.choices[0].message.content);
 
     // Añadir el campo categoryLocation exacto y enlaces
     generatedEvent.categoryLocation = selectedGroup.location;
@@ -402,7 +391,7 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
     }
 
     // Envío de Boletín Automático a Suscriptores mediante Brevo REST API
-    if (groqApiKey && githubToken) {
+    if (githubToken) {
       const brevoApiKey = process.env.BREVO_API_KEY;
       if (brevoApiKey) {
         try {

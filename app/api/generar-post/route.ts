@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { generateJson } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -245,56 +246,16 @@ Debes responder ÚNICAMENTE con un objeto JSON válido con los siguientes campos
 }`;
 
     let generatedPost: any = null;
-    const geminiKeyToUse = process.env.GEMINI_API_KEY;
-    if (geminiKeyToUse) {
-      try {
-        const gemRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${geminiKeyToUse}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: systemPrompt + "\n\nResponde ÚNICAMENTE con el objeto JSON solicitado, sin markdown adicional." }] }],
-            generationConfig: { responseMimeType: "application/json" }
-          })
-        });
-        if (gemRes.ok) {
-          const gemData = await gemRes.json();
-          const textRaw = gemData.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (textRaw) {
-            generatedPost = JSON.parse(textRaw);
-          }
-        }
-      } catch (e) {
-        console.error("Gemini error en generar-post, fallback a Groq:", e);
-      }
-    }
-
-    if (!generatedPost && groqApiKey) {
-      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${groqApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "llama-3.1-8b-instant",
-          messages: [
-            { role: "system", content: systemPrompt }
-          ],
-          temperature: 0.7,
-          max_tokens: 1500,
-          response_format: { type: "json_object" }
-        }),
-      });
-
-      if (groqResponse.ok) {
-        const groqData = await groqResponse.json();
-        generatedPost = JSON.parse(groqData.choices[0].message.content);
-      }
-    }
-
-    if (!generatedPost) {
+    let aiProvider = "";
+    try {
+      const result = await generateJson(systemPrompt + "\n\nResponde ÚNICAMENTE con el objeto JSON solicitado, sin markdown adicional.");
+      generatedPost = result.data;
+      aiProvider = result.provider;
+      console.log(`✅ Artículo generado con ${aiProvider}`);
+    } catch (e: any) {
+      console.error("Error generando artículo con IA:", e.message || e);
       return NextResponse.json(
-        { error: "Error al generar artículo con IA. Por favor, reintenta." },
+        { error: e.message || "Error al generar artículo con IA. Por favor, reintenta." },
         { status: 502 }
       );
     }
@@ -387,7 +348,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido con los siguientes campos
     }
 
     // 5. Envío de Boletín Automático a Suscriptores mediante Brevo REST API
-    if (groqApiKey && githubToken) {
+    if (githubToken) {
       const brevoApiKey = process.env.BREVO_API_KEY;
       if (brevoApiKey) {
         try {
@@ -462,6 +423,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido con los siguientes campos
     return NextResponse.json({
       success: true,
       message: "Artículo generado e indexado en GitHub con éxito.",
+      provider: aiProvider,
       source: {
         title: sourceTitle,
         feed: selectedFeedUrl,
