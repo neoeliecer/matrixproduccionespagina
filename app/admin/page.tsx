@@ -1117,11 +1117,11 @@ export default function Admin() {
                           <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Veredicto Matrix / Tu Crítica *</label>
                           <textarea
                             required
-                            rows={4}
+                            rows={12}
                             placeholder="Describe por qué recomiendas esta película y qué valores positivos aporta al espectador..."
                             value={movieDesc}
                             onChange={(e) => setMovieDesc(e.target.value)}
-                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-none"
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-y min-h-[220px]"
                           />
                         </div>
 
@@ -1239,7 +1239,7 @@ export default function Admin() {
                             placeholder="Ej. Se inaugura hoy la versión número 18 del festival, con homenaje a Luis Ospina, proyecciones al aire libre en el bulevar del río..."
                             value={eventUserOpinion}
                             onChange={(e) => setEventUserOpinion(e.target.value)}
-                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-none"
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-y min-h-[220px]"
                           />
                         </div>
 
@@ -1312,11 +1312,11 @@ export default function Admin() {
                           <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Descripción Detallada * (Soporta salto de línea y Markdown básico)</label>
                           <textarea
                             required
-                            rows={5}
+                            rows={14}
                             placeholder="Escribe la crónica completa, actividades destacadas, horarios, etc..."
                             value={eventDescription}
                             onChange={(e) => setEventDescription(e.target.value)}
-                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-none"
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-y min-h-[220px]"
                           />
                         </div>
 
@@ -1349,7 +1349,7 @@ export default function Admin() {
                             placeholder="https://image1.jpg, https://image2.jpg, ..."
                             value={eventGallery}
                             onChange={(e) => setEventGallery(e.target.value)}
-                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-none"
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-y min-h-[220px]"
                           />
                         </div>
 
