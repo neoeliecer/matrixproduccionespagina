@@ -130,9 +130,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Contraseña inválida" }, { status: 401 });
     }
 
-    if (!groqApiKey) {
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (!groqApiKey && !geminiKey) {
       return NextResponse.json(
-        { error: "GROQ_API_KEY no está configurada en las variables de entorno de Netlify." },
+        { error: "No hay clave de IA configurada (Gemini o Groq)." },
         { status: 500 }
       );
     }
@@ -243,33 +244,60 @@ Debes responder ÚNICAMENTE con un objeto JSON válido con los siguientes campos
   "content": "Contenido completo del artículo estructurado y detallado (entre 3 y 4 párrafos largos). Usa subtítulos con '###' (ej. '### El impacto social') para darle estructura al texto. Habla de la noticia e intégrala con la visión del cine con propósito."
 }`;
 
-    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${groqApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: [
-          { role: "system", content: systemPrompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 1500,
-        response_format: { type: "json_object" }
-      }),
-    });
+    let generatedPost: any = null;
+    const geminiKeyToUse = process.env.GEMINI_API_KEY;
+    if (geminiKeyToUse) {
+      try {
+        const gemRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${geminiKeyToUse}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: systemPrompt + "\n\nResponde ÚNICAMENTE con el objeto JSON solicitado, sin markdown adicional." }] }],
+            generationConfig: { responseMimeType: "application/json" }
+          })
+        });
+        if (gemRes.ok) {
+          const gemData = await gemRes.json();
+          const textRaw = gemData.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (textRaw) {
+            generatedPost = JSON.parse(textRaw);
+          }
+        }
+      } catch (e) {
+        console.error("Gemini error en generar-post, fallback a Groq:", e);
+      }
+    }
 
-    if (!groqResponse.ok) {
-      const errText = await groqResponse.text();
+    if (!generatedPost && groqApiKey) {
+      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${groqApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama-3.1-8b-instant",
+          messages: [
+            { role: "system", content: systemPrompt }
+          ],
+          temperature: 0.7,
+          max_tokens: 1500,
+          response_format: { type: "json_object" }
+        }),
+      });
+
+      if (groqResponse.ok) {
+        const groqData = await groqResponse.json();
+        generatedPost = JSON.parse(groqData.choices[0].message.content);
+      }
+    }
+
+    if (!generatedPost) {
       return NextResponse.json(
-        { error: `Error en Groq API: ${errText}` },
+        { error: "Error al generar artículo con IA. Por favor, reintenta." },
         { status: 502 }
       );
     }
-
-    const groqData = await groqResponse.json();
-    const generatedPost = JSON.parse(groqData.choices[0].message.content);
 
     // Complementar con la fecha actual
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
