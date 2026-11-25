@@ -49,7 +49,7 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
+          model: "llama-3.1-8b-instant",
           messages: [{ role: "system", content: systemPrompt }],
           temperature: 0.7,
           max_tokens: 1500,

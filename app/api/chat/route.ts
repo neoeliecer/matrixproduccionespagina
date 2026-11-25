@@ -56,7 +56,7 @@ Ejemplo: "¡Perfecto, Carlos! He agendado tus datos... [REGISTRAR_CLIENTE: Carlo
 Mantén tus respuestas elegantes, organizadas con negritas de WhatsApp/Markdown, con saltos de línea legibles y no demasiado largas.`;
 
     const payload = {
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-8b-instant",
       messages: [
         { role: "system", content: systemPrompt },
         ...messages
