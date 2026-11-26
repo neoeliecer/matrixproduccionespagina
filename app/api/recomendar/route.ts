@@ -1,6 +1,60 @@
 import { NextResponse } from "next/server";
 import { generateJson } from "@/lib/ai";
 
+// GET: devuelve las recomendaciones en tiempo real desde GitHub, para que la
+// página /recomendadas muestre lo publicado sin esperar un nuevo despliegue.
+export async function GET() {
+  const githubToken = process.env.GITHUB_TOKEN;
+  const repoOwner = "neoeliecer";
+  const repoName = "matrixproduccionespagina";
+  const filePath = "data/recommendations.json";
+  const githubApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+  let recommendations: any[] = [];
+
+  if (githubToken) {
+    try {
+      const response = await fetch(githubApiUrl, {
+        headers: {
+          Authorization: `token ${githubToken}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "NextJS-Blog-CMS",
+        },
+        cache: "no-store",
+      });
+      if (response.ok) {
+        const fileData = await response.json();
+        const decodedContent = Buffer.from(fileData.content, "base64").toString("utf-8");
+        recommendations = JSON.parse(decodedContent);
+      }
+    } catch (e) {
+      console.error("Error leyendo recommendations.json de GitHub:", e);
+    }
+  }
+
+  // Fallback: datos locales incluidos en el build
+  if (recommendations.length === 0) {
+    try {
+      const local = await import("@/data/recommendations.json");
+      recommendations = local.default;
+    } catch (e) {
+      console.error("Error leyendo recommendations.json local:", e);
+    }
+  }
+
+  if (recommendations.length === 0) {
+    return NextResponse.json(
+      { error: "No se pudieron cargar las recomendaciones." },
+      { status: 502 }
+    );
+  }
+
+  return NextResponse.json(
+    { recommendations },
+    { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } }
+  );
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));

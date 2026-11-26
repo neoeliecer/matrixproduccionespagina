@@ -84,6 +84,25 @@ async function savePosts(posts: any[], sha?: string, githubToken?: string) {
   return true;
 }
 
+// GET: devuelve los artículos en tiempo real desde GitHub, para que la web
+// muestre lo publicado sin necesidad de un nuevo despliegue.
+export async function GET() {
+  const githubToken = process.env.GITHUB_TOKEN;
+  const { posts } = await getPosts(githubToken);
+
+  if (posts.length === 0) {
+    return NextResponse.json(
+      { error: "No se pudieron cargar los artículos." },
+      { status: 502 }
+    );
+  }
+
+  return NextResponse.json(
+    { posts },
+    { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } }
+  );
+}
+
 export async function PUT(request: Request) {
   try {
     const body = await request.json();

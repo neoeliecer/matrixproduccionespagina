@@ -26,6 +26,31 @@ export default function Admin() {
   const [events, setEvents] = useState(eventsData);
   const [galerias, setGalerias] = useState(galeriasData);
 
+  // Cargar artículos y recomendaciones en tiempo real desde GitHub al abrir el panel
+  useEffect(() => {
+    const loadFreshData = async () => {
+      try {
+        const [postsRes, recsRes] = await Promise.all([
+          fetch("/api/posts", { cache: "no-store" }),
+          fetch("/api/recomendar", { cache: "no-store" }),
+        ]);
+        if (postsRes.ok) {
+          const data = await postsRes.json();
+          if (Array.isArray(data.posts) && data.posts.length > 0) setPosts(data.posts);
+        }
+        if (recsRes.ok) {
+          const data = await recsRes.json();
+          if (Array.isArray(data.recommendations) && data.recommendations.length > 0) {
+            setRecommendations(data.recommendations);
+          }
+        }
+      } catch (e) {
+        console.warn("No se pudieron cargar los datos en tiempo real:", e);
+      }
+    };
+    loadFreshData();
+  }, []);
+
   const [eventTitle, setEventTitle] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [eventDate, setEventDate] = useState("");

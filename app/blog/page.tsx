@@ -38,6 +38,25 @@ export default function Blog() {
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState(false);
 
+  // Cargar los artículos publicados en tiempo real desde GitHub,
+  // para que aparezcan al instante sin esperar un nuevo despliegue.
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const res = await fetch("/api/posts", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.posts) && data.posts.length > 0) {
+            setPosts(data.posts);
+          }
+        }
+      } catch (e) {
+        console.warn("No se pudieron cargar los artículos en tiempo real:", e);
+      }
+    };
+    loadPosts();
+  }, []);
+
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailInput || !emailInput.includes("@")) {
@@ -77,15 +96,20 @@ export default function Blog() {
       const params = new URLSearchParams(window.location.search);
       const postTitle = params.get("post");
       if (postTitle) {
-        const foundPost = postsData.find(
-          (p) => p.title.toLowerCase().trim() === postTitle.toLowerCase().trim()
-        );
+        // Busca tanto en los datos en tiempo recién cargados como en los estáticos
+        const foundPost =
+          posts.find(
+            (p) => p.title.toLowerCase().trim() === postTitle.toLowerCase().trim()
+          ) ||
+          postsData.find(
+            (p) => p.title.toLowerCase().trim() === postTitle.toLowerCase().trim()
+          );
         if (foundPost) {
           setSelectedPost(foundPost);
         }
       }
     }
-  }, []);
+  }, [posts]);
 
   // Helper to sanitize post title for CounterAPI
   const getPostKey = (title: string) => {

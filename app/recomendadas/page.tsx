@@ -13,6 +13,25 @@ export default function Recomendadas() {
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [likedFilms, setLikedFilms] = useState<Record<string, boolean>>({});
 
+  // Cargar las recomendaciones publicadas en tiempo real desde GitHub,
+  // para que aparezcan al instante sin esperar un nuevo despliegue.
+  useEffect(() => {
+    const loadRecommendations = async () => {
+      try {
+        const res = await fetch("/api/recomendar", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.recommendations) && data.recommendations.length > 0) {
+            setFilms(data.recommendations);
+          }
+        }
+      } catch (e) {
+        console.warn("No se pudieron cargar las recomendaciones en tiempo real:", e);
+      }
+    };
+    loadRecommendations();
+  }, []);
+
   const getFilmKey = (title: string) => {
     return title
       .toLowerCase()
