@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { generateText } from "@/lib/ai";
 
 export async function POST(request: Request) {
   try {
@@ -17,10 +18,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const groqApiKey = process.env.GROQ_API_KEY;
-
-    if (!groqApiKey) {
-      console.error("❌ ERROR: GROQ_API_KEY no está configurada en las variables de entorno.");
+    if (!process.env.GEMINI_API_KEY && !process.env.GROQ_API_KEY) {
+      console.error("❌ ERROR: No hay clave de IA configurada (GEMINI_API_KEY / GROQ_API_KEY).");
       return NextResponse.json({ error: "API de Inteligencia Artificial no configurada en el servidor." }, { status: 500 });
     }
 
@@ -55,33 +54,15 @@ Ejemplo: "¡Perfecto, Carlos! He agendado tus datos... [REGISTRAR_CLIENTE: Carlo
 
 Mantén tus respuestas elegantes, organizadas con negritas de WhatsApp/Markdown, con saltos de línea legibles y no demasiado largas.`;
 
-    const payload = {
-      model: "llama-3.1-8b-instant",
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...messages
-      ],
-      temperature: 0.7,
-      max_tokens: 800
-    };
-
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${groqApiKey}`
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error("Error en Groq API:", errorData);
+    let aiText: string;
+    try {
+      const result = await generateText(systemPrompt, messages);
+      aiText = result.data;
+      console.log(`✅ Chat respondido con ${result.provider}`);
+    } catch (e: any) {
+      console.error("Error de IA en chat:", e.message || e);
       return NextResponse.json({ error: "Error de comunicación con la IA." }, { status: 502 });
     }
-
-    const data = await response.json();
-    let aiText = data.choices[0].message.content || "";
 
     // 🔍 Detección del registro automático en Google Sheets
     const registerRegex = /\[REGISTRAR_CLIENTE:\s*(.*?),\s*(.*?)\]/;
