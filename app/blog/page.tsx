@@ -3,6 +3,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CinematicOverlay from "@/components/CinematicOverlay";
+import ShareButtons from "@/components/ShareButtons";
 import { useState, useEffect } from "react";
 import postsData from "@/data/posts.json";
 
@@ -37,6 +38,31 @@ export default function Blog() {
   const [unlockedPosts, setUnlockedPosts] = useState<string[]>([]);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState(false);
+
+  // Escala de tamaño de letra al leer (0 = normal, 1 = grande, 2 = muy grande)
+  const [readScale, setReadScale] = useState(0);
+  const [shareNotice, setShareNotice] = useState("");
+
+  // Guardar/cargar la preferencia de tamaño de lectura
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("blogReadScale");
+      if (saved !== null) setReadScale(parseInt(saved, 10) || 0);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("blogReadScale", String(readScale));
+    }
+  }, [readScale]);
+
+  // Aviso temporal de los botones de compartir
+  useEffect(() => {
+    if (!shareNotice) return;
+    const t = setTimeout(() => setShareNotice(""), 3000);
+    return () => clearTimeout(t);
+  }, [shareNotice]);
 
   // Cargar los artículos publicados en tiempo real desde GitHub,
   // para que aparezcan al instante sin esperar un nuevo despliegue.
@@ -501,12 +527,69 @@ export default function Blog() {
                 </h1>
               </div>
 
+              {/* Barra de lectura: compartir + tamaño de letra */}
+              <div className="flex flex-col gap-4 p-4 md:p-5 rounded-2xl bg-white/[0.02] border border-white/5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-[10px] uppercase tracking-[3px] font-bold text-white/40">
+                    Compartir:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase tracking-[3px] font-bold text-white/40">
+                      Letra
+                    </span>
+                    <button
+                      onClick={() => setReadScale((s) => Math.max(0, s - 1))}
+                      disabled={readScale === 0}
+                      title="Reducir tamaño de letra"
+                      className="w-9 h-9 rounded border border-white/10 text-white/70 hover:text-accent hover:border-accent/40 text-xs font-black transition-colors disabled:opacity-30 disabled:hover:text-white/70 disabled:hover:border-white/10 cursor-pointer"
+                    >
+                      A−
+                    </button>
+                    <button
+                      onClick={() => setReadScale((s) => Math.min(2, s + 1))}
+                      disabled={readScale === 2}
+                      title="Aumentar tamaño de letra"
+                      className="w-9 h-9 rounded border border-white/10 text-white/70 hover:text-accent hover:border-accent/40 text-base font-black transition-colors disabled:opacity-30 disabled:hover:text-white/70 disabled:hover:border-white/10 cursor-pointer"
+                    >
+                      A+
+                    </button>
+                  </div>
+                </div>
+                <ShareButtons
+                  title={selectedPost.title}
+                  compact
+                  onNotice={setShareNotice}
+                />
+                {shareNotice && (
+                  <p className="text-accent text-[10px] uppercase tracking-[2px] font-bold animate-fade-in">
+                    {shareNotice}
+                  </p>
+                )}
+              </div>
+
               {/* Render dynamic text with line breaks */}
-              <div className="text-white/70 text-base md:text-lg leading-relaxed font-light pt-6 border-t border-white/5 space-y-6">
+              <div
+                className={`text-white/85 leading-[1.9] font-normal pt-6 border-t border-white/5 space-y-7 transition-all ${
+                  readScale === 0
+                    ? "text-lg md:text-xl"
+                    : readScale === 1
+                    ? "text-xl md:text-2xl"
+                    : "text-2xl md:text-3xl"
+                }`}
+              >
                 {selectedPost.content.split("\n\n").map((para, pIdx) => {
                   if (para.startsWith("###")) {
                     return (
-                      <h3 key={pIdx} className="text-xl md:text-2xl font-bold uppercase text-white tracking-wide pt-4">
+                      <h3
+                        key={pIdx}
+                        className={`font-extrabold uppercase text-white tracking-wide pt-4 ${
+                          readScale === 0
+                            ? "text-2xl md:text-3xl"
+                            : readScale === 1
+                            ? "text-3xl md:text-4xl"
+                            : "text-4xl"
+                        }`}
+                      >
                         {para.replace("###", "").trim()}
                       </h3>
                     );
@@ -575,73 +658,23 @@ export default function Blog() {
                   <span className="text-[10px] uppercase tracking-[3px] font-bold text-white/40">
                     Compartir esta historia:
                   </span>
-                  <div className="flex flex-wrap gap-3">
-                  {/* WhatsApp */}
-                  <a
-                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                      `Mira este artículo de Matrix Producciones: "${selectedPost.title}" en ${
-                        typeof window !== "undefined"
-                          ? window.location.origin + "/blog?post=" + encodeURIComponent(selectedPost.title)
-                          : ""
-                      }`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-[#25D366]/10 hover:bg-[#25D366] text-[#25D366] hover:text-black border border-[#25D366]/30 hover:border-[#25D366] px-4 py-2.5 rounded text-[10px] uppercase font-extrabold tracking-[2px] transition-all duration-300 shadow-[0_0_15px_rgba(37,211,102,0.05)] hover:shadow-[0_0_15px_rgba(37,211,102,0.2)] cursor-pointer"
-                  >
-                    💬 WhatsApp
-                  </a>
-
-                  {/* Facebook */}
-                  <a
-                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                      typeof window !== "undefined"
-                        ? window.location.origin + "/blog?post=" + encodeURIComponent(selectedPost.title)
-                        : ""
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-[#1877F2]/10 hover:bg-[#1877F2] text-[#1877F2] hover:text-white border border-[#1877F2]/30 hover:border-[#1877F2] px-4 py-2.5 rounded text-[10px] uppercase font-extrabold tracking-[2px] transition-all duration-300 shadow-[0_0_15px_rgba(24,119,242,0.05)] hover:shadow-[0_0_15px_rgba(24,119,242,0.2)] cursor-pointer"
-                  >
-                    🔵 Facebook
-                  </a>
-
-                  {/* Twitter / X */}
-                  <a
-                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                      `Mira este artículo de Matrix Producciones: "${selectedPost.title}"`
-                    )}&url=${encodeURIComponent(
-                      typeof window !== "undefined"
-                        ? window.location.origin + "/blog?post=" + encodeURIComponent(selectedPost.title)
-                        : ""
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-white/5 hover:bg-white text-white hover:text-black border border-white/10 hover:border-white px-4 py-2.5 rounded text-[10px] uppercase font-extrabold tracking-[2px] transition-all duration-300 cursor-pointer"
-                  >
-                    🐦 Twitter / X
-                  </a>
-
-                  {/* Copy Link button */}
-                  <button
-                    onClick={() => {
-                      if (typeof navigator !== "undefined" && typeof window !== "undefined") {
-                        const copyUrl = window.location.origin + "/blog?post=" + encodeURIComponent(selectedPost.title);
-                        navigator.clipboard.writeText(copyUrl);
-                        alert("¡Enlace copiado al portapapeles con éxito!");
-                      }
-                    }}
-                    className="flex items-center gap-2 bg-accent/10 hover:bg-accent text-accent hover:text-black border border-accent/20 hover:border-accent px-4 py-2.5 rounded text-[10px] uppercase font-extrabold tracking-[2px] transition-all duration-300 shadow-[0_0_15px_rgba(0,255,136,0.05)] hover:shadow-[0_0_15px_var(--accent-glow)] cursor-pointer"
-                  >
-                    🔗 Copiar Enlace
-                  </button>
-                  </div>
+                  <ShareButtons
+                    title={selectedPost.title}
+                    onNotice={setShareNotice}
+                  />
+                  {shareNotice && (
+                    <p className="text-accent text-[10px] uppercase tracking-[2px] font-bold animate-fade-in sm:hidden">
+                      {shareNotice}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
           )}
 
           {/* ================= NEWSLETTER SUBSCRIPTION SECTION ================= */}
+          {/* En modo lectura de artículo se oculta para que se lea solo el artículo */}
+          {!selectedPost && (
           <div className="mt-32 max-w-4xl mx-auto border-t border-white/5 pt-20">
             <div className="bg-white/[0.01] border border-white/5 rounded-3xl p-8 md:p-16 backdrop-blur-xl relative overflow-hidden shadow-2xl group hover:border-accent/20 transition-all duration-500">
               {/* Decorative internal radial glow */}
@@ -749,6 +782,7 @@ export default function Blog() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </main>
 
