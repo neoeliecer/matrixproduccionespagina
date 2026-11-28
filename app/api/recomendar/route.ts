@@ -55,6 +55,130 @@ export async function GET() {
   );
 }
 
+// PUT: actualiza una recomendación existente en GitHub
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json().catch(() => ({}));
+    const { password, originalTitle, recommendation } = body;
+
+    const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+    const githubToken = process.env.GITHUB_TOKEN;
+
+    if (!password || password !== adminPassword) {
+      return NextResponse.json({ error: "Contraseña de administrador incorrecta." }, { status: 401 });
+    }
+
+    if (!recommendation || !recommendation.title || !recommendation.desc) {
+      return NextResponse.json({ error: "Datos de película incompletos." }, { status: 400 });
+    }
+
+    if (!githubToken) {
+      return NextResponse.json(
+        { error: "GITHUB_TOKEN no está configurada en el servidor." },
+        { status: 500 }
+      );
+    }
+
+    const repoOwner = "neoeliecer";
+    const repoName = "matrixproduccionespagina";
+    const filePath = "data/recommendations.json";
+    const githubApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+    // 1. Obtener el archivo actual desde GitHub
+    const getFileResponse = await fetch(githubApiUrl, {
+      headers: {
+        Authorization: `token ${githubToken}`,
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "NextJS-Blog-CMS",
+      },
+      cache: "no-store",
+    });
+
+    if (!getFileResponse.ok) {
+      return NextResponse.json(
+        { error: "No se pudo leer el catálogo de recomendaciones desde GitHub." },
+        { status: 502 }
+      );
+    }
+
+    const fileData = await getFileResponse.json();
+    const decodedContent = Buffer.from(fileData.content, "base64").toString("utf-8");
+    const currentRecommendations: any[] = JSON.parse(decodedContent);
+
+    // 2. Localizar la recomendación a actualizar (por título original)
+    const searchTitle = (originalTitle || recommendation.title).toLowerCase().trim();
+    const index = currentRecommendations.findIndex(
+      (item) => (item.title || "").toLowerCase().trim() === searchTitle
+    );
+
+    if (index === -1) {
+      return NextResponse.json(
+        { error: `No se encontró la recomendación "${originalTitle}" en el catálogo.` },
+        { status: 404 }
+      );
+    }
+
+    // 3. Actualizar los campos (conservando cualquier dato extra existente)
+    const updatedRecommendation = {
+      ...currentRecommendations[index],
+      title: recommendation.title.trim(),
+      director: recommendation.director?.trim() || "No especificado",
+      year: recommendation.year?.trim() || "No especificado",
+      value: recommendation.value?.trim() || "Cine Social",
+      category: recommendation.category?.trim() || "Autoayuda",
+      image:
+        recommendation.image?.trim() ||
+        currentRecommendations[index].image ||
+        "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800",
+      excerpt:
+        recommendation.excerpt?.trim() ||
+        currentRecommendations[index].excerpt ||
+        "",
+      desc: recommendation.desc.trim(),
+      trailerUrl: recommendation.trailerUrl?.trim() || "#",
+    };
+
+    currentRecommendations[index] = updatedRecommendation;
+
+    // 4. Guardar de vuelta en GitHub
+    const updatedContentBase64 = Buffer.from(
+      JSON.stringify(currentRecommendations, null, 2)
+    ).toString("base64");
+
+    const putFileResponse = await fetch(githubApiUrl, {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${githubToken}`,
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "NextJS-Blog-CMS",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: `🤖 AutoCMS: Recomendación actualizada: "${updatedRecommendation.title}"`,
+        content: updatedContentBase64,
+        sha: fileData.sha,
+        branch: "main",
+      }),
+    });
+
+    if (!putFileResponse.ok) {
+      const putErr = await putFileResponse.text();
+      return NextResponse.json(
+        { error: `Error guardando cambios en GitHub: ${putErr}` },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "¡Recomendación actualizada con éxito!",
+      recommendation: updatedRecommendation,
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Error interno del servidor" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
@@ -177,7 +301,8 @@ Debes devolver ÚNICAMENTE un objeto JSON válido con los campos exactos descrit
       value: recommendation.value?.trim() || "Cine Social",
       category: recommendation.category?.trim() || "Autoayuda",
       image: recommendation.image?.trim() || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800",
-      excerpt: recommendation.excerpt?.trim() || recommendation.desc.substring(0, 120) + "...",
+      excerpt: recommendation.excerpt?.trim() ||
+        recommendation.desc.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().substring(0, 120) + "...",
       desc: recommendation.desc.trim(),
       trailerUrl: recommendation.trailerUrl?.trim() || "#"
     };

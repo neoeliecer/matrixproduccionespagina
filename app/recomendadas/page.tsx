@@ -204,9 +204,22 @@ export default function Recomendadas() {
                         <span className="text-accent text-[9px] uppercase tracking-[2px] font-extrabold block">
                           Veredicto Matrix
                         </span>
-                        <p className="text-white/80 text-xs leading-relaxed font-light italic">
-                          "{film.desc}"
-                        </p>
+                        {/<[a-z][\s\S]*>/i.test(film.desc || "") ? (
+                          // Contenido enriquecido (negrita, títulos, listas...) escrito en el panel
+                          <div
+                            className="rich-content text-white/80 text-xs leading-relaxed font-light"
+                            dangerouslySetInnerHTML={{
+                              __html: (film.desc || "")
+                                .replace(/<script[\s\S]*?<\/script>/gi, "")
+                                .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
+                                .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, ""),
+                            }}
+                          />
+                        ) : (
+                          <p className="text-white/80 text-xs leading-relaxed font-light italic whitespace-pre-line">
+                            "{film.desc}"
+                          </p>
+                        )}
                       </div>
                     </div>
 

@@ -11,6 +11,7 @@ import convocatoriasData from "@/data/convocatorias.json";
 import recommendationsData from "@/data/recommendations.json";
 import eventsData from "@/data/events.json";
 import galeriasData from "@/data/galerias.json";
+import RichTextEditor, { stripHtml, textToHtml } from "@/components/RichTextEditor";
 
 export default function Admin() {
   const [password, setPassword] = useState("");
@@ -98,6 +99,21 @@ export default function Admin() {
   const [editPassword, setEditPassword] = useState("");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
+  // Edición de recomendaciones de cine (modal grande con editor enriquecido)
+  const [editingRec, setEditingRec] = useState<any>(null);
+  const [recEdit, setRecEdit] = useState({
+    title: "",
+    director: "",
+    year: "",
+    value: "",
+    category: "",
+    excerpt: "",
+    desc: "",
+    image: "",
+    trailerUrl: "",
+  });
+  const [isSavingRecEdit, setIsSavingRecEdit] = useState(false);
+
   const openCloudinaryWidget = () => {
     // @ts-ignore
     const widget = window.cloudinary.createUploadWidget(
@@ -161,6 +177,70 @@ export default function Admin() {
     setEditingType(type);
     setEditVisible(item.visible !== undefined ? item.visible : true);
     setEditPassword(item.password || "");
+  };
+
+  // Abrir el modal de edición de una recomendación de cine
+  const handleEditRecClick = (item: any) => {
+    setEditingRec(item);
+    setRecEdit({
+      title: item.title || "",
+      director: item.director || "",
+      year: item.year || "",
+      value: item.value || "",
+      category: item.category || "",
+      excerpt: item.excerpt || "",
+      // Convierte texto plano antiguo a HTML para que el editor lo muestre bien
+      desc: textToHtml(item.desc || ""),
+      image: item.image || "",
+      trailerUrl: item.trailerUrl || "",
+    });
+  };
+
+  // Guardar los cambios de una recomendación existente (PUT a GitHub)
+  const handleSaveRecEdit = async () => {
+    if (!recEdit.title.trim() || !stripHtml(recEdit.desc)) {
+      setMessage({ type: "error", text: "El título y el veredicto son obligatorios." });
+      return;
+    }
+
+    setIsSavingRecEdit(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch("/api/recomendar", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password,
+          originalTitle: editingRec.title,
+          recommendation: {
+            ...recEdit,
+            desc: stripHtml(recEdit.desc) ? recEdit.desc : "",
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setRecommendations(
+          recommendations.map((r: any) =>
+            r.title === editingRec.title ? data.recommendation : r
+          )
+        );
+        setMessage({
+          type: "success",
+          text: `¡Éxito! Recomendación "${data.recommendation.title}" actualizada en GitHub. La web se refrescará en un momento.`,
+        });
+        setEditingRec(null);
+      } else {
+        setMessage({ type: "error", text: data.error || "Error al actualizar la recomendación." });
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Error de conexión al guardar." });
+    } finally {
+      setIsSavingRecEdit(false);
+    }
   };
 
   const handleDelete = async (item: any, type: string) => {
@@ -238,7 +318,7 @@ export default function Admin() {
 
   const handleCreateRecommendation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!movieTitle || !movieDesc) {
+    if (!movieTitle || !stripHtml(movieDesc)) {
       setMessage({ type: "error", text: "Por favor, introduce el título y el veredicto de la película." });
       return;
     }
@@ -865,12 +945,12 @@ export default function Admin() {
 
                       <div className="flex flex-col gap-1">
                         <label className="text-[8px] uppercase tracking-[1px] font-bold text-white/40">Tu Enfoque / Opinión (Opcional)</label>
-                        <input
-                          type="text"
-                          placeholder="Ej. Resaltar amor paterno"
+                        <textarea
+                          rows={3}
+                          placeholder="Ej. Resaltar amor paterno..."
                           value={dashMovieOpinion}
                           onChange={(e) => setDashMovieOpinion(e.target.value)}
-                          className="bg-white/[0.02] border border-white/10 px-3 py-2 rounded text-white text-xs focus:outline-none focus:border-accent w-full"
+                          className="bg-white/[0.02] border border-white/10 px-3 py-2 rounded text-white text-xs focus:outline-none focus:border-accent w-full resize-y min-h-[72px]"
                         />
                       </div>
 
@@ -1066,12 +1146,12 @@ export default function Admin() {
 
                         <div className="flex flex-col gap-2">
                           <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Tu Enfoque / Opinión Personal (Opcional - Para guiar a la IA)</label>
-                          <input
-                            type="text"
+                          <textarea
+                            rows={3}
                             placeholder="Ej. Enfocar en la solidaridad grupal y cómo el amor familiar les dio fuerzas"
                             value={movieUserOpinion}
                             onChange={(e) => setMovieUserOpinion(e.target.value)}
-                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent"
+                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-y min-h-[80px]"
                           />
                         </div>
 
@@ -1140,13 +1220,11 @@ export default function Admin() {
 
                         <div className="flex flex-col gap-2">
                           <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Veredicto Matrix / Tu Crítica *</label>
-                          <textarea
-                            required
-                            rows={12}
-                            placeholder="Describe por qué recomiendas esta película y qué valores positivos aporta al espectador..."
+                          <RichTextEditor
                             value={movieDesc}
-                            onChange={(e) => setMovieDesc(e.target.value)}
-                            className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-xs focus:outline-none focus:border-accent resize-y min-h-[220px]"
+                            onChange={setMovieDesc}
+                            placeholder="Describe por qué recomiendas esta película y qué valores positivos aporta al espectador..."
+                            minHeight={320}
                           />
                         </div>
 
@@ -1205,6 +1283,12 @@ export default function Admin() {
                               </p>
                             </div>
                             <div className="flex gap-2">
+                              <button
+                                onClick={() => handleEditRecClick(item)}
+                                className="text-accent hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-accent/30 hover:bg-accent/10 px-3 py-1.5 rounded transition-colors"
+                              >
+                                Editar
+                              </button>
                               <button
                                 onClick={() => handleDelete(item, "movies")}
                                 className="text-[#ff4b4b] hover:text-white text-[9px] uppercase tracking-[2px] font-bold border border-[#ff4b4b]/30 hover:bg-[#ff4b4b]/20 px-3 py-1.5 rounded transition-colors"
@@ -1658,6 +1742,144 @@ export default function Admin() {
                 <button onClick={handleSaveEdit} disabled={isSavingEdit} className="w-full bg-accent text-black font-extrabold text-xs uppercase tracking-[3px] p-4 rounded hover:bg-[#00cc6a] transition-all shadow-[0_0_15px_rgba(0,255,135,0.2)] disabled:opacity-50">
                   {isSavingEdit ? "Guardando..." : "Guardar Cambios"}
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal grande de edición de recomendación de cine con propósito */}
+        {editingRec && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-2 md:p-6 backdrop-blur-sm">
+            <div className="bg-[#050505] border border-white/10 rounded-xl w-full max-w-5xl max-h-[95vh] overflow-y-auto shadow-2xl relative p-6 md:p-10">
+              <button
+                onClick={() => setEditingRec(null)}
+                className="absolute top-4 right-4 text-white/50 hover:text-white text-xl z-10"
+              >
+                ✕
+              </button>
+
+              <h3 className="text-lg font-extrabold uppercase text-white tracking-widest mb-1">
+                Editar Recomendación
+              </h3>
+              <p className="text-accent text-xs font-bold uppercase tracking-[2px] mb-6 break-all">
+                {editingRec.title}
+              </p>
+
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Título *</label>
+                    <input
+                      type="text"
+                      value={recEdit.title}
+                      onChange={(e) => setRecEdit({ ...recEdit, title: e.target.value })}
+                      className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-sm focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Director</label>
+                    <input
+                      type="text"
+                      value={recEdit.director}
+                      onChange={(e) => setRecEdit({ ...recEdit, director: e.target.value })}
+                      className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-sm focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Año</label>
+                    <input
+                      type="text"
+                      value={recEdit.year}
+                      onChange={(e) => setRecEdit({ ...recEdit, year: e.target.value })}
+                      className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-sm focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Valor Humano Destacado</label>
+                    <input
+                      type="text"
+                      value={recEdit.value}
+                      onChange={(e) => setRecEdit({ ...recEdit, value: e.target.value })}
+                      className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-sm focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Categoría / Género</label>
+                    <select
+                      value={recEdit.category}
+                      onChange={(e) => setRecEdit({ ...recEdit, category: e.target.value })}
+                      className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-sm focus:outline-none focus:border-accent w-full h-[46px]"
+                    >
+                      <option value="Documentales" className="bg-[#030303] text-white">Documentales</option>
+                      <option value="Espirituales" className="bg-[#030303] text-white">Espirituales</option>
+                      <option value="Ambientales" className="bg-[#030303] text-white">Ambientales</option>
+                      <option value="Biográficas" className="bg-[#030303] text-white">Biográficas</option>
+                      <option value="Historia" className="bg-[#030303] text-white">Historia</option>
+                      <option value="Autoayuda" className="bg-[#030303] text-white">Autoayuda</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">URL de Imagen</label>
+                    <input
+                      type="text"
+                      value={recEdit.image}
+                      onChange={(e) => setRecEdit({ ...recEdit, image: e.target.value })}
+                      className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-sm focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Resumen Corto</label>
+                    <input
+                      type="text"
+                      value={recEdit.excerpt}
+                      onChange={(e) => setRecEdit({ ...recEdit, excerpt: e.target.value })}
+                      className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-sm focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">Tráiler oficial (YouTube)</label>
+                    <input
+                      type="text"
+                      value={recEdit.trailerUrl}
+                      onChange={(e) => setRecEdit({ ...recEdit, trailerUrl: e.target.value })}
+                      className="bg-white/[0.02] border border-white/10 px-4 py-3 rounded text-white text-sm focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-[9px] uppercase tracking-[2px] font-bold text-white/40">
+                    Veredicto Matrix / Tu Crítica *
+                  </label>
+                  <RichTextEditor
+                    value={recEdit.desc}
+                    onChange={(html) => setRecEdit({ ...recEdit, desc: html })}
+                    placeholder="Escribe aquí el veredicto completo de la película..."
+                    minHeight={360}
+                  />
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-3 pt-2">
+                  <button
+                    onClick={handleSaveRecEdit}
+                    disabled={isSavingRecEdit}
+                    className="flex-1 bg-accent text-black font-extrabold text-xs uppercase tracking-[3px] p-4 rounded hover:bg-[#00cc6a] transition-all shadow-[0_0_15px_rgba(0,255,135,0.2)] disabled:opacity-50"
+                  >
+                    {isSavingRecEdit ? "Guardando..." : "Guardar Cambios"}
+                  </button>
+                  <button
+                    onClick={() => setEditingRec(null)}
+                    className="md:w-48 border border-white/10 text-white/60 hover:text-white font-extrabold text-xs uppercase tracking-[3px] p-4 rounded transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
